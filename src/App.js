@@ -1,57 +1,63 @@
-import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
-import './App.css';
+import React, { Fragment } from "react";
+
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import "react-toastify/dist/ReactToastify.css";
+
+import Home from "./pages/Home";
+import Users from "./pages/Users";
+
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ProtectedRoute from "./utils/ProtectedRoute";
+import Category from "./pages/Category/Category";
+import ShowCategory from "./pages/Category/ShowCategory";
+import EditCategory from "./pages/Category/EditCategory";
+import AddCategory from "./pages/Category/AddCategory";
+import { ToastContainer } from "react-toastify";
+import Brand from "./pages/Brand/Brand";
+import AddBrand from "./pages/Brand/AddBrand";
+import ShowBrand from "./pages/Brand/ShowBrand";
+import EditBrand from "./pages/Brand/EditBrand";
+import Product from "./pages/Product/Product";
+import ShowProduct from "./pages/Product/ShowProduct";
+import AddProduct from "./pages/Product/AddProduct";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
-    </div>
+    <Router>
+      <Fragment>
+        <Routes>
+          <Route exact path="/users" element={<ProtectedRoute />}>
+            <Route exact path="/users" element={<Users />} />
+          </Route>
+          <Route exact path="/register" element={<Register />} />
+          <Route exact path="/login" element={<Login />} />
+
+          <Route element={<ProtectedRoute />}>
+            <Route exact path="/dashboard" element={<Home />} />
+
+            {/* Category Routes */}
+            <Route exact path="/category" element={<Category />} />
+            <Route exact path="/addcategory" element={<AddCategory />} />
+            <Route exact path="/showcategory/:id" element={<ShowCategory />} />
+            <Route path="/editcategory/:id" element={<EditCategory />} />
+
+            {/* Brand Routes */}
+            <Route exact path="/brand" element={<Brand />} />
+            <Route exact path="/addbrand" element={<AddBrand />} />
+            <Route exact path="/showbrand/:id" element={<ShowBrand />} />
+            <Route exact path="/editbrand/:id" element={<EditBrand />} />
+
+            {/* Product Routes */}
+            <Route exact path="/product" element={<Product />} />
+            <Route exact path="/showproduct/:id" element={<ShowProduct />} />
+            <Route exact path="/addproduct" element={<AddProduct />} />
+            
+          </Route>
+        </Routes>
+        <ToastContainer />
+      </Fragment>
+    </Router>
   );
 }
 
