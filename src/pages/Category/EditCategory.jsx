@@ -46,7 +46,7 @@ const EditCategory = () => {
  
  
   const handleSubmit = async (values) => {
-       console.log(values);
+      //  console.log(values);
       const res = await dispatch(editCategory({"id": id,"updateData": values})).unwrap();
       if(res) {
         navigate('/category')

@@ -13,7 +13,7 @@ const getBrands = async () => {
 
 const saveBrand = async(data) => {
     try {
-        console.log(data)
+        // console.log(data)
         const res = await axiosInstance.post(API_URL+ "brands",data, {
             headers: {
               'Content-Type': 'multipart/form-data',
@@ -30,10 +30,10 @@ const getBrand = async (id) => {
     return res.data;
 }
 
-const updateBrandById = async(id,updatedData,deletedImages) => {
+const updateBrandById = async(id,updatedData) => {
     try {
         //  console.log({updatedData,updatedImages})
-        const res = await axiosInstance.patch(API_URL+ "brands/" + id ,{updatedData,deletedImages}, {
+        const res = await axiosInstance.patch(API_URL+ "brands/" + id ,updatedData, {
             headers: {
               'Content-Type': 'multipart/form-data',
             },});

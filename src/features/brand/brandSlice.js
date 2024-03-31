@@ -78,11 +78,12 @@ export const fetchBrandById = createAsyncThunk(
 
 export const updateBrand = createAsyncThunk(
   "brand/updateBrand",
-  async ({id,values,deletedImages},thunkAPI) => {
+  async ({id,values},thunkAPI) => {
     try {
      
-      const data = await BrandService.updateBrandById(id,values,deletedImages);
+      const data = await BrandService.updateBrandById(id,values);
     //   thunkAPI.dispatch(setMessage(data.message));
+    console.log(data);
       return data;
     } catch (error) {
       const message =

@@ -56,10 +56,12 @@ const EditBrand = () => {
   }, [dispatch]);
 
   const handleSubmit = async (values) => {
+     values.deletedImages = deletedImages
      console.log(values);
     
 
-    const res = await dispatch(updateBrand({id,  values, deletedImages})).unwrap();
+    const res = await dispatch(updateBrand({id,  values})).unwrap();
+    console.log(res);
     if (res) {
       toast.success("Brand updated successfully!");
       navigate("/brand");

@@ -55,7 +55,7 @@ const AddProduct = () => {
               <div className="row">
                 <Formik
                   initialValues={initialValues}
-                  //   validationSchema={addCategoryValidation}
+                     validationSchema={addCategoryValidation}
                   onSubmit={(values) => {
                     console.log(values);
                     handleSubmit(values);
