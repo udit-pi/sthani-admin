@@ -33,7 +33,7 @@ function App() {
           <Route exact path="/register" element={<Register />} />
           <Route exact path="/login" element={<Login />} />
 
-          <Route element={<ProtectedRoute />}>
+          <Route path="/" element={<ProtectedRoute />}>
             <Route exact path="/dashboard" element={<Home />} />
 
             {/* Category Routes */}

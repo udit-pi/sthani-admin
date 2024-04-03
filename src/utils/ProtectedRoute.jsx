@@ -24,7 +24,7 @@ const ProtectedRoute = ({ component: Component, ...rest }) => {
  } // Token is still valid
   
  useEffect(() => {
-       
+  // isAuthenticated()
     const interval = setInterval(() => {
         if (checkTokenExpiry()) {
           console.log('expired')
@@ -33,15 +33,16 @@ const ProtectedRoute = ({ component: Component, ...rest }) => {
       }, 1000); // Check token expiry every second
   
       return () => clearInterval(interval);
-    }, [dispatch]);
+    }, []);
    
     const isAuthenticated = () => {
       const token = localStorage.getItem('token');
-        const expirationTime = currentUser.tokens.access.expires;
-        console.log(token)
+        const expirationTime = currentUser?.tokens.access.expires;
+        // console.log(token)
         return token && expirationTime && new Date(expirationTime) > new Date();
       };
-    return ( isAuthenticated? <Outlet /> : <Navigate to="/login" />);
+    return ( isAuthenticated() ? <Outlet /> : <Navigate to="/login" />);
+    
 
 };
 
