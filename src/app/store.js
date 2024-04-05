@@ -3,6 +3,7 @@ import authReducer from '../features/auth/authSlice'
 import categoryReducer from '../features/category/categorySlice'
 import brandReducer from '../features/brand/brandSlice'
 import productSlice from '../features/product/productSlice'
+import propertySlice from '../features/properties/propertySlice';
 
 
 export const store = configureStore({
@@ -10,6 +11,7 @@ export const store = configureStore({
     auth: authReducer,
     category: categoryReducer,
     brand: brandReducer,
-    product: productSlice
+    product: productSlice,
+    property: propertySlice
   },
 });

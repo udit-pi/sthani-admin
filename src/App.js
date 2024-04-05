@@ -21,6 +21,9 @@ import EditBrand from "./pages/Brand/EditBrand";
 import Product from "./pages/Product/Product";
 import ShowProduct from "./pages/Product/ShowProduct";
 import AddProduct from "./pages/Product/AddProduct";
+import Properties from "./pages/Properties/Properties";
+import AddProperty from "./pages/Properties/AddProperty";
+import EditProperty from "./pages/Properties/EditProperty";
 
 function App() {
   return (
@@ -52,6 +55,11 @@ function App() {
             <Route exact path="/product" element={<Product />} />
             <Route exact path="/showproduct/:id" element={<ShowProduct />} />
             <Route exact path="/addproduct" element={<AddProduct />} />
+
+             {/* Product Routes */}
+            <Route exact path="/properties" element={<Properties />} />
+            <Route exact path="/addproperty" element={<AddProperty />} />
+            <Route exact path="/editProperty/:id" element={<EditProperty />} />
             
           </Route>
         </Routes>

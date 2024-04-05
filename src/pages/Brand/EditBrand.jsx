@@ -57,7 +57,7 @@ const EditBrand = () => {
 
   const handleSubmit = async (values) => {
      values.deletedImages = deletedImages
-     console.log(values);
+    //  console.log(values);
     
 
     const res = await dispatch(updateBrand({id,  values})).unwrap();

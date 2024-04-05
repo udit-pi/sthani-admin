@@ -28,8 +28,11 @@ export const addProductValidation = Yup.object({
   .of(
     Yup.object().shape({
       variantSKU: Yup.string().required("SKU is a required field"),
-      variantPrice: Yup.number().required('Price is a required field').positive(),
-      variantStock: Yup.number().required("Stock is a required field").positive(),
+      variantPrice: Yup.number().required('Price is a required field').positive("Price field must be a number"),
+      variantStock: Yup.number().required("Stock is a required field").positive("Stock filed must be a number"),
+      // variantDiscountedPrice: Yup.number()
+      // .positive()
+      // .lessThan(Yup.ref("variantPrice"), "Discounted price must be less than price"),
       
     })
   ),
@@ -56,9 +59,9 @@ export const addProductValidation = Yup.object({
       Yup.object().shape({
         name: Yup.string().required("Variant name is a required field"),
         options: Yup.array()
-          .of(Yup.string().required("Option is a required field")).min(1, "At least one option is required"),
+          .of(Yup.string().required("Option is a required field")),
       })
-    ).uniqueNames(({ path }) => `${path} must be unique`),
+    ),
  
     // .test("is-unique", "Variants must have unique names", function (value) {
       // if (!value) return true; // Skip validation if variants array is empty

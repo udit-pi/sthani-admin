@@ -13,6 +13,7 @@ import { addProductValidation } from "../../validations/addProductValidation";
 import { fetchAllCategories } from "../../features/category/categorySlice";
 import { useDispatch } from "react-redux";
 import { fetchAllBrands } from "../../features/brand/brandSlice";
+import { fetchAllProperties } from "../../features/properties/propertySlice";
 
 const AddProduct = () => {
   const dispatch = useDispatch();
@@ -26,6 +27,8 @@ const AddProduct = () => {
   const [filePreviews, setFilePreviews] = useState([]);
   const [showVariantField, setShowVariantField] = useState(false);
   const [variantErrors, setVariantErrors] = useState(true);
+  const [propertyOption, setPropertyOption] = useState([]);
+  const [showVariantPills, setShowVariantPills] = useState(false);
 
   // const brandOptions = []
   const catOptions = [];
@@ -35,15 +38,17 @@ const AddProduct = () => {
     description: "",
     field: "",
     variants: [],
-    productVariant: [{ variantSKU: '', variantPrice: '', variantStock: '' }] ,
+    productVariant: [
+     
+    ],
     options: [
       { name: "Size", values: [] },
       { name: "Color", values: [] },
     ],
     files: [],
     // variants: [
-    //   { name: "Color", options: ["Red", "Blue"] },
-    //   { name: "Size", options: ["Small", "Medium", "Large"] },
+    //   { name: "", options: [] },
+
     // ],
   };
 
@@ -68,18 +73,26 @@ const AddProduct = () => {
     setBrandOption(res);
   };
 
+  const fetchProperty = async () => {
+    const res = await dispatch(fetchAllProperties()).unwrap();
+    // console.log(res);
+    setPropertyOption(res);
+  };
+
   useEffect(() => {
     fetchBrand();
+    fetchProperty();
   }, [dispatch]);
+  // console.log(propertyOption);
 
   const capitalize = (str) => {
     return str[0].toUpperCase() + str.slice(1);
   };
 
-  const handleSubmit = async (values) => {
-    // console.log(values);
+  const handleSubmit = async (values, errors) => {
+    console.log(errors);
     console.log(selectedVariants);
-    // console.log(errors)
+    //  console.log(errors)
     // const res = await dispatch(addCategory(values)).unwrap();
     // if(res) {
     //   toast.success('Category created successfully!')
@@ -88,18 +101,127 @@ const AddProduct = () => {
   };
 
   const handleVariantSubmission = (values, errors) => {
-    //  console.log(values);
+    //  console.log(errors);
     if (errors.variants) {
       setVariantErrors(true);
     } else {
       setVariantErrors(false);
     }
+    console.log(values.variants);
+    console.log(addedVariants);
+    const filteredVariants = values.variants.filter((variant) => {
+      // Check if variant name exists in addedVariants
+      // if(variant.name === 'Custom') {
+      //   return !addedVariants.some(addedVariant => addedVariant.name === variant.customName);
+      // }
+      // return !addedVariants.some(addedVariant => addedVariant.name === variant.name);
 
+      // if (variant) {
+      //   // Check if the variant with the same name already exists in addedVariants
+
+      //   const variantExists = addedVariants.some(property => property.name === variant.name || (variant.name === "Custom" && variant.customName === property.name));
+      //   console.log(variantExists)
+      //   if (!variantExists) {
+      //     console.log(variant);
+      //     if(variant.name === 'Custom') {
+      //       let updatedOptions = [...variant.options];
+      //       setAddedVariants([...addedVariants, { name: variant.customName, options: updatedOptions }]);
+      //     } else {
+      //       setAddedVariants([...addedVariants, { name: variant.name, options: variant.options }]);
+      //     }
+
+      //   } else {
+      //     console.log("Variant already exists:", variant.name);
+      //     // Handle the case where the variant already exists, such as showing an error message
+      //   }
+      // }
+
+      if (variant) {
+        // Check if the variant with the same name already exists in addedVariants
+        const existingVariantIndex = addedVariants.findIndex(
+          (property) =>
+            property.name === variant.name ||
+            (variant.name === "Custom" && variant.customName === property.name)
+        );
+        if (existingVariantIndex === -1) {
+          // Variant does not exist, add it to addedVariants
+          let newVariant;
+          if (variant.name === "Custom") {
+            newVariant = {
+              name: variant.customName,
+              options: [...variant.options],
+            };
+          } else {
+            newVariant = { name: variant.name, options: [...variant.options] };
+          }
+          setAddedVariants([...addedVariants, newVariant]);
+        } else {
+          // Variant already exists, update its options
+          const updatedVariants = addedVariants.map((variantItem, index) => {
+            if (index === existingVariantIndex) {
+              const mergedOptions = [
+                ...new Set([...variantItem.options, ...variant.options]),
+              ];
+              return { ...variantItem, options: mergedOptions };
+            }
+            return variantItem;
+          });
+          setAddedVariants(updatedVariants);
+        }
+      } else {
+        console.log("Variant is invalid:", variant);
+        // Handle the case where the variant is invalid, such as showing an error message
+      }
+    });
+    // console.log(filteredVariants)
+    // setAddedVariants([...addedVariants, ...filteredVariants]);
+    // setAddedVariants(prevAddedVariants => [...prevAddedVariants, ...filteredVariants]);
+    // setAddedVariants(updatedVariants)
+    // console.log(addedVariants)
+    //   setAddedVariants([...addedVariants, ...filteredVariants]);
+    //  console.log(addedVariants)
+
+    // setShowVariantPills(true)
+    // console.log(addedVariants)
+
+    // const variantNames = [];
+    //   console.log(selectedVariants);
+    //   const options = addedVariants?.map((variant) => variant.options);
+
+    //   const generateVariantNames = (currentIndex, currentName) => {
+    //     if (currentIndex === addedVariants.length) {
+    //       variantNames.push(currentName.trim());
+    //     } else {
+    //       options[currentIndex].forEach((option) => {
+    //         const newName = currentName + option + " ";
+    //         generateVariantNames(currentIndex + 1, newName);
+    //       });
+    //     }
+    //   };
+    //   generateVariantNames(0, "");
+    //   //  console.log(values.variant)
+    //   const addedVariantOptions = [];
+    //   addedVariants?.map((variant) => {
+    //     variant.options?.map((option) => {
+    //       // console.log(option)
+    //       addedVariantOptions.push(option);
+    //     });
+    //   });
+
+    //   setVariantOptions(addedVariantOptions);
+    //   setSelectedVariants(variantNames);
+
+    setShowVariant(true);
+  };
+
+  // useEffect to perform actions dependent on addedVariants
+  useEffect(() => {
     const variantNames = [];
-    const options = values.variants.map((variant) => variant.options);
+    // console.log(addedVariants);
+    const options = addedVariants?.map((variant) => variant.options);
 
     const generateVariantNames = (currentIndex, currentName) => {
-      if (currentIndex === values.variants.length) {
+      if (currentIndex === addedVariants.length) {
         variantNames.push(currentName.trim());
       } else {
         options[currentIndex].forEach((option) => {
@@ -111,7 +233,7 @@ const AddProduct = () => {
     generateVariantNames(0, "");
     //  console.log(values.variant)
     const addedVariantOptions = [];
-    values.variants?.map((variant) => {
+    addedVariants?.map((variant) => {
       variant.options?.map((option) => {
         // console.log(option)
         addedVariantOptions.push(option);
@@ -120,10 +242,7 @@ const AddProduct = () => {
 
     setVariantOptions(addedVariantOptions);
     setSelectedVariants(variantNames);
-    setAddedVariants(values.variants);
-    setShowVariant(true);
-  };
-  console.log(selectedVariants);
+  }, [addedVariants]);
 
   const renderVariantsByGroup = (groupName) => {
     return selectedVariants
@@ -145,6 +264,7 @@ const AddProduct = () => {
 
   const handleReset = () => {
     setShowVariant(false);
+    // console.log()
   };
 
   // console.log(addedVariants);
@@ -162,6 +282,48 @@ const AddProduct = () => {
     setSelectedVariants(filteredVariants);
     // setAddedVariants(filteredAddedVariants)
     setVariantOptions(filteredOptions);
+  };
+
+  const handleSelectChange = (e, index) => {
+    // e.preventDefault();
+
+    // console.log(e.target.value);
+    // console.log(propertyOption)
+
+    const variant = propertyOption?.find(
+      (property) => property.name === e.target.value
+    );
+
+    if (variant) {
+      // Check if the variant with the same name already exists in addedVariants
+      const variantExists = addedVariants.some(
+        (property) =>
+          property.name === variant.name ||
+          (property.name === "Custom" && property.customName === variant.name)
+      );
+
+      if (!variantExists) {
+        // console.log(variant);
+        setAddedVariants([
+          ...addedVariants,
+          { name: variant.name, options: variant.options },
+        ]);
+      } else {
+        console.log("Variant already exists:", variant.name);
+        // Handle the case where the variant already exists, such as showing an error message
+      }
+    }
+
+    // console.log(addedVariants);
+    //  setShowVariant(true);
+  };
+
+  const handleVariantDelete = (values, index) => {
+    // console.log(index)
+    setAddedVariants((prevVariants) =>
+      prevVariants.filter((_, i) => i !== index)
+    );
+    // setAddedVariants(values.variants)
   };
 
   return (
@@ -184,10 +346,12 @@ const AddProduct = () => {
                 <Formik
                   initialValues={initialValues}
                   validationSchema={addProductValidation}
-                  validateOnSubmit={true}
+                  // validateOnChange={true}
+                  // validateOnBlur={true}
+                  // validateOnSubmit={true}
                   onSubmit={(values, errors) => {
-                    console.log(errors);
-                    handleSubmit(values);
+                    // console.log(errors);
+                    handleSubmit(values, errors);
                   }}
                 >
                   {({
@@ -728,16 +892,41 @@ const AddProduct = () => {
                                                           name={`variants[${index}].name`}
                                                           placeholder="Variant Name"
                                                           className="form-select"
+                                                          onChange={(e) => {
+                                                            setFieldValue(
+                                                              `variants[${index}].name`,
+                                                              e.target.value
+                                                            );
+                                                            handleSelectChange(
+                                                              e,
+                                                              index
+                                                            );
+                                                          }}
                                                         >
                                                           <option value="">
                                                             Select Variant
                                                           </option>
-                                                          <option value="Color">
+                                                          {/* <option value="Color">
                                                             Color
                                                           </option>
                                                           <option value="Size">
                                                             Size
-                                                          </option>
+                                                          </option> */}
+                                                          {propertyOption.map(
+                                                            (property) => {
+                                                              return (
+                                                                <option
+                                                                  value={
+                                                                    property.name
+                                                                  }
+                                                                >
+                                                                  {
+                                                                    property.name
+                                                                  }
+                                                                </option>
+                                                              );
+                                                            }
+                                                          )}
                                                           <option value="Custom">
                                                             Custom
                                                           </option>
@@ -760,9 +949,13 @@ const AddProduct = () => {
                                                         )}
                                                         <button
                                                           type="button"
-                                                          onClick={() =>
-                                                            remove(index)
-                                                          }
+                                                          onClick={() => {
+                                                            remove(index);
+                                                            handleVariantDelete(
+                                                              values,
+                                                              index
+                                                            );
+                                                          }}
                                                           className="btn btn-sm btn-danger mt-2 ms-2"
                                                         >
                                                           <span>
@@ -785,79 +978,82 @@ const AddProduct = () => {
 
                                                       {variant.name && (
                                                         <div className="mt-2 mb-2">
-                                                          <FieldArray
-                                                            name={`variants[${index}].options`}
-                                                          >
-                                                            {({
-                                                              push: pushOption,
-                                                              remove:
-                                                                removeOption,
-                                                            }) => (
-                                                              <>
-                                                                {variant.options.map(
-                                                                  (
-                                                                    option,
-                                                                    optionIndex
-                                                                  ) => (
-                                                                    <>
-                                                                      <div
-                                                                        key={
-                                                                          optionIndex
-                                                                        }
-                                                                        className="d-flex justify-content-start mt-2"
-                                                                      >
-                                                                        <Field
-                                                                          name={`variants[${index}].options[${optionIndex}]`}
-                                                                          placeholder="Option"
-                                                                          className="form-control"
-                                                                          style={{
-                                                                            width:
-                                                                              "300px",
-                                                                          }}
-                                                                        />
-
-                                                                        <button
-                                                                          type="button"
-                                                                          onClick={() =>
-                                                                            removeOption(
-                                                                              optionIndex
-                                                                            )
+                                                          {variant.name ===
+                                                            "Custom" && (
+                                                            <FieldArray
+                                                              name={`variants[${index}].options`}
+                                                            >
+                                                              {({
+                                                                push: pushOption,
+                                                                remove:
+                                                                  removeOption,
+                                                              }) => (
+                                                                <>
+                                                                  {variant.options.map(
+                                                                    (
+                                                                      option,
+                                                                      optionIndex
+                                                                    ) => (
+                                                                      <>
+                                                                        <div
+                                                                          key={
+                                                                            optionIndex
                                                                           }
-                                                                          className="btn btn-sm btn-danger ms-2"
+                                                                          className="d-flex justify-content-start mt-2"
                                                                         >
-                                                                          <span>
-                                                                            <FontAwesomeIcon
-                                                                              icon={
-                                                                                faTrash
-                                                                              }
-                                                                            />
-                                                                          </span>
-                                                                        </button>
-                                                                      </div>
-                                                                      <ErrorMessage
-                                                                        name={`variants.${index}.options.${optionIndex}`}
-                                                                        component="div"
-                                                                        className="text-danger"
-                                                                      />
-                                                                    </>
-                                                                  )
-                                                                )}
+                                                                          <Field
+                                                                            name={`variants[${index}].options[${optionIndex}]`}
+                                                                            placeholder="Option"
+                                                                            className="form-control"
+                                                                            style={{
+                                                                              width:
+                                                                                "300px",
+                                                                            }}
+                                                                          />
 
-                                                                <button
-                                                                  type="button"
-                                                                  onClick={() => {
-                                                                    pushOption(
-                                                                      ""
-                                                                    );
-                                                                    console.log();
-                                                                  }}
-                                                                  className="btn btn-sm btn-success mt-2"
-                                                                >
-                                                                  Add Option
-                                                                </button>
-                                                              </>
-                                                            )}
-                                                          </FieldArray>
+                                                                          <button
+                                                                            type="button"
+                                                                            onClick={() => {
+                                                                              removeOption(
+                                                                                optionIndex
+                                                                              );
+                                                                            }}
+                                                                            className="btn btn-sm btn-danger ms-2"
+                                                                          >
+                                                                            <span>
+                                                                              <FontAwesomeIcon
+                                                                                icon={
+                                                                                  faTrash
+                                                                                }
+                                                                              />
+                                                                            </span>
+                                                                          </button>
+                                                                        </div>
+                                                                        <ErrorMessage
+                                                                          name={`variants.${index}.options.${optionIndex}`}
+                                                                          component="div"
+                                                                          className="text-danger"
+                                                                        />
+                                                                      </>
+                                                                    )
+                                                                  )}
+
+                                                                  <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                      pushOption(
+                                                                        ""
+                                                                      );
+                                                                      console.log();
+                                                                    }}
+                                                                    className="btn btn-sm btn-success mt-2"
+                                                                  >
+                                                                    Add Option
+                                                                  </button>
+                                                                </>
+                                                              )}
+                                                            </FieldArray>
+                                                          )}
                                                         </div>
                                                       )}
                                                     </div>
@@ -870,7 +1066,7 @@ const AddProduct = () => {
                                           <button
                                             type="button"
                                             onClick={() => {
-                                              console.log(errors);
+                                              // console.log(errors);
                                               setShowVariantField(true);
                                               push({ name: "", options: [] });
                                             }}
@@ -917,7 +1113,7 @@ const AddProduct = () => {
                                                   htmlFor="published"
                                                   className="form-label"
                                                 >
-                                                  {selectedVariant.name ==
+                                                  {selectedVariant.name ===
                                                   "Custom"
                                                     ? selectedVariant.customName
                                                     : selectedVariant.name}
@@ -960,153 +1156,142 @@ const AddProduct = () => {
 
                                 {showVariant && (
                                   <FieldArray name="productVariant">
-                                  <div className="row  table-responsive">
-                                    <table class="table">
-                                      <thead>
-                                        <tr>
-                                          {/* <th scope="col">#</th> */}
-                                          <th
-                                            scope="col"
-                                            style={{ width: "200px" }}
-                                          >
-                                            Variant
-                                          </th>
-                                          <th
-                                            scope="col"
-                                            style={{ width: "100px" }}
-                                          >
-                                            SKU
-                                          </th>
-                                          <th
-                                            scope="col"
-                                            style={{ width: "100px" }}
-                                          >
-                                            Price
-                                          </th>
-                                          <th
-                                            scope="col"
-                                            style={{ width: "100px" }}
-                                          >
-                                            Stock
-                                          </th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
+                                    <div className="row table-responsive">
+                                      <table className="table">
+                                        <thead>
+                                          <tr>
+                                            {/* <th scope="col">#</th> */}
+                                            <th
+                                              scope="col"
+                                              style={{ width: "200px" }}
+                                            >
+                                              Variant
+                                            </th>
+                                            <th
+                                              scope="col"
+                                              style={{ width: "100px" }}
+                                            >
+                                              SKU
+                                            </th>
+                                            <th
+                                              scope="col"
+                                              style={{ width: "100px" }}
+                                            >
+                                              Price
+                                            </th>
+                                            <th
+                                              scope="col"
+                                              style={{ width: "100px" }}
+                                            >
+                                              Stock
+                                            </th>
+                                            <th
+                                              scope="col"
+                                              style={{ width: "100px" }}
+                                            >
+                                              Discounted Price
+                                            </th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          {selectedVariants?.map(
+                                            (variant, productIndex) => {
+                                              return (
+                                                <tr key={productIndex}>
+                                                  <td
+                                                    style={{ width: "200px" }}
+                                                  >
+                                                    {/* {variant} */}
+                                                    <Field
+                                                      type="text"
+                                                      value={variant}
+                                                      name={`productVariant[${productIndex}].variantName`}
+                                                    />
+                                                  </td>
 
-                                        {selectedVariants?.map(
-                                          (variant, index) => {
-                                            return (
-
-                                              <tr>
-                                                <td style={{ width: "200px" }}>
-                                                  {/* {variant} */}
-                                                  <Field
-                                                    type="text"
-                                                    value={variant}
-                                                    name={`productVariant.${index}.variantName`}
-                                                  />
-                                                  {/* <ErrorMessage
-                                                        name={`productVariant.${index}.variantName`}
-                                                        component="div"
-                                                        className="text-danger"
-                                                      /> */}
-                                                  {/* {`errors.productVariant[${index}].variantName` && (
+                                                  <td>
+                                                    <Field
+                                                      type="text"
+                                                      name={`productVariant[${productIndex}].variantSKU`}
+                                                    />
+                                                    {/* {errors.productVariant &&
+                                                      errors.productVariant[
+                                                        productIndex
+                                                      ] &&
+                                                      errors.productVariant[
+                                                        productIndex
+                                                      ].variantSKU && (
                                                         <small className="text-danger">
-                                                          {`errors.productVariant[${index}].variantName`}
+                                                          {
+                                                            errors
+                                                              .productVariant[
+                                                              productIndex
+                                                            ].variantSKU
+                                                          }
                                                         </small>
                                                       )} */}
-                                                </td>
 
-                                                <td>
-                                                  <Field
-                                                    type="text"
-                                                    name={`productVariant${index}.variantSKU`}
-                                                  />
-                                                  {/* {errors.productVariant &&
-                                                    errors.productVariant[index] &&
-                                                    errors.productVariant[index]
-                                                      .variantSKU && (
-                                                      <div className="text-danger">
-                                                        {
-                                                          errors
-                                                            .productVariant[index]
-                                                            .variantSKU
-                                                        }
-                                                      </div>
-                                                    )} */}
-                                                     <ErrorMessage
-                                                        name={`productVariant.${index}.variantSKU`}
-                                                        component="div"
-                                                        className="text-danger"
-                                                      />
-                                                </td>
-                                                <td>
-                                                  <Field
-                                                    type="number"
-                                                    name={`productVariant.${index}.variantPrice`}
-                                                  />
-                                                 {/* {errors.productVariant &&
-                                                    errors.productVariant[index] &&
-                                                    errors.productVariant[index]
-                                                      .variantPrice && (
-                                                      <div className="text-danger">
-                                                        {
-                                                          errors
-                                                            .productVariant[index]
-                                                            .variantPrice
-                                                        }
-                                                      </div>
-                                                    )} */}
                                                     <ErrorMessage
-                                                        name={`productVariant.${index}.variantPrice`}
-                                                        component="div"
-                                                        className="text-danger"
-                                                      />
-                                                </td>
-                                                <td>
-                                                  <Field
-                                                    type="number"
-                                                    name={`productVariant.${index}.variantStock`}
-                                                  />
-                                                   {/* {errors.productVariant &&
-                                                    errors.productVariant[index] &&
-                                                    errors.productVariant[index]
-                                                      .variantStock && (
-                                                      <div className="text-danger">
-                                                        {
-                                                          errors
-                                                            .productVariant[index]
-                                                            .variantStock
-                                                        }
-                                                      </div>
-                                                    )} */}
-                                                     <ErrorMessage
-                                                        name={`productVariant.${index}.variantStock`}
-                                                        component="div"
-                                                        className="text-danger"
-                                                      />
-                                                </td>
-                                              </tr>
+                                                      name={`productVariant.${productIndex}.variantSKU`}
+                                                      component="div"
+                                                      className="text-danger"
+                                                    />
+                                                  </td>
+                                                  <td>
+                                                    <Field
+                                                      type="number"
+                                                      name={`productVariant[${productIndex}].variantPrice`}
+                                                    />
 
-                                            );
-                                          }
-                                        )}
+                                                    <ErrorMessage
+                                                      name={`productVariant.${productIndex}.variantPrice`}
+                                                      component="div"
+                                                      className="text-danger"
+                                                    />
+                                                  </td>
+                                                  <td>
+                                                    <Field
+                                                      type="number"
+                                                      name={`productVariant[${productIndex}].variantStock`}
+                                                    />
 
-                                      </tbody>
-                                    </table>
+                                                    <ErrorMessage
+                                                      name={`productVariant.${productIndex}.variantStock`}
+                                                      component="div"
+                                                      className="text-danger"
+                                                    />
+                                                  </td>
+                                                  <td>
+                                                    <Field
+                                                      type="number"
+                                                      name={`productVariant[${productIndex}].variantDiscountedPrice`}
+                                                    />
 
-                                    <button
-                                      className="btn btn-sm btn-warning"
-                                      onClick={() => {
-                                        handleReset();
-                                        console.log(errors);
-                                      }}
-                                    >
-                                      Edit Variants
-                                    </button>
-                                  </div>
-                                   </FieldArray>
-                                 
+                                                    <ErrorMessage
+                                                      name={`productVariant.${productIndex}.variantDiscountedPrice`}
+                                                      component="div"
+                                                      className="text-danger"
+                                                    />
+                                                  </td>
+                                                </tr>
+                                              );
+                                            }
+                                          )}
+                                        </tbody>
+                                      </table>
+
+                                      <button
+                                        className="btn btn-sm btn-warning"
+                                        onClick={() => {
+                                          handleReset();
+                                          console.log(errors);
+                                          console.log(values);
+                                        }}
+                                      >
+                                        Edit Variants
+                                      </button>
+                                    </div>
+                                  </FieldArray>
                                 )}
                               </div>
                             </div>
