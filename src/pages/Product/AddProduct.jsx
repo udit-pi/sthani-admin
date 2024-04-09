@@ -3,7 +3,7 @@ import { Formik, Form, Field, FieldArray, ErrorMessage } from "formik";
 import Layout from "../../components/layouts/Layout";
 import QuillEditor from "../../components/Editor";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faUpload } from "@fortawesome/free-solid-svg-icons";
 import MultiSelectDropdown from "../../components/MultiSelectDropDown";
 import MultipleKeywordInput from "../../components/MultipleKeywordInput";
 import VariantSelect from "../../components/VariantSelect";
@@ -29,6 +29,8 @@ const AddProduct = () => {
   const [variantErrors, setVariantErrors] = useState(true);
   const [propertyOption, setPropertyOption] = useState([]);
   const [showVariantPills, setShowVariantPills] = useState(false);
+  const [showDone, setShowDone] = useState(false);
+  const [images, setImages] = useState([]);
 
   // const brandOptions = []
   const catOptions = [];
@@ -38,14 +40,16 @@ const AddProduct = () => {
     description: "",
     field: "",
     variants: [],
-    productVariant: [
-     
-    ],
+    productVariant: [{
+      variantName: ""
+    }],
     options: [
       { name: "Size", values: [] },
       { name: "Color", values: [] },
     ],
     files: [],
+    variantImages: []
+    
     // variants: [
     //   { name: "", options: [] },
 
@@ -90,8 +94,17 @@ const AddProduct = () => {
   };
 
   const handleSubmit = async (values, errors) => {
+    const mergedArray = values.productVariant.map((variant, index) => ({
+      ...variant,
+      image: images[index] ,
+      // variantName: selectedVariants[index]// Assuming images is an array of image objects or URLs
+    }));
+    // values.variantImages = images
+    console.log(mergedArray)
     console.log(errors);
     console.log(selectedVariants);
+    console.log(images)
+    console.log(values)
     //  console.log(errors)
     // const res = await dispatch(addCategory(values)).unwrap();
     // if(res) {
@@ -102,6 +115,8 @@ const AddProduct = () => {
 
   const handleVariantSubmission = (values, errors) => {
     //  console.log(errors);
+    
+    setShowDone(true);
     if (errors.variants) {
       setVariantErrors(true);
     } else {
@@ -109,6 +124,7 @@ const AddProduct = () => {
     }
     console.log(values.variants);
     console.log(addedVariants);
+    // selectedVariants.map((variant,index) =>   )
     const filteredVariants = values.variants.filter((variant) => {
       // Check if variant name exists in addedVariants
       // if(variant.name === 'Custom') {
@@ -289,7 +305,7 @@ const AddProduct = () => {
 
     // console.log(e.target.value);
     // console.log(propertyOption)
-
+    setShowDone(true);
     const variant = propertyOption?.find(
       (property) => property.name === e.target.value
     );
@@ -324,6 +340,15 @@ const AddProduct = () => {
       prevVariants.filter((_, i) => i !== index)
     );
     // setAddedVariants(values.variants)
+  };
+
+  const handleFileChange = (e, index) => {
+    const selectedFile = e.target.files[0];
+
+    // Update the images state with the selected file for the specific row
+    const updatedImages = [...images];
+    updatedImages[index] = selectedFile;
+    setImages(updatedImages);
   };
 
   return (
@@ -1075,7 +1100,7 @@ const AddProduct = () => {
                                           >
                                             Add Variant
                                           </button>
-                                          {!errors.variants && (
+                                          {!errors.variants && showDone && (
                                             <button
                                               type="button"
                                               onClick={() =>
@@ -1165,6 +1190,12 @@ const AddProduct = () => {
                                               scope="col"
                                               style={{ width: "200px" }}
                                             >
+                                              Image
+                                            </th>
+                                            <th
+                                              scope="col"
+                                              style={{ width: "200px" }}
+                                            >
                                               Variant
                                             </th>
                                             <th
@@ -1198,6 +1229,44 @@ const AddProduct = () => {
                                             (variant, productIndex) => {
                                               return (
                                                 <tr key={productIndex}>
+                                                  <td className="d-flex">
+                                                    <label
+                                                      htmlFor={`file-upload-${productIndex}`}
+                                                      style={{"cursor": "pointer"}}
+                                                    >
+                                                      <FontAwesomeIcon
+                                                        icon={faUpload}
+                                                      />
+                                                      
+                                                    </label>
+                                                    <input
+                                                      id={`file-upload-${productIndex}`}
+                                                      type="file"
+                                                      onChange={(e) =>
+                                                        handleFileChange(
+                                                          e,
+                                                          productIndex
+                                                        )
+                                                      }
+                                                      style={{
+                                                        display: "none",
+                                                      }} // Hide the input element
+                                                    />
+
+                                                    {/* Thumbnail preview */}
+                                                    {images[productIndex] && (
+                                                      <div className="ms-2">
+                                                        <img
+                                                          src={URL.createObjectURL(
+                                                            images[productIndex]
+                                                          )}
+                                                          width={50}
+                                                          height={50}
+                                                          alt={`Thumbnail ${productIndex}`}
+                                                        />
+                                                      </div>
+                                                    )}
+                                                  </td>
                                                   <td
                                                     style={{ width: "200px" }}
                                                   >
@@ -1207,6 +1276,7 @@ const AddProduct = () => {
                                                       value={variant}
                                                       name={`productVariant[${productIndex}].variantName`}
                                                     />
+                                                    {variant}
                                                   </td>
 
                                                   <td>
