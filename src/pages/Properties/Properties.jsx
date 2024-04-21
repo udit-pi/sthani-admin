@@ -110,15 +110,15 @@ const Properties = () => {
       name: "Action",
       cell: (row) => (
         <div>
-          <Link
-            to={`/showbrand/${row.id}`}
+          {/* <Link
+            to={`/show/${row.id}`}
             className="btn btn-sm btn-primary"
           >
             <span>
             <FontAwesomeIcon icon={faCircleInfo} />
              
             </span>
-          </Link>
+          </Link> */}
           <Link
             to={`/editProperty/${row.id}`}
             className="btn btn-sm btn-warning ms-1"

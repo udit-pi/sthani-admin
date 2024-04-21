@@ -120,14 +120,14 @@ const Product = () => {
             </span>
           </Link>
           <Link
-            to={`/editcategory/${row.id}`}
+            to={`/editproduct/${row.id}`}
             className="btn btn-sm btn-warning ms-1"
           >
             <span>
               <i className="ti ti-pencil" />
             </span>
           </Link>
-          <button
+          {/* <button
             className="btn btn-sm btn-danger ms-1"
             onClick={() => handleDelete(row.id)}
           >
@@ -135,7 +135,7 @@ const Product = () => {
             <FontAwesomeIcon icon={faTrash} />
               
             </span>
-          </button>
+          </button>    */}
         </div>
       ),
     },

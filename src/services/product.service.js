@@ -16,9 +16,38 @@ const getProduct = async (id) => {
     return res.data;
 }
 
+const saveProduct = async(data) => {
+    try {
+        // console.log(data.values)
+        const res = await axiosInstance.post(API_URL+ "products",data.values, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },});
+        return res.data
+    }  catch (err) {
+        console.log(err)
+    }
+   
+}
+const updateProduct = async(id,updatedValues) => {
+    try {
+         console.log(updatedValues)
+        const res = await axiosInstance.patch(API_URL+ "products/" + id,updatedValues, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },});
+        return res.data
+    }  catch (err) {
+        console.log(err)
+    }
+   
+}
+
 
 const ProductService = {
     getProducts,
-    getProduct
+    getProduct,
+    saveProduct,
+    updateProduct
 }
 export default ProductService;

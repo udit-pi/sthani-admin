@@ -56,6 +56,51 @@ export const fetchProductById = createAsyncThunk(
   }
 );
 
+export const addProduct = createAsyncThunk(
+  "product/addProduct",
+  async (values,thunkAPI) => {
+    try {
+     
+      const data = await ProductService.saveProduct(values);
+    //   thunkAPI.dispatch(setMessage(data.message));
+      return data;
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      thunkAPI.dispatch(setMessage(message));
+      return thunkAPI.rejectWithValue();
+    }
+  }
+);
+
+export const updateProduct = createAsyncThunk(
+  "product/updateProduct",
+  async ({id,values},thunkAPI) => {
+    try {
+     
+      // console.log(updatedValues)
+     
+      const data = await ProductService.updateProduct(id,values);
+    //   thunkAPI.dispatch(setMessage(data.message));
+      return data;
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      thunkAPI.dispatch(setMessage(message));
+      return thunkAPI.rejectWithValue();
+    }
+  }
+);
+
+
 
 const productSlice = createSlice({
     name: 'product',

@@ -24,6 +24,7 @@ import AddProduct from "./pages/Product/AddProduct";
 import Properties from "./pages/Properties/Properties";
 import AddProperty from "./pages/Properties/AddProperty";
 import EditProperty from "./pages/Properties/EditProperty";
+import EditProduct from "./pages/Product/EditProduct";
 
 function App() {
   return (
@@ -55,6 +56,7 @@ function App() {
             <Route exact path="/product" element={<Product />} />
             <Route exact path="/showproduct/:id" element={<ShowProduct />} />
             <Route exact path="/addproduct" element={<AddProduct />} />
+            <Route exact path="/editproduct/:id" element={<EditProduct />} />
 
              {/* Product Routes */}
             <Route exact path="/properties" element={<Properties />} />

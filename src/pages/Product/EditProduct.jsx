@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Formik, Form, Field, FieldArray, ErrorMessage } from "formik";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Layout from "../../components/layouts/Layout";
 import QuillEditor from "../../components/Editor";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -11,16 +11,32 @@ import MultipleKeywordInput from "../../components/MultipleKeywordInput";
 import VariantSelect from "../../components/VariantSelect";
 import CustomField from "../../components/VariantSelect";
 import SelectOrTextInput from "../../components/VariantSelect";
-import { addProductValidation } from "../../validations/addProductValidation";
+
 import { fetchAllCategories } from "../../features/category/categorySlice";
 import { useDispatch } from "react-redux";
 import { fetchAllBrands } from "../../features/brand/brandSlice";
 import { fetchAllProperties } from "../../features/properties/propertySlice";
-import { addProduct } from "../../features/product/productSlice";
+import {
+  addProduct,
+  fetchProductById,
+  updateProduct,
+} from "../../features/product/productSlice";
+import DataTable from "react-data-table-component";
 
-const AddProduct = () => {
-    const dispatch = useDispatch();
-     const navigate = useNavigate()
+import AddVariantModalComponent from "../../components/AddVariantModal";
+import { editProductValidation } from "../../validations/editProductValidation";
+import MultiSelect2 from "../../components/MultiSelect2";
+import DraftEditor from "../../components/DraftEditor";
+
+const EditProduct = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { id } = useParams();
+
+  const [product, setProduct] = useState({});
+  const [brand, setBrand] = useState({});
+  const [fetchedProductVariant, setFetchedProductVariant] = useState([]);
+  const [productMedia, setProductMedia] = useState([]);
 
   const [categories, setCategories] = useState([]);
   const [catOption, setCatOption] = useState([]);
@@ -29,34 +45,67 @@ const AddProduct = () => {
   const [showVariant, setShowVariant] = useState(false);
   const [addedVariants, setAddedVariants] = useState([]);
   const [variantOptions, setVariantOptions] = useState([]);
-  const [filePreviews, setFilePreviews] = useState([]);
+
   const [showVariantField, setShowVariantField] = useState(false);
-  const [variantErrors, setVariantErrors] = useState(true);
+
   const [propertyOption, setPropertyOption] = useState([]);
-  const [showVariantPills, setShowVariantPills] = useState(false);
+
   const [showDone, setShowDone] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
   const [images, setImages] = useState([]);
+  const [oldVariantImages, setOldVariantImages] = useState([]);
+  const [newVariantImages, setNewVariantImages] = useState([]);
+  const [selectedCat, setSelectedCat] = useState([]);
+  const [fetchedVariants, setFetchedVariants] = useState([]);
+  const [variants, setVariants] = useState([]);
+  const [showImage, setShowImage] = useState(true);
+  const [deletedImages, setDeletedImages] = useState([]);
+
+  // custom error
+  const [productVariants1, setProductVariants1] = useState([
+    { variantSKU: "" },
+  ]);
+  const [variantErrors, setVariantErrors] = useState({});
+
+  // show hide modal
+
+  const imageBaseUrl = "http://localhost:3500/uploads/";
+
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => {
+    // console.log(propertyOption);
+    setShow(true);
+  };
 
   // const brandOptions = []
   const catOptions = [];
 
   const initialValues = {
-    name: "",
+    // name: product.name,
     description: "",
+    category: [],
     // field: "",
     variants: [],
-    productVariant: [],
+
     // options: [
     //   { name: "Size", values: [] },
     //   { name: "Color", values: [] },
     // ],
     files: [],
+    // productVariant: fetchedProductVariant?.map((item) => ({
+    //   variantName: item.name,
+    //   variantSKU: item.sku,
+    //   variantPrice: item.price,
+    // })) || [],
     // variantImages: []
-    
+
     // variants: [
     //   { name: "", options: [] },
 
     // ],
+    productVariant1: [],
   };
 
   const fetchCategory = async () => {
@@ -84,88 +133,281 @@ const AddProduct = () => {
     const res = await dispatch(fetchAllProperties()).unwrap();
     // console.log(res);
     setPropertyOption(res);
+    return res;
   };
 
   useEffect(() => {
     fetchBrand();
     fetchProperty();
   }, [dispatch]);
-  // console.log(propertyOption);
+
+  const renderVariants = (fecthedVariant, propOption) => {
+    // console.log(fecthedVariant);
+    const variants = propOption
+      ?.map((prop) => {
+        const foundVariant = fecthedVariant.find(
+          (item) => item._id === prop._id
+        );
+
+        return foundVariant;
+      })
+      .flat();
+    console.log(variants);
+    // Create a Set with unique _id values
+    if (variants) {
+      const uniqueVariants = [
+        ...new Set(variants?.map((variant) => variant._id)),
+      ].map((id) => {
+        return variants.find((variant) => variant._id === id);
+      });
+      setVariants(uniqueVariants); // Set uniqueVariants here
+    }
+  };
+
+  const fetchProduct = async () => {
+    const res = await dispatch(fetchProductById({ id })).unwrap();
+    // console.log(res);
+    setProduct(res.product);
+    setBrand(res.brand);
+    setFetchedProductVariant(res.productVariant);
+    uploadProductVariant(res.productVariant);
+    // setFetchedProductVariant(prevState => ({
+    //   ...prevState,
+    //   fetchedProductVariant: res.productVariant
+    // }));
+    setProductMedia(res.productMedia);
+    setFetchedVariants(res.variantProperties);
+    initialValues.name = res.product.name;
+    initialValues.description = res.product.description;
+    initialValues.description_short = res.product.description_short;
+    initialValues.meta_title = res.product.meta_title;
+    initialValues.meta_description = res.product.meta_description;
+    initialValues.meta_keywords = res.product.meta_keywords;
+    initialValues.sku = res.product.sku;
+    initialValues.weight = res.product.weight;
+    initialValues.length = res.product.length;
+    initialValues.width = res.product.width;
+    initialValues.quantity_default = res.product.quantity_default;
+    initialValues.quantity_min = res.product.quantity_min;
+    initialValues.quantity_max = res.product.quantity_max;
+    initialValues.stock = res.product.stock;
+    initialValues.price = res.product.price;
+    initialValues.discounted_price = res.product.discounted_price;
+    initialValues.cost = res.product.cost;
+    initialValues.price_includes_tax = res.product.price_includes_tax;
+    initialValues.published = res.product.published;
+    initialValues.brand_id = res.product.brand_id;
+    initialValues.category = res.product.categories;
+
+    setSelectedCat(res.product.categories);
+    const prop = await fetchProperty();
+
+    renderVariants(res.variantProperties, prop);
+    addMediaToFetchedProduct(res.productVariant, res.productMedia);
+
+    // setFilteredCategories(res);
+  };
+
+  useEffect(() => {
+    fetchProduct();
+  }, [dispatch]);
+
+  const addMediaToFetchedProduct = (productVariant, productMedia) => {
+    // console.log(productVariant);
+    // console.log(productMedia);
+    const updatedProductVariant = productVariant?.map((product) => {
+      const matchedMedia = productMedia?.find(
+        (media) => product.id === media.variant_id
+      );
+
+      if (matchedMedia) {
+        return {
+          ...product,
+          image: matchedMedia.file_name,
+        };
+      }
+
+      return product;
+    });
+
+    // console.log(updatedProductVariant);
+    setFetchedProductVariant(updatedProductVariant);
+  };
+
+  const uploadProductVariant = (productVariants) => {
+    initialValues.productVariant = productVariants.map((item) => ({
+      variantName: item.name,
+      variantSKU: item.sku,
+      variantPrice: item.price,
+      variantStock: item.stock,
+    }));
+  };
+
+  // console.log(fetchedproductVariant)
+  // console.log(fetchedVariants)
+
+  // Transform category IDs to category objects
+  const selectedCategories = selectedCat.map((catId) => {
+    const category = catOption.find((cat) => cat.value === catId);
+    // console.log(category);
+    return category ? { value: category.value, label: category.label } : null;
+  });
 
   const capitalize = (str) => {
     return str[0].toUpperCase() + str.slice(1);
   };
 
   const handleSubmit = async (values, errors) => {
-    const mergedArray = values.productVariant.map((variant, index) => ({
-      ...variant,
-      image: images[index] ,
-      variantName: selectedVariants[index]
-      // variantName: selectedVariants[index]// Assuming images is an array of image objects or URLs
-    }));
-    // values.variantImages = images
-    values.productVariant = mergedArray
+    console.log(errors);
+    console.log(values);
+    setProductVariants1(values.productVariant1);
 
-    if(typeof values?.meta_keywords === 'string' ) {
-      const metaKeyword =  values?.meta_keywords?.split(', ');
-      values.meta_keywords = metaKeyword
+    const newErrors = {};
+    // productVariants1?.forEach((variant, index) => {
+    //   if (!variant.variantSKU) {
+    //     newErrors[`productVariant1.${index}.variantSKU`] =
+    //       "Variant SKU is required";
+    //   }
+    //   if (!variant.variantPrice) {
+    //     newErrors[`productVariant1.${index}.variantPrice`] =
+    //       "Variant Price is required";
+    //   }
+    // });
+
+    productVariants1.forEach((variant, index) => {
+      if (!variant.variantSKU || !variant.variantPrice) {
+        newErrors[index] = { variantSKU: "Variant SKU is required" };
+        newErrors[index] = { variantPrice: "Variant Price is required" };
+       } else {
+        newErrors[index] = {};
+      }
+    });
+
+    console.log(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      setVariantErrors(newErrors);
+
+      return;
     }
-   
+    console.log(variantErrors);
+
+    values.newVariantImages = newVariantImages;
+    values.deletedImages = deletedImages;
+
+    //   const mergedArray1 = values.productVariant.map((variant, index) => {
+    //     return {
+
+    //             file: oldVariantImages[index],
+    //             name: selectedVariants[index]
+
+    //     };
+    // });
+    values.oldImageIndex = [];
+    values.oldVariantImages = oldVariantImages;
+    oldVariantImages?.map((file, index) => {
+      values.oldImageIndex.push({ name: file.name, index: index });
+    });
+
+    //  console.log(values.oldImageIndex)
+
+    values.productVariant.forEach((item, itemIndex) => {
+      // const index = item.index; // Getting the index from the current item
+
+      const matchingVariant = values.oldImageIndex.find(
+        (old_image) => old_image.index === itemIndex
+      );
+      // console.log(matchingVariant)
+
+      if (matchingVariant) {
+        matchingVariant.variantName = item.variantName;
+      }
+    });
+    // console.log(values.oldImageIndex)
+
+    const mergedArray = values.productVariant1.map((variant, index) => ({
+      ...variant,
+
+      variantName: selectedVariants[index],
+      imageName: newVariantImages[index]?.name, // Assuming images is an array of image objects or URLs
+    }));
+
+    // values.variantImages = newVariantImages
+    values.productVariant1 = mergedArray;
+    // console.log(values.productVariant1.oldVariantImages)
+    // console.log(variants)
+    // console.log(values.variants)
+    values.variants = variants;
+    // console.log(images)
+    // console.log(deletedImages)
+    // console.log(oldVariantImages);
+    // console.log(newVariantImages);
+    // console.log(values)
+
+    // const mergedArray = values.productVariant.map((variant, index) => ({
+    //   ...variant,
+    //   image: images[index],
+    //   variantName: selectedVariants[index],
+    //   // variantName: selectedVariants[index]// Assuming images is an array of image objects or URLs
+    // }));
+    // // values.variantImages = images
+    // values.productVariant = mergedArray;
+
+    if (typeof values?.meta_keywords === "string") {
+      const metaKeyword = values?.meta_keywords?.split(", ");
+      values.meta_keywords = metaKeyword;
+    }
+
     // console.log(mergedArray)
-   
-     console.log(errors);
+
+    //  console.log(errors);
     // console.log(selectedVariants);
     // console.log(images)
-     console.log(values)
+    //  console.log(values)
     //  console.log(errors)
-    const res = await dispatch(addProduct({values})).unwrap();
-    if(res) {
-      toast.success('Product created successfully!')
-      navigate('/product')
-    }
+    // const res = await dispatch(updateProduct({ id, values })).unwrap();
+    // if (res) {
+    //   toast.success("Product updated successfully!");
+    //   navigate("/product");
+    // }
   };
 
   const handleVariantSubmission = (values, errors) => {
-    //  console.log(errors);
-    
     setShowDone(true);
-    if (errors.variants) {
-      setVariantErrors(true);
-    } else {
-      setVariantErrors(false);
+    setShowEdit(true);
+
+    // console.log(values.variants);
+    // console.log(addedVariants);
+
+    if (addedVariants.length > 0) {
+      const updatedVariants = [
+        ...variants,
+        ...addedVariants.filter(
+          (addedVariant) =>
+            !variants.find((variant) => variant.id === addedVariant.id)
+        ),
+      ];
+
+      setVariants(updatedVariants);
     }
-    console.log(values.variants);
-    console.log(addedVariants);
-    // selectedVariants.map((variant,index) =>   )
-    const filteredVariants = values.variants.filter((variant) => {
-      // Check if variant name exists in addedVariants
-      // if(variant.name === 'Custom') {
-      //   return !addedVariants.some(addedVariant => addedVariant.name === variant.customName);
-      // }
-      // return !addedVariants.some(addedVariant => addedVariant.name === variant.name);
+    if (addedVariants.length === 0) {
+      setAddedVariants([]);
+      console.log("empty variant");
+    }
 
-      // if (variant) {
-      //   // Check if the variant with the same name already exists in addedVariants
-
-      //   const variantExists = addedVariants.some(property => property.name === variant.name || (variant.name === "Custom" && variant.customName === property.name));
-      //   console.log(variantExists)
-      //   if (!variantExists) {
-      //     console.log(variant);
-      //     if(variant.name === 'Custom') {
-      //       let updatedOptions = [...variant.options];
-      //       setAddedVariants([...addedVariants, { name: variant.customName, options: updatedOptions }]);
-      //     } else {
-      //       setAddedVariants([...addedVariants, { name: variant.name, options: variant.options }]);
-      //     }
-
-      //   } else {
-      //     console.log("Variant already exists:", variant.name);
-      //     // Handle the case where the variant already exists, such as showing an error message
-      //   }
-      // }
-
+    const filteredVariants = values.variants?.filter((variant) => {
       if (variant) {
         // Check if the variant with the same name already exists in addedVariants
+
+        // if(fetchedProductVariant) {
+        //   const existingVariantIndex = propertyOption.findIndex(
+        //     (property) =>
+        //       property.name === variant.name ||
+        //       (variant.name === "Custom" && variant.customName === property.name)
+
+        //   );
+        // }
+        // console.log(variant);
+        // console.log("inside");
         const existingVariantIndex = addedVariants.findIndex(
           (property) =>
             property.name === variant.name ||
@@ -195,58 +437,44 @@ const AddProduct = () => {
             return variantItem;
           });
           setAddedVariants(updatedVariants);
+          // console.log(updatedVariants);
         }
       } else {
-        console.log("Variant is invalid:", variant);
+        // console.log("Variant is invalid:", variant);
+        // console.log("outside");
         // Handle the case where the variant is invalid, such as showing an error message
       }
+      // console.log("last");
     });
-    // console.log(filteredVariants)
-    // setAddedVariants([...addedVariants, ...filteredVariants]);
-    // setAddedVariants(prevAddedVariants => [...prevAddedVariants, ...filteredVariants]);
-    // setAddedVariants(updatedVariants)
-    // console.log(addedVariants)
-    //   setAddedVariants([...addedVariants, ...filteredVariants]);
-    //  console.log(addedVariants)
-
-    // setShowVariantPills(true)
-    // console.log(addedVariants)
-
-    // const variantNames = [];
-    //   console.log(selectedVariants);
-    //   const options = addedVariants?.map((variant) => variant.options);
-
-    //   const generateVariantNames = (currentIndex, currentName) => {
-    //     if (currentIndex === addedVariants.length) {
-    //       variantNames.push(currentName.trim());
-    //     } else {
-    //       options[currentIndex].forEach((option) => {
-    //         const newName = currentName + option + " ";
-    //         generateVariantNames(currentIndex + 1, newName);
-    //       });
-    //     }
-    //   };
-    //   generateVariantNames(0, "");
-    //   //  console.log(values.variant)
-    //   const addedVariantOptions = [];
-    //   addedVariants?.map((variant) => {
-    //     variant.options?.map((option) => {
-    //       // console.log(option)
-    //       addedVariantOptions.push(option);
-    //     });
-    //   });
-
-    //   setVariantOptions(addedVariantOptions);
-    //   setSelectedVariants(variantNames);
 
     setShowVariant(true);
   };
+  console.log(variants);
 
   // useEffect to perform actions dependent on addedVariants
   useEffect(() => {
+    console.log(addedVariants);
+    // let options = addedVariants?.map((variant) => variant.options).flat();
+    // console.log(options);
+
+    // const generateVariantNames = () => {
+    //   const combinations = [];
+
+    //   fetchedProductVariant.forEach((variant) => {
+    //     options.forEach((option, index) => {
+    //       console.log(option);
+    //       combinations.push(`${variant.name} ${option}`);
+    //     });
+    //   });
+
+    //   return combinations;
+    // };
+    // const variantNames = generateVariantNames();
+    // console.log(variantNames);
+
     const variantNames = [];
-    // console.log(addedVariants);
     const options = addedVariants?.map((variant) => variant.options);
+    console.log(options);
 
     const generateVariantNames = (currentIndex, currentName) => {
       if (currentIndex === addedVariants.length) {
@@ -259,7 +487,16 @@ const AddProduct = () => {
       }
     };
     generateVariantNames(0, "");
-    //  console.log(values.variant)
+    console.log(variantNames);
+
+    let mergedCombinations = [];
+    fetchedProductVariant.forEach((fetched) => {
+      variantNames.forEach((option) => {
+        console.log(option);
+        mergedCombinations.push(`${fetched.name} ${option}`);
+      });
+    });
+
     const addedVariantOptions = [];
     addedVariants?.map((variant) => {
       variant.options?.map((option) => {
@@ -268,9 +505,13 @@ const AddProduct = () => {
       });
     });
 
+    console.log(mergedCombinations);
     setVariantOptions(addedVariantOptions);
-    setSelectedVariants(variantNames);
+    setSelectedVariants(mergedCombinations);
+    // setfetchedProductVariant(variantNames);
   }, [addedVariants]);
+  // console.log(selectedVariants)
+  // console.log(variantOptions)
 
   const renderVariantsByGroup = (groupName) => {
     return selectedVariants
@@ -292,6 +533,7 @@ const AddProduct = () => {
 
   const handleReset = () => {
     setShowVariant(false);
+    // setShowDone(false);
     // console.log()
   };
 
@@ -323,6 +565,7 @@ const AddProduct = () => {
     );
 
     if (variant) {
+      // console.log(variant);
       // Check if the variant with the same name already exists in addedVariants
       const variantExists = addedVariants.some(
         (property) =>
@@ -331,42 +574,148 @@ const AddProduct = () => {
       );
 
       if (!variantExists) {
-        // console.log(variant);
+        //  console.log(variant);
         setAddedVariants([
           ...addedVariants,
           { name: variant.name, options: variant.options },
         ]);
       } else {
-        console.log("Variant already exists:", variant.name);
+        // console.log("Variant already exists:", variant.name);
         // Handle the case where the variant already exists, such as showing an error message
       }
     }
 
-    // console.log(addedVariants);
     //  setShowVariant(true);
   };
-
+  //   console.log(addedVariants);
   const handleVariantDelete = (values, index) => {
-    // console.log(index)
-    setAddedVariants((prevVariants) =>
-      prevVariants.filter((_, i) => i !== index)
-    );
-    // setAddedVariants(values.variants)
+    console.log(index);
+    console.log(values.variants);
+
+    // propertyOption?.map()
+
+    // setFetchedProductVariant((prevVariants) =>
+    //   prevVariants.filter((item, i) => item.id !== index)
+    // );
+    // setAddedVariants([]);
+    addedVariants.splice(index, 1);
+    console.log(addedVariants);
+    console.log(selectedVariants);
+    //  setAddedVariants(values.variants)
+  };
+  // console.log(addedVariants);
+
+  const handleFileChange = (e, index, type) => {
+    const selectedFile = e.target.files[0];
+
+    // Update the images state with the selected file for the specific row
+    if (type === "oldVariantImages") {
+      const updatedImages = [...oldVariantImages];
+      updatedImages[index] = selectedFile;
+      // setShowImage(false);
+      setOldVariantImages(updatedImages);
+    } else {
+      const updatedImages = [...newVariantImages];
+      updatedImages[index] = selectedFile;
+      // setShowImage(false);
+      setNewVariantImages(updatedImages);
+    }
   };
 
-  const handleFileChange = (e, index) => {
-    const selectedFile = e.target.files[0];
-    
-    // Update the images state with the selected file for the specific row
-    const updatedImages = [...images];
-    updatedImages[index] = selectedFile;
-    setImages(updatedImages);
+  const handleImageDelete = (id) => {
+    //  console.log(id);
+    const newImages = productMedia.filter((img) => img.id !== id);
+    setProductMedia(newImages);
+    setDeletedImages((prevDeletedImages) => [...prevDeletedImages, id]);
+    // console.log(newImages);
   };
+
+  const handleNewVariant = (newVariant) => {
+    // Handle new variant data
+    console.log("New Variant:", newVariant);
+    // Update state or perform other operations
+  };
+
+  //   product variant data table columns
+  const removeVariantRow = (indexToRemove, setFieldValue, values) => {
+    const updatedVariants = [...selectedVariants];
+    updatedVariants.splice(indexToRemove, 1);
+    setSelectedVariants(updatedVariants);
+
+    // console.log(indexToRemove)
+    // console.log(values.productVariant1)
+    // setFieldValue(
+    //   'productVariant1',
+    //   values.productVariant1.filter((_, index) => index !== indexToRemove)
+    // );
+  };
+
+  // const  removeVariantRow = (indexToRemove) => {
+
+  //   setValues(prevValues => ({
+  //     ...prevValues,
+  //     productVariant1: prevValues.productVariant1.filter((_, index) => index !== indexToRemove)
+  //   }));
+  // }
+
+  const columns = [
+    {
+      name: "Name",
+      selector: (row) => row.name,
+      sortable: true,
+    },
+    {
+      name: "Price",
+      selector: (row) => row.price,
+      sortable: true,
+    },
+    // {
+    //   name: "Short Description",
+    //   selector: (row) => row.description_short,
+    //   sortable: true,
+    // },
+    {
+      name: "SKU",
+      selector: (row) => row.sku,
+      sortable: true,
+    },
+    {
+      name: "Stock",
+      selector: (row) => row.stock,
+      sortable: true,
+    },
+    // {
+    //     name: 'Meta Description',
+    //     selector: row => row.meta_description,
+    //     sortable: true,
+    // },
+    {
+      name: "Action",
+      cell: (row) => (
+        <div>
+          <button
+            type="button"
+            className="btn btn-sm btn-danger ms-1"
+            // onClick={() => handleVariantDelete(row.id)}
+          >
+            <span>
+              <FontAwesomeIcon icon={faTrash} />
+            </span>
+          </button>
+        </div>
+      ),
+    },
+    // {
+    //     name: 'Created',
+    //     selector: row => row.createdAt,
+    //     sortable: true,
+    // },
+  ];
 
   return (
     <Layout>
       <div className="col-12 stretch-card container-fluid">
-        <h4>Add Product</h4>
+        <h4>Update Product</h4>
 
         <div
           className="page-wrapper"
@@ -382,10 +731,10 @@ const AddProduct = () => {
               <div className="row">
                 <Formik
                   initialValues={initialValues}
-                  validationSchema={addProductValidation}
-                  // validateOnChange={true}
-                  // validateOnBlur={true}
-                  // validateOnSubmit={true}
+                  validationSchema={editProductValidation}
+                  validateOnChange={true}
+                  validateOnBlur={true}
+                  validateOnSubmit={true}
                   onSubmit={(values, errors) => {
                     // console.log(errors);
                     handleSubmit(values, errors);
@@ -399,8 +748,10 @@ const AddProduct = () => {
                     isSubmitting,
                   }) => (
                     <Form>
+                      {/* {console.log(errors)} */}
                       <div className="row">
                         <div className="col-md-8">
+                          {/* card for  */}
                           <div className="card mb-3">
                             <div className="card-body">
                               <div className="mb-3">
@@ -540,8 +891,11 @@ const AddProduct = () => {
                                 />
                               </div>
                               <div className="mt-2">
-                                {values?.meta_keywords && typeof values.meta_keywords === 'string' &&
-                                  values?.meta_keywords?.split(', ').map((keyword, index) => (
+                                {values?.meta_keywords &&
+                                  typeof values.meta_keywords === "string" &&
+                                  values?.meta_keywords
+                                    ?.split(", ")
+                                    .map((keyword, index) => (
                                       <span
                                         key={index}
                                         className="badge bg-secondary me-1"
@@ -906,6 +1260,550 @@ const AddProduct = () => {
                             <div className="card-body">
                               <div className="row">
                                 <h6>Product Variant</h6>
+                                {/* {console.log(fetchedproductVariant)} */}
+                                <div className="mt-4">
+                                  <FieldArray name="addedVariants">
+                                    {({
+                                      push,
+                                      remove: removeSelectedVariant,
+                                    }) => (
+                                      <>
+                                        {variants?.map(
+                                          (selectedVariant, varIndex) => (
+                                            <div
+                                              className="border mb-2"
+                                              key={varIndex}
+                                            >
+                                              <label
+                                                htmlFor="published"
+                                                className="form-label"
+                                              >
+                                                {selectedVariant.name ===
+                                                "Custom"
+                                                  ? selectedVariant.customName
+                                                  : selectedVariant.name}
+                                              </label>
+                                              <div className="d-flex">
+                                                {selectedVariant.options?.map(
+                                                  (option, index) => (
+                                                    <div
+                                                      key={index}
+                                                      className="badge rounded-pill text-bg-secondary ms-2"
+                                                      style={{
+                                                        cursor: "pointer",
+                                                      }}
+                                                      onClick={() =>
+                                                        removeOption(option)
+                                                      }
+                                                    >
+                                                      {option}
+                                                    </div>
+                                                  )
+                                                )}
+                                              </div>
+                                              {/* <button
+                                                  type="button"
+                                                  onClick={() =>
+                                                    removeSelectedVariant(
+                                                      varIndex
+                                                    )
+                                                  }
+                                                >
+                                                  Remove Variant
+                                                </button> */}
+                                            </div>
+                                          )
+                                        )}
+                                      </>
+                                    )}
+                                  </FieldArray>
+                                </div>
+
+                                {fetchedProductVariant.length > 0 &&
+                                  !showVariant && (
+                                    // <div className="table-responsive">
+                                    //   <DataTable
+                                    //     // title="Category"
+                                    //     columns={columns}
+                                    //     data={fetchedproductVariant}
+                                    //     fixedHeader
+                                    //     pagination
+                                    //     highlightOnHover
+                                    //     subHeader
+                                    //     //    subHeaderComponent={
+                                    //     //      <input
+                                    //     //        type="text"
+                                    //     //        className="w-25 form-control"
+                                    //     //        placeholder="Search Category"
+                                    //     //        value={search}
+                                    //     //        onChange={(e) => setSearch(e.target.value)}
+                                    //     //      />
+                                    //     //    }
+                                    //   />
+                                    // </div>
+                                    <FieldArray name="productVariant">
+                                      <div className="row table-responsive">
+                                        <table className="table">
+                                          <thead>
+                                            <tr>
+                                              {/* <th scope="col">#</th> */}
+                                              <th
+                                                scope="col"
+                                                style={{ width: "200px" }}
+                                              >
+                                                Image
+                                              </th>
+                                              <th
+                                                scope="col"
+                                                style={{ width: "200px" }}
+                                              >
+                                                Variant
+                                              </th>
+                                              <th
+                                                scope="col"
+                                                style={{ width: "100px" }}
+                                              >
+                                                SKU
+                                              </th>
+                                              <th
+                                                scope="col"
+                                                style={{ width: "100px" }}
+                                              >
+                                                Price
+                                              </th>
+                                              <th
+                                                scope="col"
+                                                style={{ width: "100px" }}
+                                              >
+                                                Stock
+                                              </th>
+                                              <th
+                                                scope="col"
+                                                style={{ width: "100px" }}
+                                              >
+                                                Discounted Price
+                                              </th>
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                            {fetchedProductVariant?.map(
+                                              (variant, productIndex) => {
+                                                return (
+                                                  <tr key={productIndex}>
+                                                    <td className="d-flex">
+                                                      <label
+                                                        htmlFor={`file-upload-${productIndex}`}
+                                                        style={{
+                                                          cursor: "pointer",
+                                                        }}
+                                                      >
+                                                        <FontAwesomeIcon
+                                                          icon={faUpload}
+                                                        />
+                                                      </label>
+                                                      <input
+                                                        id={`file-upload-${productIndex}`}
+                                                        type="file"
+                                                        onChange={(e) =>
+                                                          handleFileChange(
+                                                            e,
+                                                            productIndex,
+                                                            "oldVariantImages"
+                                                          )
+                                                        }
+                                                        style={{
+                                                          display: "none",
+                                                        }} // Hide the input element
+                                                      />
+
+                                                      {/* Thumbnail preview */}
+                                                      {oldVariantImages[
+                                                        productIndex
+                                                      ] && (
+                                                        <div className="ms-2">
+                                                          <img
+                                                            src={URL.createObjectURL(
+                                                              oldVariantImages[
+                                                                productIndex
+                                                              ]
+                                                            )}
+                                                            width={50}
+                                                            height={50}
+                                                            alt={`Thumbnail ${productIndex}`}
+                                                          />
+                                                        </div>
+                                                      )}
+                                                      {variant.image && (
+                                                        <div>
+                                                          <img
+                                                            src={
+                                                              imageBaseUrl +
+                                                              variant.image
+                                                            }
+                                                            width={50}
+                                                            height={50}
+                                                            alt={`Thumbnail ${productIndex}`}
+                                                          />
+                                                        </div>
+                                                      )}
+                                                    </td>
+                                                    <td>
+                                                      <Field
+                                                        type="text"
+                                                        // value={variant.name}
+                                                        name={`productVariant[${productIndex}].variantName`}
+                                                      />
+                                                    </td>
+
+                                                    <td>
+                                                      <Field
+                                                        type="text"
+                                                        // value={variant.sku}
+                                                        name={`productVariant[${productIndex}].variantSKU`}
+                                                      />
+                                                      {/* {errors.productVariant &&
+                                                    errors.productVariant[
+                                                      productIndex
+                                                    ] &&
+                                                    errors.productVariant[
+                                                      productIndex
+                                                    ].variantSKU && (
+                                                      <small className="text-danger">
+                                                        {
+                                                          errors
+                                                            .productVariant[
+                                                            productIndex
+                                                          ].variantSKU
+                                                        }
+                                                      </small>
+                                                    )} */}
+
+                                                      <ErrorMessage
+                                                        name={`productVariant.${productIndex}.variantSKU`}
+                                                        component="div"
+                                                        className="text-danger"
+                                                      />
+                                                    </td>
+                                                    <td>
+                                                      <Field
+                                                        type="number"
+                                                        // value= {variant.price}
+                                                        name={`productVariant[${productIndex}].variantPrice`}
+                                                      />
+
+                                                      <ErrorMessage
+                                                        name={`productVariant.${productIndex}.variantPrice`}
+                                                        component="div"
+                                                        className="text-danger"
+                                                      />
+                                                    </td>
+                                                    <td>
+                                                      <Field
+                                                        type="number"
+                                                        // value={variant.stock}
+                                                        name={`productVariant[${productIndex}].variantStock`}
+                                                      />
+
+                                                      <ErrorMessage
+                                                        name={`productVariant.${productIndex}.variantStock`}
+                                                        component="div"
+                                                        className="text-danger"
+                                                      />
+                                                    </td>
+                                                    <td>
+                                                      <Field
+                                                        type="number"
+                                                        name={`productVariant[${productIndex}].variantDiscountedPrice`}
+                                                      />
+
+                                                      <ErrorMessage
+                                                        name={`productVariant.${productIndex}.variantDiscountedPrice`}
+                                                        component="div"
+                                                        className="text-danger"
+                                                      />
+                                                    </td>
+                                                  </tr>
+                                                );
+                                              }
+                                            )}
+                                          </tbody>
+                                        </table>
+
+                                        {/* <button
+                                          type="button"
+                                          className="btn btn-sm btn-warning"
+                                          onClick={() => {
+                                            handleReset();
+                                            console.log(errors);
+                                            console.log(values);
+                                          }}
+                                        >
+                                          Edit Variants  
+                                        </button> */}
+                                      </div>
+                                    </FieldArray>
+                                  )}
+
+                                {showVariant && (
+                                  <div className="row table-responsive">
+                                    <table className="table">
+                                      <thead>
+                                        <tr>
+                                          {/* <th scope="col">#</th> */}
+                                          <th
+                                            scope="col"
+                                            style={{ width: "200px" }}
+                                          >
+                                            Image
+                                          </th>
+                                          <th
+                                            scope="col"
+                                            style={{ width: "200px" }}
+                                          >
+                                            Variant
+                                          </th>
+                                          <th
+                                            scope="col"
+                                            style={{ width: "100px" }}
+                                          >
+                                            SKU
+                                          </th>
+                                          <th
+                                            scope="col"
+                                            style={{ width: "100px" }}
+                                          >
+                                            Price
+                                          </th>
+                                          <th
+                                            scope="col"
+                                            style={{ width: "100px" }}
+                                          >
+                                            Stock
+                                          </th>
+                                          <th
+                                            scope="col"
+                                            style={{ width: "100px" }}
+                                          >
+                                            Discounted Price
+                                          </th>
+                                          <th>Action</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        <FieldArray
+                                          key={selectedVariants.length}
+                                          name="productVariant1"
+                                        >
+                                          {({ push, remove }) => (
+                                            <>
+                                              {selectedVariants?.map(
+                                                (variant, productIndex1) => {
+                                                  return (
+                                                    <tr key={productIndex1}>
+                                                      <td className="d-flex">
+                                                        <label
+                                                          htmlFor={`file-upload-${productIndex1}`}
+                                                          style={{
+                                                            cursor: "pointer",
+                                                          }}
+                                                        >
+                                                          <FontAwesomeIcon
+                                                            icon={faUpload}
+                                                          />
+                                                        </label>
+                                                        <input
+                                                          id={`file-upload-${productIndex1}`}
+                                                          type="file"
+                                                          onChange={(e) =>
+                                                            handleFileChange(
+                                                              e,
+                                                              productIndex1,
+                                                              "newVariantImages"
+                                                            )
+                                                          }
+                                                          style={{
+                                                            display: "none",
+                                                          }} // Hide the input element
+                                                        />
+                                                        <input
+                                                          type="hidden"
+                                                          name={`newVariantImagesOrder[${productIndex1}]`}
+                                                          value={productIndex1}
+                                                        />
+
+                                                        {/* Thumbnail preview */}
+                                                        {newVariantImages[
+                                                          productIndex1
+                                                        ] && (
+                                                          <div className="ms-2">
+                                                            <img
+                                                              src={URL.createObjectURL(
+                                                                newVariantImages[
+                                                                  productIndex1
+                                                                ]
+                                                              )}
+                                                              width={50}
+                                                              height={50}
+                                                              alt={`Thumbnail ${productIndex1}`}
+                                                            />
+                                                          </div>
+                                                        )}
+                                                      </td>
+                                                      <td>
+                                                        <Field
+                                                          type="text"
+                                                          value={variant}
+                                                          name={`productVariant1[${productIndex1}].variantName`}
+                                                        />
+                                                      </td>
+
+                                                      <td>
+                                                        <Field
+                                                          type="text"
+                                                          name={`productVariant1[${productIndex1}].variantSKU`}
+                                                          value=""
+                                                        />
+                                                        {/* {errors.productVariant &&
+                                                      errors.productVariant[
+                                                        productIndex
+                                                      ] &&
+                                                      errors.productVariant[
+                                                        productIndex
+                                                      ].variantSKU && (
+                                                        <small className="text-danger">
+                                                          {
+                                                            errors
+                                                              .productVariant[
+                                                              productIndex
+                                                            ].variantSKU
+                                                          }
+                                                        </small>
+                                                      )} */}
+
+                                                        <ErrorMessage
+                                                          name={`productVariant1.${productIndex1}.variantSKU`}
+                                                          component="div"
+                                                          className="text-danger"
+                                                        />
+                                                        {errors[productIndex1] &&
+                                                          errors[productIndex1]
+                                                            .variantSKU && (
+                                                            <p className="error">
+                                                              {
+                                                                errors[productIndex1]
+                                                                  .variantSKU
+                                                              }
+                                                            </p>
+                                                          )}
+                                                        {variantErrors[productIndex1] &&
+                                                          variantErrors[productIndex1]
+                                                            .variantSKU && (
+                                                            <p className="error">
+                                                              {
+                                                                variantErrors[productIndex1]
+                                                                  .variantSKU
+                                                              }
+                                                            </p>
+                                                          )}
+                                                      </td>
+                                                      <td>
+                                                        <Field
+                                                          type="number"
+                                                          name={`productVariant1[${productIndex1}].variantPrice`}
+                                                        />
+
+                                                        <ErrorMessage
+                                                          name={`productVariant1.${productIndex1}.variantPrice`}
+                                                          component="div"
+                                                          className="text-danger"
+                                                        />
+                                                        {variantErrors[
+                                                          `productVariant1.${productIndex1}.variantPrice`
+                                                        ] && (
+                                                          <p className="text-danger">
+                                                            {
+                                                              variantErrors[
+                                                                `productVariant1.${productIndex1}.variantPrice`
+                                                              ]
+                                                            }
+                                                          </p>
+                                                        )}
+                                                      </td>
+                                                      <td>
+                                                        <Field
+                                                          type="number"
+                                                          name={`productVariant1[${productIndex1}].variantStock`}
+                                                        />
+
+                                                        <ErrorMessage
+                                                          name={`productVariant1.${productIndex1}.variantStock`}
+                                                          component="div"
+                                                          className="text-danger"
+                                                        />
+                                                      </td>
+                                                      <td>
+                                                        <Field
+                                                          type="number"
+                                                          name={`productVariant1[${productIndex1}].variantDiscountedPrice`}
+                                                        />
+
+                                                        <ErrorMessage
+                                                          name={`productVariant1.${productIndex1}.variantDiscountedPrice`}
+                                                          component="div"
+                                                          className="text-danger"
+                                                        />
+                                                      </td>
+                                                      <td>
+                                                        <button
+                                                          type="button"
+                                                          onClick={() => {
+                                                            remove(
+                                                              productIndex1
+                                                            );
+                                                            removeVariantRow(
+                                                              productIndex1,
+                                                              setFieldValue,
+                                                              values
+                                                            );
+                                                          }}
+                                                          className="btn btn-sm btn-danger mt-2 ms-2"
+                                                        >
+                                                          <span>
+                                                            <FontAwesomeIcon
+                                                              icon={faTrash}
+                                                            />
+                                                          </span>
+                                                        </button>
+                                                      </td>
+                                                    </tr>
+                                                  );
+                                                }
+                                              )}
+                                            </>
+                                          )}
+                                        </FieldArray>
+                                      </tbody>
+                                    </table>
+
+                                    {showEdit ? (
+                                      <>
+                                        <button
+                                          type="button"
+                                          className="btn btn-sm btn-warning"
+                                          onClick={() => {
+                                            handleReset();
+                                            console.log(errors);
+                                            console.log(values);
+                                          }}
+                                        >
+                                          Edit Variants
+                                        </button>
+                                      </>
+                                    ) : (
+                                      <span>False</span>
+                                    )}
+                                  </div>
+                                )}
 
                                 <FieldArray name="variants">
                                   {({ push, remove }) => (
@@ -1130,245 +2028,8 @@ const AddProduct = () => {
                                     </>
                                   )}
                                 </FieldArray>
-                                {showVariant && (
-                                  <div>
-                                    <FieldArray name="addedVariants">
-                                      {({
-                                        push,
-                                        remove: removeSelectedVariant,
-                                      }) => (
-                                        <>
-                                          {addedVariants?.map(
-                                            (selectedVariant, varIndex) => (
-                                              <div
-                                                className="border mb-2"
-                                                key={varIndex}
-                                              >
-                                                <label
-                                                  htmlFor="published"
-                                                  className="form-label"
-                                                >
-                                                  {selectedVariant.name ===
-                                                  "Custom"
-                                                    ? selectedVariant.customName
-                                                    : selectedVariant.name}
-                                                </label>
-                                                <div className="d-flex">
-                                                  {selectedVariant.options?.map(
-                                                    (option) => (
-                                                      <div
-                                                        className="badge rounded-pill text-bg-secondary ms-2"
-                                                        style={{
-                                                          cursor: "pointer",
-                                                        }}
-                                                        onClick={() =>
-                                                          removeOption(option)
-                                                        }
-                                                      >
-                                                        {option}
-                                                      </div>
-                                                    )
-                                                  )}
-                                                </div>
-                                                {/* <button
-                                                  type="button"
-                                                  onClick={() =>
-                                                    removeSelectedVariant(
-                                                      varIndex
-                                                    )
-                                                  }
-                                                >
-                                                  Remove Variant
-                                                </button> */}
-                                              </div>
-                                            )
-                                          )}
-                                        </>
-                                      )}
-                                    </FieldArray>
-                                  </div>
-                                )}
 
-                                {showVariant && (
-                                  <FieldArray name="productVariant">
-                                    <div className="row table-responsive">
-                                      <table className="table">
-                                        <thead>
-                                          <tr>
-                                            {/* <th scope="col">#</th> */}
-                                            <th
-                                              scope="col"
-                                              style={{ width: "200px" }}
-                                            >
-                                              Image
-                                            </th>
-                                            <th
-                                              scope="col"
-                                              style={{ width: "200px" }}
-                                            >
-                                              Variant
-                                            </th>
-                                            <th
-                                              scope="col"
-                                              style={{ width: "100px" }}
-                                            >
-                                              SKU
-                                            </th>
-                                            <th
-                                              scope="col"
-                                              style={{ width: "100px" }}
-                                            >
-                                              Price
-                                            </th>
-                                            <th
-                                              scope="col"
-                                              style={{ width: "100px" }}
-                                            >
-                                              Stock
-                                            </th>
-                                            <th
-                                              scope="col"
-                                              style={{ width: "100px" }}
-                                            >
-                                              Discounted Price
-                                            </th>
-                                          </tr>
-                                        </thead>
-                                        <tbody>
-                                          {selectedVariants?.map(
-                                            (variant, productIndex) => {
-                                              return (
-                                                <tr key={productIndex}>
-                                                  <td className="d-flex">
-                                                    <label
-                                                      htmlFor={`file-upload-${productIndex}`}
-                                                      style={{"cursor": "pointer"}}
-                                                    >
-                                                      <FontAwesomeIcon
-                                                        icon={faUpload}
-                                                      />
-                                                      
-                                                    </label>
-                                                    <input
-                                                      id={`file-upload-${productIndex}`}
-                                                      type="file"
-                                                      onChange={(e) =>
-                                                        handleFileChange(
-                                                          e,
-                                                          productIndex
-                                                        )
-                                                      }
-                                                      style={{
-                                                        display: "none",
-                                                      }} // Hide the input element
-                                                    />
-
-                                                    {/* Thumbnail preview */}
-                                                    {images[productIndex] && (
-                                                      <div className="ms-2">
-                                                        <img
-                                                          src={URL.createObjectURL(
-                                                            images[productIndex]
-                                                          )}
-                                                          width={50}
-                                                          height={50}
-                                                          alt={`Thumbnail ${productIndex}`}
-                                                        />
-                                                      </div>
-                                                    )}
-                                                  </td>
-                                                  <td>
-                                                    <Field
-                                                      type="text"
-                                                      value={variant}
-                                                      name={`productVariant[${productIndex}].variantName`}
-                                                    />
-                                                    </td>
-
-                                                  <td>
-                                                    <Field
-                                                      type="text"
-                                                      name={`productVariant[${productIndex}].variantSKU`}
-                                                    />
-                                                    {/* {errors.productVariant &&
-                                                      errors.productVariant[
-                                                        productIndex
-                                                      ] &&
-                                                      errors.productVariant[
-                                                        productIndex
-                                                      ].variantSKU && (
-                                                        <small className="text-danger">
-                                                          {
-                                                            errors
-                                                              .productVariant[
-                                                              productIndex
-                                                            ].variantSKU
-                                                          }
-                                                        </small>
-                                                      )} */}
-
-                                                    <ErrorMessage
-                                                      name={`productVariant.${productIndex}.variantSKU`}
-                                                      component="div"
-                                                      className="text-danger"
-                                                    />
-                                                  </td>
-                                                  <td>
-                                                    <Field
-                                                      type="number"
-                                                      name={`productVariant[${productIndex}].variantPrice`}
-                                                    />
-
-                                                    <ErrorMessage
-                                                      name={`productVariant.${productIndex}.variantPrice`}
-                                                      component="div"
-                                                      className="text-danger"
-                                                    />
-                                                  </td>
-                                                  <td>
-                                                    <Field
-                                                      type="number"
-                                                      name={`productVariant[${productIndex}].variantStock`}
-                                                    />
-
-                                                    <ErrorMessage
-                                                      name={`productVariant.${productIndex}.variantStock`}
-                                                      component="div"
-                                                      className="text-danger"
-                                                    />
-                                                  </td>
-                                                  <td>
-                                                    <Field
-                                                      type="number"
-                                                      name={`productVariant[${productIndex}].variantDiscountedPrice`}
-                                                    />
-
-                                                    <ErrorMessage
-                                                      name={`productVariant.${productIndex}.variantDiscountedPrice`}
-                                                      component="div"
-                                                      className="text-danger"
-                                                    />
-                                                  </td>
-                                                </tr>
-                                              );
-                                            }
-                                          )}
-                                        </tbody>
-                                      </table>
-
-                                      <button
-                                        className="btn btn-sm btn-warning"
-                                        onClick={() => {
-                                          handleReset();
-                                          console.log(errors);
-                                          console.log(values);
-                                        }}
-                                      >
-                                        Edit Variants
-                                      </button>
-                                    </div>
-                                  </FieldArray>
-                                )}
+                                {/* <button type="button" className="btn btn-small btn-success" style={{"width":"150px"}} onClick={handleShow}>Manage Variant</button> */}
                               </div>
                             </div>
                           </div>
@@ -1378,6 +2039,37 @@ const AddProduct = () => {
                                 <label htmlFor="name" className="form-label">
                                   Media
                                 </label>
+                                <h6>Images:</h6>
+                                <div className="row mt-4 mb-2">
+                                  {productMedia?.map((media, key) => {
+                                    if (!media.variant_id) {
+                                      return (
+                                        <div
+                                          key={key}
+                                          class="col-md-3 grid-item"
+                                        >
+                                          <img
+                                            src={imageBaseUrl + media.file_name}
+                                            className="img-fluid"
+                                            alt="Image 2"
+                                            width={150}
+                                            height={150}
+                                          ></img>
+                                          {/* <p>{image.label}</p> */}
+                                          <button
+                                            className="btn btn-sm btn-danger mt-2"
+                                            onClick={() =>
+                                              handleImageDelete(media.id)
+                                            }
+                                          >
+                                            Remove
+                                          </button>
+                                        </div>
+                                      );
+                                    }
+                                    return;
+                                  })}
+                                </div>
                                 <div>
                                   <input
                                     type="file"
@@ -1486,9 +2178,18 @@ const AddProduct = () => {
                                 >
                                   Category:
                                 </label>
+                                {/* <Field
+                                  name="category"
+                                  component={MultiSelect2}
+                                  options={catOption}
+                                /> */}
                                 <MultiSelectDropdown
                                   name="category"
                                   options={catOption}
+                                  value={selectedCategories.filter(
+                                    (cat) => cat != null
+                                  )}
+                                  // value={selectedCategories}
                                 />
                                 {errors.category && (
                                   <small className="text-danger">
@@ -1565,7 +2266,7 @@ const AddProduct = () => {
                             type="submit"
                             // disabled={isSubmitting}
                           >
-                            Create Product
+                            Update Product
                           </button>
                         </div>
                       </div>
@@ -1577,8 +2278,21 @@ const AddProduct = () => {
           </div>
         </div>
       </div>
+      {show && (
+        <>
+          <div
+            className="modal-backdrop show"
+            style={{ backgroundColor: "rgba(0, 0, 0, 0.5)", zIndex: "1040" }}
+          ></div>
+          <AddVariantModalComponent
+            handleClose={handleClose}
+            variants={propertyOption}
+            onNewVariant={handleNewVariant}
+          />
+        </>
+      )}
     </Layout>
   );
 };
 
-export default AddProduct;
+export default EditProduct;

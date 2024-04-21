@@ -7,6 +7,7 @@ import { Formik, Form, Field } from "formik";
 import { editCategoryValidation } from "../../validations/editCategoryValidation";
 import { addCategory, editCategory, fetchCategoryById } from "../../features/category/categorySlice";
 import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
 
 const EditCategory = () => {
   const [loading, setLoading] = useState(false);
@@ -49,6 +50,7 @@ const EditCategory = () => {
       //  console.log(values);
       const res = await dispatch(editCategory({"id": id,"updateData": values})).unwrap();
       if(res) {
+        toast.success('Category updated successfully!')
         navigate('/category')
       }
   }

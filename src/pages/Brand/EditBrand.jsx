@@ -71,7 +71,7 @@ const EditBrand = () => {
 
   const handleImageDelete = (id) => {
    
-   
+  //  console.log(uploadImages)
     const newImages =  uploadImages.filter(img => img._id !== id)
     setUploadImages(newImages)
     setDeletedImages(prevDeletedImages => [...prevDeletedImages, id]);
