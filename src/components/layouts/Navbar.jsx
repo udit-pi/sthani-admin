@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faShop, faTicketSimple } from '@fortawesome/free-solid-svg-icons'
+import { faShop, faTicketSimple,faUsers } from '@fortawesome/free-solid-svg-icons'
 
 
 const Navbar = () => {
@@ -64,6 +64,14 @@ const Navbar = () => {
                             <i className="ti ti-users" />
                         </span>
                         <span className="hide-menu">Users</span>
+                    </Link>
+                </li>
+                <li className="sidebar-item">
+                    <Link id="dashboard" className={isActive === 'customers' ? 'sidebar-link active' : 'sidebar-link'} onClick={() => { setIsActive('customers') }} to="/customers" aria-expanded="false">
+                        <span>
+                        <FontAwesomeIcon icon={faUsers} />
+                        </span>
+                        <span className="hide-menu">Customers</span>
                     </Link>
                 </li>
             </ul>

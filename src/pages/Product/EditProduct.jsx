@@ -27,6 +27,7 @@ import AddVariantModalComponent from "../../components/AddVariantModal";
 import { editProductValidation } from "../../validations/editProductValidation";
 import MultiSelect2 from "../../components/MultiSelect2";
 import DraftEditor from "../../components/DraftEditor";
+import TinyMCEEditor from "../../components/TinyMceEditor";
 
 const EditProduct = () => {
   const dispatch = useDispatch();
@@ -251,7 +252,7 @@ const EditProduct = () => {
     const category = catOption.find((cat) => cat.value === catId);
     // console.log(category);
     return category ? { value: category.value, label: category.label } : null;
-  });
+  }).filter(Boolean);
 
   const capitalize = (str) => {
     return str[0].toUpperCase() + str.slice(1);
@@ -274,22 +275,22 @@ const EditProduct = () => {
     //   }
     // });
 
-    productVariants1.forEach((variant, index) => {
-      if (!variant.variantSKU || !variant.variantPrice) {
-        newErrors[index] = { variantSKU: "Variant SKU is required" };
-        newErrors[index] = { variantPrice: "Variant Price is required" };
-       } else {
-        newErrors[index] = {};
-      }
-    });
+    // productVariants1.forEach((variant, index) => {
+    //   if (!variant.variantSKU || !variant.variantPrice) {
+    //     newErrors[index] = { variantSKU: "Variant SKU is required" };
+    //     newErrors[index] = { variantPrice: "Variant Price is required" };
+    //    } else {
+    //     newErrors[index] = {};
+    //   }
+    // });
 
-    console.log(newErrors);
-    if (Object.keys(newErrors).length > 0) {
-      setVariantErrors(newErrors);
+    // console.log(newErrors);
+    // if (Object.keys(newErrors).length > 0) {
+    //   setVariantErrors(newErrors);
 
-      return;
-    }
-    console.log(variantErrors);
+    //   return;
+    // }
+    // console.log(variantErrors);
 
     values.newVariantImages = newVariantImages;
     values.deletedImages = deletedImages;
@@ -357,6 +358,12 @@ const EditProduct = () => {
       values.meta_keywords = metaKeyword;
     }
 
+    values.category = selectedCat.map((catId) => {
+      const category = catOption.find((cat) => cat.value === catId);
+      // console.log(category);
+      return category ? { value: category.value, label: category.label } : null;
+    }).filter(Boolean);
+
     // console.log(mergedArray)
 
     //  console.log(errors);
@@ -364,11 +371,11 @@ const EditProduct = () => {
     // console.log(images)
     //  console.log(values)
     //  console.log(errors)
-    // const res = await dispatch(updateProduct({ id, values })).unwrap();
-    // if (res) {
-    //   toast.success("Product updated successfully!");
-    //   navigate("/product");
-    // }
+    const res = await dispatch(updateProduct({ id, values })).unwrap();
+    if (res) {
+      toast.success("Product updated successfully!");
+      navigate("/product");
+    }
   };
 
   const handleVariantSubmission = (values, errors) => {
@@ -777,6 +784,7 @@ const EditProduct = () => {
                                 </label>
                                 <Field
                                   name="description"
+                                  // component={DraftEditor}
                                   component={QuillEditor}
                                 />
                                 {errors.description && (
@@ -2186,9 +2194,20 @@ const EditProduct = () => {
                                 <MultiSelectDropdown
                                   name="category"
                                   options={catOption}
-                                  value={selectedCategories.filter(
-                                    (cat) => cat != null
-                                  )}
+                                  // value={selectedCategories.filter(
+                                  //   (cat) => cat != null
+                                  // )}
+                                   value= {selectedCat.map((catId) => {
+                                    const category = catOption.find((cat) => cat.value === catId);
+                                    return category ? { value: category.value, label: category.label } : null;
+                                  }).filter(Boolean)}
+                                  onChange={(selectedOption) => {
+                                    // console.log("Selected Option:", selectedOption);
+                                    setFieldValue('category', selectedOption);
+                                    setSelectedCat(selectedOption.map(cat => cat.value))
+                                    // console.log("Form Values:", values);
+                                   
+                                  }}
                                   // value={selectedCategories}
                                 />
                                 {errors.category && (

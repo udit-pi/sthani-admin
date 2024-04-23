@@ -16,7 +16,7 @@ const Users = () => {
         const request = await axiosInstance.get(`/users`);
         const response = await request.data;
 
-
+        console.log(response.results)
         setUsers(response.results)
         setFilteredUsers(response.results)
     }

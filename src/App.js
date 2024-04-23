@@ -25,6 +25,9 @@ import Properties from "./pages/Properties/Properties";
 import AddProperty from "./pages/Properties/AddProperty";
 import EditProperty from "./pages/Properties/EditProperty";
 import EditProduct from "./pages/Product/EditProduct";
+import  Customer  from "./pages/Customer/Customer";
+import EditCustomer from "./pages/Customer/EditCustomer";
+
 
 function App() {
   return (
@@ -62,6 +65,10 @@ function App() {
             <Route exact path="/properties" element={<Properties />} />
             <Route exact path="/addproperty" element={<AddProperty />} />
             <Route exact path="/editProperty/:id" element={<EditProperty />} />
+
+            {/* Customer Routes */}
+            <Route exact path="/customers" element={<Customer />} />
+            <Route exact path="/editCustomer/:id" element={<EditCustomer/>} />
             
           </Route>
         </Routes>
