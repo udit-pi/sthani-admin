@@ -25,7 +25,8 @@ const MultiSelect2 = ({ field, form, options, ...props }) => {
       {...field}
       {...props}
       options={options}
-      isMulti
+      // isMulti
+      isSearchable={true}
       value={selectedOptionObjects}  // Set value as array of option objects
       onChange={handleChange}
       onBlur={handleBlur}

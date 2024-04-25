@@ -20,7 +20,9 @@ const ShowProduct = () => {
   const [productMedia, setProductMedia] = useState({});
 
   //   const imageUrl = 'http://localhost:3500/uploads/' + category.banner;
-  const imageBaseUrl = "http://localhost:3500/uploads/";
+  // const imageBaseUrl = "http://localhost:3500/uploads/";
+
+  const imageBaseUrl = "http://165.22.222.184/uploads/";
 
   const initialValues = {
     name: product.name,

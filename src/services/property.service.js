@@ -1,8 +1,9 @@
 import axiosInstance from "../utils/axiosInstance";
 
 
-const API_URL = "http://localhost:3500/admin/";
+// const API_URL = "http://localhost:3500/admin/";
 
+const API_URL = "http://165.22.222.184/api/admin/";
 
 const getProperties = async () => {
     const res = await axiosInstance.get(API_URL + "properties")

@@ -27,6 +27,8 @@ import EditProperty from "./pages/Properties/EditProperty";
 import EditProduct from "./pages/Product/EditProduct";
 import  Customer  from "./pages/Customer/Customer";
 import EditCustomer from "./pages/Customer/EditCustomer";
+import CreateHomeWidget from "./pages/Home/CreateHomeWidget";
+import HomeWidget from "./pages/Home/HomeWidget";
 
 
 function App() {
@@ -69,7 +71,11 @@ function App() {
             {/* Customer Routes */}
             <Route exact path="/customers" element={<Customer />} />
             <Route exact path="/editCustomer/:id" element={<EditCustomer/>} />
-            
+
+            {/* Home Widget Route */}
+            <Route exact path="/homePage" element={<HomeWidget />} />
+            <Route exact path="/addWidget" element={<CreateHomeWidget />} />
+
           </Route>
         </Routes>
         <ToastContainer />

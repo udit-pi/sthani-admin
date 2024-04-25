@@ -70,7 +70,8 @@ const EditProduct = () => {
 
   // show hide modal
 
-  const imageBaseUrl = "http://localhost:3500/uploads/";
+  // const imageBaseUrl = "http://localhost:3500/uploads/";
+  const imageBaseUrl = "http://165.22.222.184/uploads/";
 
   const [show, setShow] = useState(false);
 

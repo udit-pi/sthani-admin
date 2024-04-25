@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faShop, faTicketSimple,faUsers } from '@fortawesome/free-solid-svg-icons'
+import { faHouse, faShop, faTicketSimple,faUsers } from '@fortawesome/free-solid-svg-icons'
 
 
 const Navbar = () => {
@@ -59,7 +59,7 @@ const Navbar = () => {
                     </Link>
                 </li>
                 <li className="sidebar-item">
-                    <Link id="dashboard" className={isActive === 'users' ? 'sidebar-link active' : 'sidebar-link'} onClick={() => { setIsActive('users') }} to="/users" aria-expanded="false">
+                    <Link id="users" className={isActive === 'users' ? 'sidebar-link active' : 'sidebar-link'} onClick={() => { setIsActive('users') }} to="/users" aria-expanded="false">
                         <span>
                             <i className="ti ti-users" />
                         </span>
@@ -67,11 +67,19 @@ const Navbar = () => {
                     </Link>
                 </li>
                 <li className="sidebar-item">
-                    <Link id="dashboard" className={isActive === 'customers' ? 'sidebar-link active' : 'sidebar-link'} onClick={() => { setIsActive('customers') }} to="/customers" aria-expanded="false">
+                    <Link id="customers" className={isActive === 'customers' ? 'sidebar-link active' : 'sidebar-link'} onClick={() => { setIsActive('customers') }} to="/customers" aria-expanded="false">
                         <span>
                         <FontAwesomeIcon icon={faUsers} />
                         </span>
                         <span className="hide-menu">Customers</span>
+                    </Link>
+                </li>
+                <li className="sidebar-item">
+                    <Link id="home-page" className={isActive === 'home-page' ? 'sidebar-link active' : 'sidebar-link'} onClick={() => { setIsActive('home-page') }} to="/homePage" aria-expanded="false">
+                        <span>
+                        <FontAwesomeIcon icon={faHouse} />
+                        </span>
+                        <span className="hide-menu">Home Widget</span>
                     </Link>
                 </li>
             </ul>
