@@ -25,7 +25,7 @@ const Login = () => {
                 "content-type": "application/json",
             },
         });
-        alert(resp.data.message);
+        console.log(resp.data);
 
     }
 
