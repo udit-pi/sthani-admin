@@ -22,7 +22,9 @@ const ShowProduct = () => {
   //   const imageUrl = 'http://localhost:3500/uploads/' + category.banner;
   // const imageBaseUrl = "http://localhost:3500/uploads/";
 
-  const imageBaseUrl = "http://165.22.222.184/api/uploads/";
+  const imageBaseUrl = "http://64.227.162.145/api/uploads/";
+
+  // const imageBaseUrl = "http://165.22.222.184/api/uploads/";
 
   const initialValues = {
     name: product.name,

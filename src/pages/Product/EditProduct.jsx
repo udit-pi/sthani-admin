@@ -71,7 +71,9 @@ const EditProduct = () => {
   // show hide modal
 
   // const imageBaseUrl = "http://localhost:3500/uploads/";
-  const imageBaseUrl = "http://165.22.222.184/api/uploads/";
+  // const imageBaseUrl = "http://165.22.222.184/api/uploads/";
+  
+  const imageBaseUrl = "http://64.227.162.145/api/uploads/";
 
   const [show, setShow] = useState(false);
 
@@ -144,7 +146,7 @@ const EditProduct = () => {
   }, [dispatch]);
 
   const renderVariants = (fecthedVariant, propOption) => {
-    // console.log(fecthedVariant);
+     console.log(fecthedVariant);
     const variants = propOption
       ?.map((prop) => {
         const foundVariant = fecthedVariant.find(
@@ -168,7 +170,7 @@ const EditProduct = () => {
 
   const fetchProduct = async () => {
     const res = await dispatch(fetchProductById({ id })).unwrap();
-    // console.log(res);
+    console.log(res);
     setProduct(res.product);
     setBrand(res.brand);
     setFetchedProductVariant(res.productVariant);
@@ -203,8 +205,14 @@ const EditProduct = () => {
 
     setSelectedCat(res.product.categories);
     const prop = await fetchProperty();
+     
 
-    renderVariants(res.variantProperties, prop);
+    console.log(res.variantProperties)
+    if(res.variantProperties.length > 0 && prop.length > 0) {
+      
+      renderVariants(res.variantProperties, prop);
+    }
+    
     addMediaToFetchedProduct(res.productVariant, res.productMedia);
 
     // setFilteredCategories(res);
@@ -260,8 +268,8 @@ const EditProduct = () => {
   };
 
   const handleSubmit = async (values, errors) => {
-    console.log(errors);
-    console.log(values);
+    // console.log(errors);
+    // console.log(values);
     setProductVariants1(values.productVariant1);
 
     const newErrors = {};
@@ -457,11 +465,11 @@ const EditProduct = () => {
 
     setShowVariant(true);
   };
-  console.log(variants);
+  // console.log(variants);
 
   // useEffect to perform actions dependent on addedVariants
   useEffect(() => {
-    console.log(addedVariants);
+    // console.log(addedVariants);
     // let options = addedVariants?.map((variant) => variant.options).flat();
     // console.log(options);
 
@@ -482,7 +490,7 @@ const EditProduct = () => {
 
     const variantNames = [];
     const options = addedVariants?.map((variant) => variant.options);
-    console.log(options);
+    // console.log(options);
 
     const generateVariantNames = (currentIndex, currentName) => {
       if (currentIndex === addedVariants.length) {
@@ -498,12 +506,18 @@ const EditProduct = () => {
     console.log(variantNames);
 
     let mergedCombinations = [];
-    fetchedProductVariant.forEach((fetched) => {
-      variantNames.forEach((option) => {
-        console.log(option);
-        mergedCombinations.push(`${fetched.name} ${option}`);
+    if(fetchedProductVariant.length > 0) {
+      fetchedProductVariant.forEach((fetched) => {
+        variantNames.forEach((option) => {
+          console.log(option);
+          mergedCombinations.push(`${fetched.name} ${option}`);
+        });
       });
-    });
+      setSelectedVariants(mergedCombinations);
+    } else {
+      setSelectedVariants(variantNames);
+    }
+    
 
     const addedVariantOptions = [];
     addedVariants?.map((variant) => {
@@ -515,7 +529,7 @@ const EditProduct = () => {
 
     console.log(mergedCombinations);
     setVariantOptions(addedVariantOptions);
-    setSelectedVariants(mergedCombinations);
+    
     // setfetchedProductVariant(variantNames);
   }, [addedVariants]);
   // console.log(selectedVariants)
@@ -598,7 +612,7 @@ const EditProduct = () => {
   //   console.log(addedVariants);
   const handleVariantDelete = (values, index) => {
     console.log(index);
-    console.log(values.variants);
+    console.log(addedVariants);
 
     // propertyOption?.map()
 
@@ -606,12 +620,21 @@ const EditProduct = () => {
     //   prevVariants.filter((item, i) => item.id !== index)
     // );
     // setAddedVariants([]);
-    addedVariants.splice(index, 1);
+  //  addedVariants.splice(index, 1);
+  setAddedVariants(prevVariants => {
+    const newVariants = [...prevVariants]; // Create a copy of the array
+    newVariants.splice(index, 1); // Remove the element at indexToRemove
+    console.log(newVariants)
+    return newVariants; // Update the state with the modified array
+  });
     console.log(addedVariants);
-    console.log(selectedVariants);
+    // console.log(selectedVariants);
+    setSelectedVariants(addedVariants)
     //  setAddedVariants(values.variants)
   };
-  // console.log(addedVariants);
+
+
+ 
 
   const handleFileChange = (e, index, type) => {
     const selectedFile = e.target.files[0];

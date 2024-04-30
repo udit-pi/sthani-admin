@@ -110,6 +110,12 @@ const AddProduct = () => {
       const metaKeyword =  values?.meta_keywords?.split(', ');
       values.meta_keywords = metaKeyword
     }
+
+    // if(values.allow_out_of_stock_purchase === "true") {
+    //   values.allow_out_of_stock_purchase = true
+    // } else {
+    //   values.allow_out_of_stock_purchase = false
+    // }
    
     // console.log(mergedArray)
    
@@ -890,8 +896,8 @@ const AddProduct = () => {
                                     className="form-select"
                                   >
                                     <option value="">Select </option>
-                                    <option value="yes">Yes</option>
-                                    <option value="no">No</option>
+                                    <option value="true">Yes</option>
+                                    <option value="false">No</option>
                                     {/* Add more options as needed */}
                                   </Field>
                                   <ErrorMessage

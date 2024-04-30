@@ -125,7 +125,8 @@ const AddCategory = () => {
                                     Meta Description
                                   </label>
                                   <Field
-                                    type="meta_description"
+                                    as="textarea"
+                                    type="text"
                                     className="form-control"
                                     id="meta_description"
                                     name="meta_description"

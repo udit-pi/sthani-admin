@@ -1,14 +1,16 @@
 import axiosInstance from "../utils/axiosInstance";
 
 
-// const API_URL = "http://localhost:3500/admin/";
-// const Store_URL = "http://localhost:3500/store/"
+//  const API_URL = "http://localhost:3500/admin/";
+//  const STORE_URL = "http://localhost:3500/store/"
 
-const API_URL = "http://165.22.222.184/api/admin/";
-const Store_URL = "http://165.22.222.184/api/store/";
+// const API_URL = "http://165.22.222.184/api/admin/";
+// const STORE_URL = "http://165.22.222.184/api/store/";
 
+const API_URL = "http://64.227.162.145/api/admin/";
+const STORE_URL = "http://64.227.162.145/api/admin/";
 const getProducts = async () => {
-    const res = await axiosInstance.get(Store_URL + "products/getProducts")
+    const res = await axiosInstance.get(STORE_URL + "products/getProducts")
 
     return res.data;
 

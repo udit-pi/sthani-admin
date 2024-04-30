@@ -91,7 +91,8 @@ const AddBrand = () => {
                                     Description
                                   </label>
                                   <Field
-                                    type="code"
+                                    as="textarea"
+                                    type="text"
                                     className="form-control"
                                     id="description"
                                     name="description"

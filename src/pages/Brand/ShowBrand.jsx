@@ -12,8 +12,9 @@ const ShowBrand = () => {
 
   //   const [brand,setBrand] = useState({})
 
-  // const imageBaseUrl = "http://localhost:3500/uploads/";
-  const imageBaseUrl = "http://165.22.222.184/api/uploads/";
+  //  const imageBaseUrl = "http://localhost:3500/uploads/";
+  // const imageBaseUrl = "http://165.22.222.184/api/uploads/";
+  const imageBaseUrl = "http://64.227.162.145/api/uploads/";
 
   const fetchBrand = async () => {
     const res = await dispatch(fetchBrandById({ id })).unwrap();
