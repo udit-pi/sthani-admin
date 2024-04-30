@@ -4,7 +4,7 @@ import axios from 'axios'
 
 
 // const REGISTER_ENDPOINT = "http://localhost:3500/v1/auth/register"
-const REGISTER_ENDPOINT =  "http://64.227.162.145/api/v1/auth/register"
+const REGISTER_ENDPOINT =  "https://64.227.162.145/api/v1/auth/register"
 const Login = () => {
 
     const [name, setName] = useState();
@@ -39,7 +39,7 @@ const Login = () => {
                             <div className="card mb-0">
                                 <div className="card-body">
                                     <Link to="/" className="text-nowrap logo-img text-center d-block py-3 w-100">
-                                        <h2>Aegis demo</h2>
+                                        <h2>Sthani Ecommerce</h2>
                                     </Link>
                                     <p className="text-center">Sign up your account</p>
                                     <form onSubmit={userRegister}>
