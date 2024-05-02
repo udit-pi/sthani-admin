@@ -41,7 +41,7 @@ const EditCategory = () => {
   // const imageUrl = 'http://localhost:3500/uploads/' + category.banner;
 
   // const imageUrl = 'http://165.22.222.184/api/uploads/' + category.banner;
-  const imageUrl = `${process.env.REACT_APP_API_URL}/api/uploads/`;
+  const imageUrl = `${process.env.REACT_APP_API_URL}/api/uploads/${category.banner}`;
 
   useEffect(() => {
     fetchCategory();

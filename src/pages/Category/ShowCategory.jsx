@@ -19,7 +19,7 @@ const ShowCategory = () => {
 
   const fetchCategory = async () => {
     const res = await dispatch(fetchCategoryById({id})).unwrap();
-     console.log(res)
+    //  console.log(res)
     setCategory(res);
     // setFilteredCategories(res);
   };
