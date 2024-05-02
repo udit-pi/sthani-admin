@@ -24,6 +24,7 @@ const register = (username, email, password) => {
 };
 
 const login = (email, password) => {
+  console.log(process.env.REACT_APP_API_URL)
   return axios
     .post(API_URL + "login", {
       email,
