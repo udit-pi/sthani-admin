@@ -4,7 +4,11 @@ import axios from 'axios'
 
 
 // const REGISTER_ENDPOINT = "http://localhost:3500/v1/auth/register"
-const REGISTER_ENDPOINT =  "https://64.227.162.145/api/v1/auth/register"
+// const REGISTER_ENDPOINT =  "https://64.227.162.145/api/v1/auth/register"
+
+const BASE_URL = process.env.REACT_APP_API_URL
+const REGISTER_ENDPOINT =  `${BASE_URL}/api/v1/auth/register`
+
 const Login = () => {
 
     const [name, setName] = useState();
