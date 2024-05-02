@@ -13,7 +13,7 @@ const Users = () => {
 
     const fetchUsers = async () => {
 
-        const request = await axiosInstance.get(`/users`);
+        const request = await axiosInstance.get(`${process.env.REACT_APP_API_URL}/api/admin/users`);
         const response = await request.data;
 
         console.log(response.results)

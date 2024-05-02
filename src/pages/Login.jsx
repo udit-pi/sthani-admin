@@ -66,16 +66,16 @@ const Login = () => {
                                                     <Field type="password" className="form-control" id="password" name='password'></Field>
                                                     {errors.password && <small className='text-danger'>{errors.password}</small>}
                                                 </div>
-                                                <div className="d-flex align-items-center justify-content-between mb-4">
+                                                {/* <div className="d-flex align-items-center justify-content-between mb-4">
 
                                                     <Link to="/register" className="text-primary fw-bold" >Not a member ? Sign Up here</Link>
-                                                </div>
+                                                </div> */}
                                                 <button className="btn btn-primary w-100 py-8 fs-4 mb-4 rounded-2" type="submit" >{loading ? 'Loading...' : 'Sign In'}</button>
                                                 {
                                                     error && (
                                                         <div className='alert alert-danger' role='alert'>{error}</div>
                                                     )
-                                                }
+                                                } 
 
                                             </Form>
                                         )}
