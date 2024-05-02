@@ -15,7 +15,8 @@ function getUser() {
 }
 
 const axiosInstance = axios.create({
-    baseURL: 'http://localhost:3500/admin',
+    // baseURL: 'http://localhost:3500/admin',
+    // baseURL: ``
 });
 
 

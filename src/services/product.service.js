@@ -7,8 +7,14 @@ import axiosInstance from "../utils/axiosInstance";
 // const API_URL = "http://165.22.222.184/api/admin/";
 // const STORE_URL = "http://165.22.222.184/api/store/";
 
-const API_URL = "http://64.227.162.145/api/admin/";
-const STORE_URL = "http://64.227.162.145/api/admin/";
+// const API_URL = "https://64.227.162.145/api/admin/";
+// const STORE_URL = "https://64.227.162.145/api/store/";
+
+
+const API_URL = `${process.env.REACT_APP_API_URL}/api/admin/`;
+const STORE_URL = `${process.env.REACT_APP_API_URL}/api/store/`;
+
+
 const getProducts = async () => {
     const res = await axiosInstance.get(STORE_URL + "products/getProducts")
 
