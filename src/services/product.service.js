@@ -1,7 +1,7 @@
 import axiosInstance from "../utils/axiosInstance";
 
 
- const API_URL = "http://localhost:3500/admin/";
+//  const API_URL = "http://localhost:3500/admin/";
 //  const STORE_URL = "http://localhost:3500/store/"
 
 // const API_URL = "http://165.22.222.184/api/admin/";
@@ -11,7 +11,7 @@ import axiosInstance from "../utils/axiosInstance";
 // const STORE_URL = "https://64.227.162.145/api/store/";
 
 
-// const API_URL = `${process.env.REACT_APP_API_URL}/api/admin/`;
+const API_URL = `${process.env.REACT_APP_API_URL}/api/admin/`;
 const STORE_URL = `${process.env.REACT_APP_API_URL}/api/store/`;
 
 
