@@ -3,7 +3,7 @@ import * as Yup from 'yup'
 export const addCategoryValidation = Yup.object({
     name: Yup.string().required("Please enter category name"),
     // code: Yup.string().required("Please enter code"),
-    banner:  Yup.mixed()
+    // banner:  Yup.mixed()
     // .test(
     //   "fileSize",
     //   "File size too large, max file size is 1 Mb",

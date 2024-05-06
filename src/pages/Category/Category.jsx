@@ -92,7 +92,7 @@ const Category = () => {
    
     {
       name: "Parent category",
-      selector: (row) => row.name,
+      selector: (row) => row.parent_category,
       sortable: true,
     },
   
