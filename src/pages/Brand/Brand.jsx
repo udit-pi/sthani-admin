@@ -75,21 +75,21 @@ const Brand = () => {
   // });
 
   const columns = [
-    {
-      name: "Id",
-      selector: (row) => row.id,
-      sortable: true,
-    },
+    // {
+    //   name: "Id",
+    //   selector: (row) => row.id,
+    //   sortable: true,
+    // },
     {
       name: "Name",
       selector: (row) => row.name,
       sortable: true,
     },
-    {
-      name: "Slug",
-      selector: (row) => row.slug,
-      sortable: true,
-    },
+    // {
+    //   name: "Slug",
+    //   selector: (row) => row.slug,
+    //   sortable: true,
+    // },
     // {
     //   name: "Description",
     //   selector: (row) => row.description,
@@ -109,7 +109,7 @@ const Brand = () => {
       name: "Action",
       cell: (row) => (
         <div>
-          <Link
+          {/* <Link
             to={`/showbrand/${row.id}`}
             className="btn btn-sm btn-primary"
           >
@@ -117,24 +117,22 @@ const Brand = () => {
             <FontAwesomeIcon icon={faCircleInfo} />
              
             </span>
-          </Link>
+          </Link> */}
           <Link
             to={`/editbrand/${row.id}`}
-            className="btn btn-sm btn-warning ms-1"
+            
           >
-            <span>
-              <i className="ti ti-pencil" />
-            </span>
+            <span style={{ color: ' #D93D6E ' }}>
+             Edit
+              
+               </span>
           </Link>
-          <button
-            className="btn btn-sm btn-danger ms-1"
-            onClick={() => handleDelete(row.id)}
-          >
-            <span>
-            <FontAwesomeIcon icon={faTrash} />
+        
+            <span  onClick={() => handleDelete(row.id)}  style={{marginLeft:"20px",cursor:"pointer",color: ' #D93D6E ' }}>
+           Delete
               
             </span>
-          </button>
+       
         </div>
       ),
     },
@@ -148,18 +146,36 @@ const Brand = () => {
   if (!currentUser) {
     return <Navigate to="/login" />;
   }
+  const handleRowClick = (row) => {
+    // Navigate to the edit page when a row is clicked
+    navigate(`/editbrand/${row.id}`);
+  };
 
   return (
     <Layout>
       <div className="col-12 stretch-card container-fluid">
+      <div style={{ marginBottom: '30px' }}>
+      <h2 className="heading">Brand</h2>
+    </div>
         <div className="card">
           <div className="card-body">
+          <div style={{display:"flex",justifyContent:"end" ,gap:"20px"}}>
+
           <Link
             to={`/addbrand`}
-            className="btn btn-sm btn-success ms-1"
+            className="btn ms-1"
+            style={{ backgroundColor: '#D93D6E',color:"white" }}
           >
             Add Brand
           </Link>
+          <input
+                    type="text"
+                    className="w-25 form-control"
+                    placeholder="Search Category"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+          </div>
             <div className="table-responsive">
               <DataTable
                 // title="Category"
@@ -169,15 +185,16 @@ const Brand = () => {
                 pagination
                 highlightOnHover
                 subHeader
-                subHeaderComponent={
-                  <input
-                    type="text"
-                    className="w-25 form-control"
-                    placeholder="Search Category"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
-                }
+                onRowClicked={handleRowClick}
+                // subHeaderComponent={
+                //   <input
+                //     type="text"
+                //     className="w-25 form-control"
+                //     placeholder="Search Category"
+                //     value={search}
+                //     onChange={(e) => setSearch(e.target.value)}
+                //   />
+                // }
               />
             </div>
           </div>

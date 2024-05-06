@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { login } from '../features/auth/authSlice';
 import { Formik, Form, Field } from 'formik'
 import { loginValidation } from '../validations/loginValidation';
-
+import MainLogo from "../assets/images/logos/sthani_logo.png"
 const initialValues = {
     email: '',
     password: ''
@@ -42,7 +42,9 @@ const Login = () => {
                             <div className="card mb-0">
                                 <div className="card-body">
                                     <Link to="/" className="text-nowrap logo-img text-center d-block py-3 w-100">
-                                        <h2>Sthani Ecommerce</h2>
+                                        {/* <h2>Sthani Ecommerce</h2> */}
+
+                                        <img src={MainLogo}  width="120px"/>
                                     </Link>
                                     <p className="text-center">Log in to your dashboard</p>
                                     <Formik

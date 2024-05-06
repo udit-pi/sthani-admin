@@ -103,7 +103,7 @@ const Home = () => {
             <div className='pages'>
                 <div className="home">
                     <div className="row">
-                        <h2 className="mb-5">Hi <b className='text-primary'>{user ? user.user.name : ''}</b>, welcome to dashboard</h2>
+                        <h2 className="mb-5">Hi <b style={{ color: '#D93D6E' }}>{user ? user.user.name : ''}</b>, welcome to dashboard</h2>
 
                         <div className="col-md-6 d-flex align-items-strech">
                             <div className="card w-100">

@@ -30,7 +30,7 @@ import EditCustomer from "./pages/Customer/EditCustomer";
 import CreateHomeWidget from "./pages/Home/CreateHomeWidget";
 import HomeWidget from "./pages/Home/HomeWidget";
 
-
+import "./App.css"
 function App() {
   return (
     <Router>

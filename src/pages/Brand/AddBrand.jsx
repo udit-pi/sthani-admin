@@ -5,11 +5,11 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 
 import { Formik, Form, Field, FieldArray, ErrorMessage } from "formik";
 import { addBrandValidation } from "../../validations/addBrandValidation";
-
+import { FaArrowLeft } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { addBrand } from "../../features/brand/brandSlice";
-
+import { IoMdClose } from "react-icons/io";
 const AddBrand = () => {
   const [loading, setLoading] = useState(false);
   const [error, seError] = useState([]);
@@ -37,25 +37,11 @@ const AddBrand = () => {
   return (
     <Layout>
       <div className="col-12 stretch-card container-fluid">
-        <div className="card">
-          <div className="card-body">
-            <h4>Add Brand</h4>
-
-            <div
-              // className="page-wrapper"
-              id="main-wrapper"
-              data-layout="vertical"
-              data-navbarbg="skin6"
-              data-sidebartype="full"
-              data-sidebar-position="fixed"
-              data-header-position="fixed"
-            >
-              <div className="position-relative overflow-hidden  min-vh-100 d-flex align-items-center justify-content-center">
-                <div className="container">
-                  <div className="row">
-                    <div className="">
-                      <div className="card mb-0">
-                        <div className="card-body">
+      <div style={{marginBottom: '30px',display:"flex",alignItems:"center",gap:"20px",color:'#D93D6E'  }}>
+      <FaArrowLeft size={30} cursor="pointer"/>
+      <h2 className="heading">Add Brands</h2>
+    </div>
+    
                           <Formik
                             initialValues={initialValues}
                             validationSchema={addBrandValidation}
@@ -66,6 +52,8 @@ const AddBrand = () => {
                           >
                             {({ values, errors, setFieldValue }) => (
                               <Form>
+                              <div className="card">
+                            <div className="card-body">
                                 <div className="mb-3">
                                   <label htmlFor="name" className="form-label">
                                     Brand Name
@@ -122,7 +110,28 @@ const AddBrand = () => {
                                     </small>
                                   )}
                                 </div>
-                                <div className="mb-4">
+               
+                               
+
+                                {/* <button
+                                  className="btn  w-100 py-8 fs-4 mb-4 rounded-2 mt-4"
+                                  type="submit"
+                                  style={{ backgroundColor: '#D93D6E',color:"white" }}
+                                >
+                                  {loading ? "Loading..." : "Create Brand"}
+                                </button> */}
+                                {
+                                  // error && (
+                                  //     <div className='alert alert-danger' role='alert'>{error}</div>
+                                  // )
+                                }
+                                </div>
+
+        </div>
+
+        <div className="card" >
+          <div className="card-body">
+          <div className="mb-4">
                                   <label htmlFor="logo" className="form-label">
                                     Logo
                                   </label>
@@ -146,41 +155,20 @@ const AddBrand = () => {
                                   )}
                                 </div>
 
-                                {/* <div className="mb-4">
-                                  <label
-                                    htmlFor="banner"
-                                    className="form-label"
-                                  >
-                                    Banner
-                                  </label>
-                                  <input
-                                    type="file"
-                                    className="form-control"
-                                    id="banner"
-                                    name="banner"
-                                    onChange={(event) => {
-                                      // Set the uploaded file to Formik state
-                                      setFieldValue(
-                                        "banner",
-                                        event.currentTarget.files[0]
-                                      );
-                                    }}
-                                  />
-                                  {errors.banner && (
-                                    <small className="text-danger">
-                                      {errors.banner}
-                                    </small>
-                                  )}
-                                </div> */}
+                            
                                 <div >
                                     <h4>Upload Images</h4>
                                     <FieldArray name="images" >
                                   {({ push, remove }) => (
                                     <div>
                                       {values.images.map((image, index) => (
-                                        <div key={index} className="d-flex justify-content-between mt-2">
+                                        <div key={index} style={{display:"flex",gap:"30vh"}}>
+                                        <div className="mb-1">
+
+                                       
                                           <input
                                             type="file"
+                                            className="form-control"
                                             onChange={(event) => {
                                               const file =
                                                 event.currentTarget.files[0];
@@ -190,8 +178,9 @@ const AddBrand = () => {
                                               );
                                             }}
                                           />
-                                          <div>
-                                            <label htmlFor="label">
+                                           </div>
+                                          <div  style={{ marginBottom: '1rem' }}>
+                                            <label htmlFor="label" style={{ fontWeight:"bold", marginBottom: '0.5rem' ,marginRight:"10px" }}>
                                               Label:
                                             </label>
                                             <Field
@@ -200,6 +189,7 @@ const AddBrand = () => {
                                               name={`labels.${index}`}
                                               placeholder="Select label"
                                             //   className="form-select"
+                                            style={{ padding: '0.5rem', borderRadius: '5px', border: '1px solid #ccc' }}
                                             >
                                               <option value="">
                                                 Select Label
@@ -221,19 +211,21 @@ const AddBrand = () => {
                                             name={`images[${index}]`}
                                             component="div"
                                           />
-                                          <button
+                                          {/* <button
                                             type="button"
                                             className="btn btn-sm btn-danger"
                                             onClick={() => remove(index)}
                                           >
                                             Remove
-                                          </button>
+                                          </button> */}
+                                          <IoMdClose size={32} color="#D93D6E" onClick={() => remove(index)} cursor="pointer"/>
                                         </div>
                                       ))}
                                       <button
                                         type="button"
-                                        className="btn btn-sm btn-success mt-2"
+                                        className="btn btn-sm  mt-2"
                                         onClick={() => push({ label: '', file: null })}
+                                        style={{ backgroundColor: 'transparent',border:"1px solid #D93D6E" }}
                                       >
                                         Add Image
                                       </button>
@@ -243,29 +235,52 @@ const AddBrand = () => {
                                 </div>
                                
 
-                                <button
-                                  className="btn btn-primary w-100 py-8 fs-4 mb-4 rounded-2 mt-4"
+
+          </div>
+        </div>
+
+
+<div className="card">
+<div className="card-body">
+<div className="mb-4">
+                                  <label htmlFor="logo" className="form-label">
+                                  Slideshow image
+                                  </label>
+                                  <input
+                                    type="file"
+                                    className="form-control"
+                                    id="logo"
+                                    name="logo"
+                                    onChange={(event) => {
+                                      // Set the uploaded file to Formik state
+                                      setFieldValue(
+                                        "logo",
+                                        event.currentTarget.files[0]
+                                      );
+                                    }}
+                                  />
+                                  {errors.logo && (
+                                    <small className="text-danger">
+                                      {errors.logo}
+                                    </small>
+                                  )}
+                                </div>
+</div>
+
+</div>
+
+
+        <button
+                                  className="btn  w-100 py-8 fs-4 mb-4 rounded-2 mt-4"
                                   type="submit"
+                                  style={{ backgroundColor: '#D93D6E',color:"white" }}
                                 >
                                   {loading ? "Loading..." : "Create Brand"}
                                 </button>
-                                {
-                                  // error && (
-                                  //     <div className='alert alert-danger' role='alert'>{error}</div>
-                                  // )
-                                }
                               </Form>
                             )}
                           </Formik>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+
       </div>
     </Layout>
   );

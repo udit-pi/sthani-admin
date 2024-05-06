@@ -13,7 +13,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleInfo } from '@fortawesome/free-solid-svg-icons'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { toast } from "react-toastify";
-
+import { FaCat } from "react-icons/fa";
 
 const Category = () => {
   const { user: currentUser } = useSelector((state) => state.auth);
@@ -28,7 +28,7 @@ const Category = () => {
   // console.log(allCategories)
   const fetchCategory = async () => {
     const res = await dispatch(fetchAllCategories()).unwrap();
-    //  console.log(res)
+     console.log(res)
     setCategories(res);
     setFilteredCategories(res);
   };
@@ -76,40 +76,31 @@ const Category = () => {
 
   const columns = [
     {
-      name: "Id",
-      selector: (row) => row.id,
-      sortable: true,
+      name: "Icon",
+      cell: (row) => (
+        <div>
+          <FaCat size={20}/>
+        </div>
+      ),
     },
+  
     {
       name: "Name",
       selector: (row) => row.name,
       sortable: true,
     },
+   
     {
-      name: "Slug",
-      selector: (row) => row.slug,
+      name: "Parent category",
+      selector: (row) => row.name,
       sortable: true,
     },
-    {
-      name: "Code",
-      selector: (row) => row.code,
-      sortable: true,
-    },
-    {
-      name: "Meta Title",
-      selector: (row) => row.meta_title,
-      sortable: true,
-    },
-    // {
-    //     name: 'Meta Description',
-    //     selector: row => row.meta_description,
-    //     sortable: true,
-    // },
+  
     {
       name: "Action",
       cell: (row) => (
         <div>
-          <Link
+          {/* <Link
             to={`/showcategory/${row.id}`}
             className="btn btn-sm btn-primary"
           >
@@ -117,24 +108,21 @@ const Category = () => {
             <FontAwesomeIcon icon={faCircleInfo} />
              
             </span>
-          </Link>
+          </Link> */}
           <Link
             to={`/editcategory/${row.id}`}
-            className="btn btn-sm btn-warning ms-1"
+            className=" "
           >
-            <span>
-              <i className="ti ti-pencil" />
+            <span style={{ color: ' #D93D6E ' }}>
+              {/* <i className="ti ti-pencil" /> */}
+              Edit
             </span>
           </Link>
-          <button
-            className="btn btn-sm btn-danger ms-1"
-            onClick={() => handleDelete(row.id)}
-          >
-            <span>
-            <FontAwesomeIcon icon={faTrash} />
+     
+          <span  onClick={() => handleDelete(row.id)}  style={{marginLeft:"20px",cursor:"pointer",color: ' #D93D6E ' }}>
+           Delete
               
             </span>
-          </button>
         </div>
       ),
     },
@@ -148,18 +136,39 @@ const Category = () => {
   if (!currentUser) {
     return <Navigate to="/login" />;
   }
-
+  const handleRowClick = (row) => {
+    
+    navigate(`/editcategory/${row.id}`);
+  };
   return (
     <Layout>
       <div className="col-12 stretch-card container-fluid">
+
+      <div style={{ marginBottom: '30px' }}>
+   
+      <h2 className="heading">Category</h2>
+    </div>
         <div className="card">
           <div className="card-body">
+          <div style={{display:"flex",justifyContent:"end" ,gap:"20px"}} >
+
+        
           <Link
             to={`/addcategory`}
-            className="btn btn-sm btn-success ms-1"
+            className="btn "
+            style={{ backgroundColor: '#D93D6E',color:"white" }}
           >
             Add Category
           </Link>
+
+          <input
+                    type="text"
+                    className="w-25 form-control"
+                    placeholder="Search Category"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+          </div>
             <div className="table-responsive">
               <DataTable
                 // title="Category"
@@ -169,17 +178,20 @@ const Category = () => {
                 pagination
                 highlightOnHover
                 subHeader
-                subHeaderComponent={
-                  <input
-                    type="text"
-                    className="w-25 form-control"
-                    placeholder="Search Category"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
-                }
+                onRowClicked={handleRowClick}
+                // subHeaderComponent={
+                //   <input
+                //     type="text"
+                //     className="w-25 form-control"
+                //     placeholder="Search Category"
+                //     value={search}
+                //     onChange={(e) => setSearch(e.target.value)}
+                //   />
+                // }
               />
             </div>
+
+        
           </div>
         </div>
       </div>

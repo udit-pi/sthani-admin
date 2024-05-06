@@ -12,7 +12,7 @@ const Layout = ({ children }) => {
             <Aside />
             <div className="body-wrapper">
                 <Header />
-                <div className="container-fluid">
+                <div className="container-fluid" style={{minHeight:"100vh"}}>
                     {children}
                    
                 </div>
