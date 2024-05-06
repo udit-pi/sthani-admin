@@ -19,16 +19,17 @@ const AddCategory = () => {
 
   const initialValues = {
     name: "",
-    description: "",
-    parent_category:"animal",
- 
-    banner: "",
- 
-    icon:"",
+    description: " ",
+    parent_category: " ",
+    banner: " ",
+    icon: " ",
+    slide_show: [],
   };
+  console.log(initialValues.slide_show)
+
 
   const handleSubmit = async (values) => {
-   
+
     console.log(values);
     const res = await dispatch(addCategory(values)).unwrap();
     if (res) {
@@ -46,199 +47,224 @@ const AddCategory = () => {
         </div>
         <div>
 
-     
-        <Formik
 
-          initialValues={initialValues}
-          validationSchema={addCategoryValidation}
-          onSubmit={(values) => {
-       console.log(values)
-          
-            handleSubmit(values)
-          }}
-        >
-          {({ errors, setFieldValue}) => (
+          <Formik
 
-            <Form>
-              <div className="card">
-                <div className="card-body">
-                  <div className="mb-3">
-                    <label htmlFor="name" className="form-label">
-                      Category Name
-                    </label>
-                    <Field
-                      type="name"
-                      className="form-control"
-                      id="name"
-                      name="name"
-                      aria-describedby="nameHelp"
-                    ></Field>
-                    {errors.name && (
-                      <small className="text-danger">
-                        {errors.name}
-                      </small>
-                    )}
+            initialValues={initialValues}
+            validationSchema={addCategoryValidation}
+            onSubmit={(values) => {
+              console.log(values)
+
+              handleSubmit(values)
+            }}
+          >
+            {({ values, errors, setFieldValue }) => (
+
+              <Form>
+                <div className="card">
+                  <div className="card-body">
+                    <div className="mb-3">
+                      <label htmlFor="name" className="form-label">
+                        Category Name
+                      </label>
+                      <Field
+                        type="name"
+                        className="form-control"
+                        id="name"
+                        name="name"
+                        aria-describedby="nameHelp"
+                      ></Field>
+                      {errors.name && (
+                        <small className="text-danger">
+                          {errors.name}
+                        </small>
+                      )}
+                    </div>
+
+                    <div className="mb-4">
+                      <label
+                        htmlFor="description"
+                        className="form-label"
+                      >
+                        Description
+                      </label>
+                      <Field
+                        as="textarea"
+                        type="text"
+                        className="form-control"
+                        id="description"
+                        name="description"
+                      ></Field>
+                      {errors.description && (
+                        <small className="text-danger">
+                          {errors.description}
+                        </small>
+                      )}
+                    </div>
+
+                    <div className="mb-4">
+                      <label
+                        htmlFor="parent_category"
+                        className="form-label"
+                      >
+                        Parent category:
+                      </label>
+                      <MultiSelectDropdown
+                        name="parent_category"
+                      // options={catOption}
+                      />
+                      {errors.parent_category && (
+                        <small className="text-danger">
+                          {errors.parent_category}
+                        </small>
+                      )}
+
+                    </div>
+
+
+
+
+                    {
+                      // error && (
+                      //     <div className='alert alert-danger' role='alert'>{error}</div>
+                      // )
+                    }
                   </div>
-
-                <div className="mb-4">
-                    <label
-                      htmlFor="description"
-                      className="form-label"
-                    >
-                      Description
-                    </label>
-                    <Field
-                      as="textarea"
-                      type="text"
-                      className="form-control"
-                      id="description"
-                      name="description"
-                    ></Field>
-                    {errors.description && (
-                      <small className="text-danger">
-                        {errors.description}
-                      </small>
-                    )}
-                  </div>
-
-                  <div className="mb-4">
-                    <label
-                      htmlFor="parent_category"
-                      className="form-label"
-                    >
-                      Parent category:
-                    </label>
-                    <MultiSelectDropdown
-                      name="parent_category"
-                    // options={catOption}
-                    />
-                    {errors.parent_category && (
-                      <small className="text-danger">
-                        {errors.parent_category}
-                      </small>
-                    )}
-
-                  </div> 
-
-
-
-
-                  {
-                    // error && (
-                    //     <div className='alert alert-danger' role='alert'>{error}</div>
-                    // )
-                  }
                 </div>
-              </div>
-              <div className="card">
-                <div className="card-body">
+                <div className="card">
+                  <div className="card-body">
 
-                  <div className="mb-4">
-                    <label
-                      htmlFor="banner"
-                      className="form-label"
-                    >
-                      Banner
-                    </label>
-                    <input
-                      type="file"
-                      className="form-control"
-                      id="banner"
-                      name="banner"
-                      onChange={(event) => {
-                        // Set the uploaded file to Formik state
-                        setFieldValue(
-                          "banner",
-                          event.currentTarget.files[0]
-                        );
-                      }}
-                    />
-                    {errors.banner && (
-                      <small className="text-danger">
-                        {errors.banner}
-                      </small>
-                    )}
+                    <div className="mb-4">
+                      <label
+                        htmlFor="banner"
+                        className="form-label"
+                      >
+                        Banner
+                      </label>
+                      <input
+                        type="file"
+                        className="form-control"
+                        id="banner"
+                        name="banner"
+                        onChange={(event) => {
+                          // Set the uploaded file to Formik state
+                          setFieldValue(
+                            "banner",
+                            event.currentTarget.files[0]
+                          );
+                        }}
+                      />
+                      {errors.banner && (
+                        <small className="text-danger">
+                          {errors.banner}
+                        </small>
+                      )}
+                    </div>
+
+                    <div className="mb-4">
+                      <label
+                        htmlFor="icon"
+                        className="form-label"
+                      >
+                        icon image
+                      </label>
+                      <input
+                        type="file"
+                        className="form-control"
+                        id="icon"
+                        name="icon"
+                        onChange={(event) => {
+                          // Set the uploaded file to Formik state
+                          setFieldValue(
+                            "icon",
+                            event.currentTarget.files[0]
+                          );
+                        }}
+                      />
+                      {errors.banner && (
+                        <small className="text-danger">
+                          {errors.banner}
+                        </small>
+                      )}
+                    </div>
+
                   </div>
-
-                  <div className="mb-4">
-                                  <label
-                                    htmlFor="icon"
-                                    className="form-label"
-                                  >
-                                  icon image
-                                  </label>
-                                  <input
-                                    type="file"
-                                    className="form-control"
-                                    id="icon"
-                                    name="icon"
-                                    onChange={(event) => {
-                                      // Set the uploaded file to Formik state
-                                      setFieldValue(
-                                        "icon",
-                                        event.currentTarget.files[0]
-                                      );
-                                    }}
-                                  />
-                                  {errors.banner && (
-                                    <small className="text-danger">
-                                      {errors.banner}
-                                    </small>
-                                  )}
-                                </div>      
-
                 </div>
-              </div>
 
-<div className="card">
-            <div className="card-body">
- 
- 
-
-                                <div className="mb-4">
-                                  <label
-                                    htmlFor="banner"
-                                    className="form-label"
-                                  >
-                               Slideshow image 
-                                  </label>
-                                  <input
-                                    type="file"
-                                    className="form-control"
-                                    id="banner"
-                                    name="banner"
-                                    onChange={(event) => {
-                                      // Set the uploaded file to Formik state
-                                      setFieldValue(
-                                        "banner",
-                                        event.currentTarget.files[0]
-                                      );
-                                    }}
-                                  />
-                                  {errors.banner && (
-                                    <small className="text-danger">
-                                      {errors.banner}
-                                    </small>
-                                  )}
-                                </div>      
-
-    </div>
-</div>
-
-              <button
-                className="btn  w-100 py-8 fs-4 mb-4 rounded-2"
-                type="submit"
-                style={{ backgroundColor: '#D93D6E', color: "white" }}
-                
-              >
-                {loading ? "Loading..." : "Create Category"}
-              </button>
-            </Form>
+                <div className="card">
+                  <div className="card-body">
 
 
-          )}
 
-        </Formik>
+                    <div className="mb-4">
+                      <label
+                        htmlFor="slide_show"
+                        className="form-label"
+                      >
+                        Slideshow image
+                      </label>
+                      <input
+                        type="file"
+                        className="form-control"
+                        id="slide_show"
+                        name="slide_show"
+                        onChange={(event) => {
+            const selectedFiles = Array.from(event.target.files); // Convert FileList to array
+            
+            // Iterate over each selected file
+            selectedFiles.forEach(file => {
+                // Push the file into the slide_show array
+                setFieldValue("slide_show", prevSlideShow => [...prevSlideShow, file]);
+            });
+            
+            console.log(values.slide_show); // Log values.slide_show instead of initialValues.slide_show
+        }}
+                        multiple
+                      />
+                      {errors.banner && (
+                        <small className="text-danger">
+                          {errors.banner}
+                        </small>
+                      )}
+                    </div>
+
+                  </div>
+                </div>
+
+                {/* {values.slide_show && values.slide_show.length > 0 && (
+                <div className="card mt-4">
+                    <div className="card-body">
+                        <h5>Selected Slideshow Images:</h5>
+                        <div className="row">
+                            {values.slide_show.map((file, index) => (
+                                <div key={index} className="col-md-3 mb-2">
+                                    <img
+                                        src={URL.createObjectURL(file)}
+                                        alt={`Slideshow Image ${index + 1}`}
+                                        className="img-fluid"
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )} */}
+
+
+                <button
+                  className="btn  w-100 py-8 fs-4 mb-4 rounded-2"
+                  type="submit"
+                  style={{ backgroundColor: '#D93D6E', color: "white" }}
+
+                >
+                  {loading ? "Loading..." : "Create Category"}
+                </button>
+              </Form>
+
+
+            )}
+
+          </Formik>
         </div>
       </div>
     </Layout>
