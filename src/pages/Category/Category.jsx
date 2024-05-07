@@ -15,6 +15,9 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { toast } from "react-toastify";
 import { FaCat } from "react-icons/fa";
 
+
+
+
 const Category = () => {
   const { user: currentUser } = useSelector((state) => state.auth);
   const allCategories = useSelector(getAllCategories);
@@ -73,16 +76,16 @@ const Category = () => {
   // filteredCategories.forEach((cat, index) => {
   //   cat.serial = index + 1;
   // });
-
+  console.log(categories)
+ 
   const columns = [
-    {
-      name: "Icon",
-      cell: (row) => (
-        <div>
-          <FaCat size={20}/>
-        </div>
-      ),
-    },
+   
+     
+      {
+        name: "Icon",
+        cell: (row) => <img src={`${process.env.REACT_APP_API_URL}/api/uploads/${row.icon}`} alt="Icon" height="50px" />,
+      },
+   
   
     {
       name: "Name",
