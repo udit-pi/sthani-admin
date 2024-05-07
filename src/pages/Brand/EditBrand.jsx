@@ -33,7 +33,8 @@ const EditBrand = () => {
     logo: "",
     website: "",
     images: [],
-    labels: []
+    labels: [],
+    slide_show: []
   };
 
   const fetchBrand = async () => {
@@ -45,6 +46,7 @@ const EditBrand = () => {
     initialValues.description = res.description;
     initialValues.website = res.website;
      initialValues.images = [];
+     initialValues.slide_show=res.slide_show
      
 
     // setFilteredCategories(res);
@@ -304,29 +306,24 @@ const EditBrand = () => {
         <div className="card">
           <div  className="card-body">
           <div className="mb-4">
-                                  <label htmlFor="logo" className="form-label">
+                                  <label htmlFor="slide_show" className="form-label">
                                   Slideshow image
                                   </label>
-                               {!initialValues.logo=="" &&  <img
-                                    src={imageBaseUrl + brand.logo}
-                                    alt=""
-                                    width={50}
-                                    height={50}
-                                  />}
+                              
                            
                                   <input
                                     type="file"
                                     className="form-control"
-                                    id="image"
-                                    name="image"
+                                    id="slide_show"
+                                    name="slide_show"
                                   
                                     onChange={(event) => {
-                                      // Set the uploaded file to Formik state
-                                      setFieldValue(
-                                        "logo",
-                                        event.currentTarget.files[0]
-                                      );
-                                    }}
+    
+    const newFiles = Array.from(event.currentTarget.files);
+    values.slide_show = values.slide_show ? values.slide_show.concat(newFiles) : newFiles;
+
+    console.log(values.slide_show);
+}}
                                   />
                                   {errors.logo && (
                                     <small className="text-danger">
@@ -335,7 +332,33 @@ const EditBrand = () => {
                                   )}
                                 </div>
 
+                                <div style={{ display: "flex", gap: "40px" }}>
 
+
+{values.slide_show.map((image,index) => (
+  
+  <div style={{display:"flex",flexDirection:"column",gap:"10px"}}>
+  
+
+   
+   {typeof image === "string"&&<img src={imageBaseUrl + image} height="150px" />}
+
+   {typeof image === "string"&&<button
+      type="button"
+      className="btn btn-sm  mt-2"
+      onClick={() => {
+    setFieldValue('slide_show', values.slide_show.filter((_, i) => i !== index));
+    console.log(values.slide_show)
+  }}
+      style={{ backgroundColor: 'transparent', border: "1px solid #D93D6E" }}
+    >
+      Remove Image
+    </button>}
+  </div>
+
+))}
+
+</div>
                          
           </div>
         </div>

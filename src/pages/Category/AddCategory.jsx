@@ -224,15 +224,11 @@ const AddCategory = () => {
    
     for (let i = 0; i < event.currentTarget.files.length; i++) {
      
-      // selectedFiles.push(event.currentTarget.files[i]);
+     
       values.slide_show.push(event.currentTarget.files[i])
      
     }
-    // Concatenate the new array of files with the existing array in Formik state
-    // setFieldValue(`slide_show[${selectedFiles}]`, [
-    //   ...values.slide_show, // Existing files
-    //   ...selectedFiles,     // Newly selected files
-    // ]);
+    
 
 
 console.log(values.slide_show)
