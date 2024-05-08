@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import Layout from "../../components/layouts/Layout";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { fetchAllBrands } from "../../features/brand/brandSlice";
 import { fetchAllCategories } from "../../features/category/categorySlice";
 import { fetchAllProducts } from "../../features/product/productSlice";
@@ -13,13 +13,18 @@ import ProductWidget from "./components/ProductWidget";
 import FeaturedBrand from "./components/FeaturedBrand";
 import FeaturedCategories from "./components/FeaturedCategories";
 import { addWidgetValidation } from "../../validations/addWidgetValidation";
-import { addWidget, fetchAllwidget } from "../../features/widget/homeWidgetSlice";
+import {
+  addWidget,
+  fetchAllwidget,
+  fetchWidgetById,
+  updateWidget,
+} from "../../features/widget/homeWidgetSlice";
 import { toast } from "react-toastify";
 
-
-const CreateHomeWidget = () => {
+const EditHomeWidget = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { id } = useParams();
 
   const [showButton, setShowButton] = useState(false);
   const [widgetType, setWidgetType] = useState(" ");
@@ -34,17 +39,17 @@ const CreateHomeWidget = () => {
   const [items, setItems] = useState([]);
   const [destinationId, setDestinationId] = useState([]);
   const [featuredBrandProducts, setFeaturedBrandProducts] = useState([]);
-  const [featuredCategoryProducts,setFeaturedCategoryProducts] = useState([]);
+  const [featuredCategoryProducts, setFeaturedCategoryProducts] = useState([]);
   const [homeWidgets, setHomeWidgets] = useState([]);
-  const [widgetPositions,setWidgetPositions] = useState([]);
+  const [widgetPositions, setWidgetPositions] = useState([]);
+  const [widget, setWidget] = useState({});
+  const [formData,setFormData] = useState({})
 
   const initialValues = {
-    placement_id: "",
-    // items: [{brand: ''}],
-     widget_type: '',
+    placement_id: widget.placement_id,
+    title: widget.title,
+    widget_type: widget.widget_type,
   };
-
-
 
   //   get brands
   const brandOptions = [];
@@ -62,7 +67,7 @@ const CreateHomeWidget = () => {
   const catOptions = [];
   const fetchCategory = async () => {
     const res = await dispatch(fetchAllCategories()).unwrap();
-    //  console.log(res)
+      console.log(res)
     setCategories(res);
     res?.map((cat) => {
       catOptions.push({ label: cat.name, value: cat.id });
@@ -85,66 +90,85 @@ const CreateHomeWidget = () => {
   };
 
   let positions = [
-    {name: "position 1", value: "1"},
-    {name: "position 2", value: "2"},
-    {name: "position 3", value: "3"},
-    {name: "position 4", value: "4"},
-    {name: "position 5", value: "5"},
-    {name: "position 6", value: "6"},
-    {name: "position 7", value: "7"},
-    {name: "position 8", value: "8"},
-    {name: "position 9", value: "9"},
-    {name: "position 10", value: "10"}
-  ]
+    { name: "position 1", value: "1" },
+    { name: "position 2", value: "2" },
+    { name: "position 3", value: "3" },
+    { name: "position 4", value: "4" },
+    { name: "position 5", value: "5" },
+    { name: "position 6", value: "6" },
+    { name: "position 7", value: "7" },
+    { name: "position 8", value: "8" },
+    { name: "position 9", value: "9" },
+    { name: "position 10", value: "10" },
+  ];
 
-  const fetchWidget = async () => {
+  const fetchWidgets = async () => {
     const res = await dispatch(fetchAllwidget()).unwrap();
-     console.log('widget',res)
+    //  console.log('widget',res)
     setHomeWidgets(res);
-    setWidgetPositions(positions)
-    res.forEach(widget => {
-     
-      // console.log(widget.placement_id)
-      const index = positions.findIndex(position => position.value === widget.placement_id);
+    setWidgetPositions(positions);
+    res.forEach((widget) => {
+      //   console.log(widget.placement_id)
+      const index = positions.findIndex(
+        (position) => position.value === widget.placement_id
+      );
       // console.log(position.value);
-      
-      console.log(index);
+
+      //   console.log(index);
       // If a match is found, remove it from the positions array
       if (index !== -1) {
-          positions.splice(index, 1);
-          setWidgetPositions(positions)
+        positions.splice(index, 1);
+        setWidgetPositions(positions);
       }
-      console.log('positions',positions)
-  });
+
+      //   console.log('positions',positions)
+    });
   
+  };
+
+  const fetchWidget = async () => {
+    try {
+      const res = await dispatch(fetchWidgetById({ id })).unwrap();
+      console.log(res);
+      setWidget(res);
+      if (res) {
+        positions.push({
+          name: `Position ${res.placement_id}`,
+          value: res.placement_id,
+        });
+        setWidgetPositions(positions);
+        setWidgetType(res.widget_type);
+        setShowItemForm(true);
+        setShowButton(true);
+      }
+      setFormData(res);
+    } catch (err) {
+      throw err;
+    }
   };
 
   useEffect(() => {
     fetchBrand();
     fetchCategory();
     fetchProducts();
+    fetchWidgets();
     fetchWidget();
   }, [dispatch]);
 
-  
-
-  
   const handleSubmit = async (values, { setSubmitting }) => {
     console.log("Submitting form with values:", values);
 
-    
-
     setSubmitting(false);
 
-    const res = await dispatch(addWidget(values)).unwrap();
+    const res = await dispatch(updateWidget({id,  values})).unwrap();
     if (res) {
-      toast.success("Widget created successfully!");
+      toast.success("Widget updated successfully!");
       navigate("/homePage");
     }
   };
 
   const handleWidgetChange = async (e) => {
-     await setWidgetType(e.target.value);
+    await setWidgetType(e.target.value);
 
     // console.log("Selected Widget:", selectedValue);
     // console.log(brands);
@@ -193,31 +217,27 @@ const CreateHomeWidget = () => {
   const handleFeaturedCategoryChange = (e) => {
     const featuredCategoryOptions = [];
     products?.map((prod) => {
-      if(prod.categories.includes(e.target.value)) {
+      if (prod.categories.includes(e.target.value)) {
         featuredCategoryOptions.push({ label: prod.name, value: prod.id });
       }
-     
     });
     setFeaturedCategoryProducts(featuredCategoryOptions);
-  }
+  };
 
   const handleFeaturedBrandChange = (e) => {
-
     const featuredBrandOptions = [];
     products?.map((prod) => {
-      if(prod.brand_id === e.target.value) {
+      if (prod.brand_id === e.target.value) {
         featuredBrandOptions.push({ label: prod.name, value: prod.id });
       }
-     
     });
     setFeaturedBrandProducts(featuredBrandOptions);
-  }
+  };
 
   const handleSelectIdChange = (fieldName, selectedOption, setFieldValue) => {
     setFieldValue(fieldName, selectedOption.value);
-    console.log(selectedOption)
+    console.log(selectedOption);
     // setDestinationId(selectedOption)
-    
   };
 
   const moveItem = (values, fromIndex, toIndex) => {
@@ -259,22 +279,21 @@ const CreateHomeWidget = () => {
     const [removed] = widgetItems.splice(result.source.index, 1);
     widgetItems.splice(result.destination.index, 0, removed);
 
-   
     values.items = widgetItems;
     console.log(values);
   };
 
   // const onDragEnd = (result, values, setFieldValue) => {
   //   if (!result.destination) return;
-  
+
   //   const { source, destination } = result;
-  
+
   //   if (source.index !== destination.index) {
   //     // Reorder items
   //     const reorderedItems = Array.from(values.items);
   //     const [removed] = reorderedItems.splice(source.index, 1);
   //     reorderedItems.splice(destination.index, 0, removed);
-  
+
   //     // Update IDs and images based on reordered items
   //     reorderedItems.forEach((item, index) => {
   //       setFieldValue(`items.${index}.id`, item.id); // Update ID
@@ -286,7 +305,6 @@ const CreateHomeWidget = () => {
   //     console.log("Formik Values:", values);
   //   }
   // };
-  
 
   return (
     <Layout>
@@ -294,15 +312,16 @@ const CreateHomeWidget = () => {
       <div className="col-12 stretch-card container-fluid">
         <div className="card">
           <div className="card-body">
-            <h4>Add Home Widget</h4>
+            <h4>Edit Home Widget</h4>
             <Formik
-              initialValues={initialValues}
+              initialValues={formData}
               validationSchema={addWidgetValidation}
+              enableReinitialize={true}
               onSubmit={(values, { setSubmitting }) => {
                 handleSubmit(values, { setSubmitting });
               }}
             >
-              {({ values, errors, isSubmitting, setFieldValue,field }) => (
+              {({ values, errors, isSubmitting, setFieldValue, field }) => (
                 <Form>
                   <div className="mb-3">
                     <label htmlFor="placement_id" className="form-label">
@@ -315,8 +334,12 @@ const CreateHomeWidget = () => {
                       className="form-select"
                     >
                       <option value="">Select Position</option>
-                     { widgetPositions?.map(pos => {
-                        return <option value={pos.value} key={pos.value}>{pos.name}</option>
+                      {widgetPositions?.map((pos) => {
+                        return (
+                          <option value={pos.value} key={pos.value}>
+                            {pos.name}
+                          </option>
+                        );
                       })}
                       {/* <option value="p1">Position 1</option>
                       <option value="p2">Position 2</option>
@@ -374,21 +397,21 @@ const CreateHomeWidget = () => {
                       id="widget_type"
                       name="widget_type"
                       className="form-select"
-                     onChange={(e) => {
-                      handleWidgetChange(e); 
-                      setFieldValue('widget_type', e.target.value);
-                      setFieldValue('items', []);
-                    }}
+                      onChange={(e) => {
+                        handleWidgetChange(e);
+                        setFieldValue("widget_type", e.target.value);
+                        setFieldValue("items", []);
+                      }}
                     >
                       <option value="">Select Widget</option>
                       <option value="slideshow">Slide Show</option>
                       <option value="categories">Categories</option>
                       <option value="brands">Brands</option>
                       <option value="products">Products</option>
-                      <option value="featured_categories">Featured Categories</option>
+                      <option value="featured_categories">
+                        Featured Categories
+                      </option>
                       <option value="featured_brand">Featured Brand</option>
-
-                     
                     </Field>
                     {/* <ErrorMessage name="widget_type" component="div" /> */}
                     {errors.widget_type && (
@@ -399,94 +422,89 @@ const CreateHomeWidget = () => {
                   {/* items selection according to widget selection */}
                   <>
                     {widgetType === "slideshow" && showItemForm && (
-                     
                       <SlideShowWidget
-                      values={values}
-                      brands={brands}
-                      setFieldValue={setFieldValue}
-                      onDragEnd={onDragEnd}
-                      showButton={showButton}
-                      destinationOptions={destinationOptions}
-                      handleAddItem={handleAddItem}
-                      handleSelectIdChange={handleSelectIdChange}
-                      handleDestinationChange={handleDestinationChange}
-                    />
+                        values={values}
+                        brands={brands}
+                        setFieldValue={setFieldValue}
+                        onDragEnd={onDragEnd}
+                        showButton={showButton}
+                        destinationOptions={destinationOptions}
+                        handleAddItem={handleAddItem}
+                        handleSelectIdChange={handleSelectIdChange}
+                        handleDestinationChange={handleDestinationChange}
+                      />
                     )}
-                     {widgetType === "categories" && showItemForm && (
-                     
-                     <CategoryWidget
-                     values={values}
-                     
-                     setFieldValue={setFieldValue}
-                     onDragEnd={onDragEnd}
-                     showButton={showButton}
-                      categories={categories}
-                     handleAddItem={handleAddItem}
-                    
-                   />
-                   )}
-                   {widgetType === "brands" && showItemForm && (
-                     
-                     <BrandWidget
-                     values={values}
-                     
-                     setFieldValue={setFieldValue}
-                     onDragEnd={onDragEnd}
-                     showButton={showButton}
-                      brands={brands}
-                     handleAddItem={handleAddItem}
-                    
-                   />
-                   )},
+                    {widgetType === "categories" && showItemForm && (
+                      <CategoryWidget
+                        values={values}
+                        setFieldValue={setFieldValue}
+                        onDragEnd={onDragEnd}
+                        showButton={showButton}
+                        categories={categories}
+                        handleAddItem={handleAddItem}
+                      />
+                    )}
+                    {widgetType === "brands" && showItemForm && (
+                      <BrandWidget
+                        values={values}
+                        setFieldValue={setFieldValue}
+                        onDragEnd={onDragEnd}
+                        showButton={showButton}
+                        brands={brands}
+                        handleAddItem={handleAddItem}
+                      />
+                    )}
+                    ,
                     {widgetType === "products" && showItemForm && (
-                     
-                     <ProductWidget
-                     values={values}
-                     
-                     setFieldValue={setFieldValue}
-                     onDragEnd={onDragEnd}
-                     showButton={showButton}
-                     productOptions={prodOption}
-                     handleAddItem={handleAddItem}
-                     handleSelectIdChange={handleSelectIdChange}
-                    
-                   />
-                   )}
+                      <ProductWidget
+                        values={values}
+                        setFieldValue={setFieldValue}
+                        onDragEnd={onDragEnd}
+                        showButton={showButton}
+                        productOptions={prodOption}
+                        handleAddItem={handleAddItem}
+                        handleSelectIdChange={handleSelectIdChange}
+                      />
+                    )}
                     {widgetType === "featured_brand" && showItemForm && (
-                     
-                     <FeaturedBrand
-                     values={values}
-                     
-                     setFieldValue={setFieldValue}
-                     onDragEnd={onDragEnd}
-                     showButton={showButton}
-                     productOptions={prodOption}
-                     featuredBrandProducts={featuredBrandProducts}
-                     brands={brands}
-                     handleAddItem={handleAddItem}
-                     handleFeaturedBrandChange={handleFeaturedBrandChange}
-                    
-                   />
-                   )}
-                   {widgetType === "featured_categories" && showItemForm && (
-                     
-                     <FeaturedCategories
-                     values={values}
-                     
-                     setFieldValue={setFieldValue}
-                     onDragEnd={onDragEnd}
-                     showButton={showButton}
-                     productOptions={prodOption}
-                     featuredCategoryProducts={featuredCategoryProducts}
-                     categories={categories}
-                     handleAddItem={handleAddItem}
-                     handleFeaturedCategoryChange={handleFeaturedCategoryChange}
-                    
-                   />
-                   
-                   )}
-                    <ErrorMessage name="items" className="text-danger" component="div" />
-                   <button type="submit" className="btn btn-sm btn-success mt-4">Save</button>
+                      <FeaturedBrand
+                        values={values}
+                        setFieldValue={setFieldValue}
+                        onDragEnd={onDragEnd}
+                        showButton={showButton}
+                        productOptions={prodOption}
+                        featuredBrandProducts={featuredBrandProducts}
+                        brands={brands}
+                        handleAddItem={handleAddItem}
+                        handleFeaturedBrandChange={handleFeaturedBrandChange}
+                      />
+                    )}
+                    {widgetType === "featured_categories" && showItemForm && (
+                      <FeaturedCategories
+                        values={values}
+                        setFieldValue={setFieldValue}
+                        onDragEnd={onDragEnd}
+                        showButton={showButton}
+                        productOptions={prodOption}
+                        featuredCategoryProducts={featuredCategoryProducts}
+                        categories={categories}
+                        handleAddItem={handleAddItem}
+                        handleFeaturedCategoryChange={
+                          handleFeaturedCategoryChange
+                        }
+                      />
+                    )}
+                    <ErrorMessage
+                      name="items"
+                      className="text-danger"
+                      component="div"
+                    />
+                    <button
+                      type="submit"
+                      className="btn btn-sm btn-success mt-4"
+                    >
+                      Update
+                    </button>
                   </>
                 </Form>
               )}
@@ -499,4 +517,4 @@ const CreateHomeWidget = () => {
   );
 };
 
-export default CreateHomeWidget;
+export default EditHomeWidget;

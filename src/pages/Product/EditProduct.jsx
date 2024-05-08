@@ -75,8 +75,8 @@ const EditProduct = () => {
   
   // const imageBaseUrl = "https://64.227.162.145/api/uploads/";
 
-  const imageBaseUrl = `${process.env.REACT_APP_API_URL}/api/uploads/`;
-
+  // const imageBaseUrl = `${process.env.REACT_APP_API_URL}/api/uploads/`;
+  const imageBaseUrl = `${process.env.REACT_APP_MEDIA_URL}`;
   
 
   const [show, setShow] = useState(false);
