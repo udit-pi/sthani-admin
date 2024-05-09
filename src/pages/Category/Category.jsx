@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import DataTable from "react-data-table-component";
 import Layout from "../../components/layouts/Layout";
 
@@ -9,12 +9,34 @@ import {
   fetchAllCategories,
   deleteCategory,
 } from "../../features/category/categorySlice";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCircleInfo } from '@fortawesome/free-solid-svg-icons'
-import { faTrash } from '@fortawesome/free-solid-svg-icons'
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+// import { faCircleInfo } from '@fortawesome/free-solid-svg-icons'
+// import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { toast } from "react-toastify";
-import { FaCat } from "react-icons/fa";
 
+import { FaCircle } from "react-icons/fa";
+import Box from '@mui/material/Box';
+import Modal from '@mui/material/Modal';
+import Button from '@mui/material/Button';
+
+const mediaFolder = process.env.REACT_APP_MEDIA_URL ;
+
+
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+
+  bgcolor: 'background.paper',
+  border: '2px solid white',
+  borderRadius:"10px",
+  boxShadow: 24,
+  pt: 4,
+  px: 4,
+  pb: 5,
+};
 
 
 
@@ -24,6 +46,9 @@ const Category = () => {
   const [categories, setCategories] = useState([]);
   const [search, setSearch] = useState("");
   const [filteredCategories, setFilteredCategories] = useState([]);
+  const [open, setOpen] = useState(false);
+const[deleteId,setdeleteId]=useState("")
+
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -63,7 +88,7 @@ const Category = () => {
       // window.location.reload();
       toast.success('Category deleted successfully!')
       // setSuccessful(true);
-   
+   setOpen(false)
     })
     .catch((err) => {
       
@@ -76,14 +101,26 @@ const Category = () => {
   // filteredCategories.forEach((cat, index) => {
   //   cat.serial = index + 1;
   // });
-  console.log(categories)
+
  
   const columns = [
    
      
       {
         name: "Icon",
-        cell: (row) => <img src={`${process.env.REACT_APP_API_URL}/api/uploads/${row.icon}`} alt="Icon" height="50px" />,
+        cell: (row) => <>
+        {row.icon ? ( 
+          <img
+            src={`${mediaFolder}/${row.icon}`}
+            alt="Icon"
+            height="50px"
+           
+          />
+        ) : (
+          <span>-</span> 
+             
+        )}
+      </>,
       },
    
   
@@ -122,7 +159,9 @@ const Category = () => {
             </span>
           </Link>
      
-          <span  onClick={() => handleDelete(row.id)}  style={{marginLeft:"20px",cursor:"pointer",color: ' #D93D6E ' }}>
+          {/* <span  onClick={() => handleDelete(row.id)}  style={{marginLeft:"20px",cursor:"pointer",color: ' #D93D6E ' }}> */}
+          <span  onClick={() => handleOpen(row.id)}  style={{marginLeft:"20px",cursor:"pointer",color: ' #D93D6E ' }}>
+
            Delete
               
             </span>
@@ -143,6 +182,17 @@ const Category = () => {
     
     navigate(`/editcategory/${row.id}`);
   };
+
+
+
+  const handleOpen = (id) => {
+    setdeleteId(id)
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
+
   return (
     <Layout>
       <div className="col-12 stretch-card container-fluid">
@@ -192,12 +242,45 @@ const Category = () => {
                 //   />
                 // }
               />
+
             </div>
 
         
           </div>
         </div>
       </div>
+      
+<Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="child-modal-title"
+        aria-describedby="child-modal-description"
+      >
+        <Box sx={{ ...style, width: 400 }}>
+          <h2 id="child-modal-title"  >Do you want to delete?</h2>
+         
+          <button
+                          type="button"
+                          className="btn btn-sm  mt-4"
+                        
+                          style={{ backgroundColor: 'transparent', border: "1px solid #D93D6E",width:"100px" }}
+                          onClick={() => handleDelete(deleteId)}
+                        >
+                          Yes
+                        </button>
+
+                        <button
+                          type="button"
+                          className="btn btn-sm  mt-4"
+                        onClick={handleClose}
+                          style={{ backgroundColor: 'transparent', border: "1px solid #D93D6E",width:"100px",marginLeft:"20px" }}
+                        >
+                        No
+                        </button>
+        </Box>
+</Modal>
+
+
     </Layout>
   );
 };
