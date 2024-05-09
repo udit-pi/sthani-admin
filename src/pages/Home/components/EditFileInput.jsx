@@ -1,4 +1,4 @@
-const CustomFileInput = ({ field, form, ...props }) => {
+const EditFileInput = ({ field, form, ...props }) => {
   const handleChange = (event) => {
     const file = event.currentTarget.files[0];
     form.setFieldValue(field.name, file);
@@ -7,11 +7,11 @@ const CustomFileInput = ({ field, form, ...props }) => {
   return (
     <input
       type="file"
-      required
+      
       onChange={handleChange}
       {...props}
     />
   );
 };
 
-export default CustomFileInput  
+export default EditFileInput  
