@@ -29,8 +29,9 @@ import  Customer  from "./pages/Customer/Customer";
 import EditCustomer from "./pages/Customer/EditCustomer";
 import CreateHomeWidget from "./pages/Home/CreateHomeWidget";
 import HomeWidget from "./pages/Home/HomeWidget";
+import EditHomeWidget from "./pages/Home/EditHomeWidget";
 
-import "./App.css"
+
 function App() {
   return (
     <Router>
@@ -72,9 +73,10 @@ function App() {
             <Route exact path="/customers" element={<Customer />} />
             <Route exact path="/editCustomer/:id" element={<EditCustomer/>} />
 
-            {/* Home Widget Route */}
-            <Route exact path="/homePage" element={<HomeWidget />} />
+             {/* Home Widget Route */}
+             <Route exact path="/homePage" element={<HomeWidget />} />
             <Route exact path="/addWidget" element={<CreateHomeWidget />} />
+            <Route exact path="/editWidget/:id" element={<EditHomeWidget />} />
 
           </Route>
         </Routes>
