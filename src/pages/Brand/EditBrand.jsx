@@ -70,8 +70,8 @@ const[brands,setbrands]=useState({})
   // const imageBaseUrl = "http://165.22.222.184/api/uploads/";
   // const imageBaseUrl = "https://64.227.162.145/api/uploads/";
   
-  const imageBaseUrl = `${mediaFolder}/api/uploads/`;
-  const url = `${mediaFolder}/`;
+  // const imageBaseUrl = `${mediaFolder}/api/uploads/`;
+  const url = mediaFolder;
   useEffect(() => {
     fetchBrand();
   }, [dispatch]);

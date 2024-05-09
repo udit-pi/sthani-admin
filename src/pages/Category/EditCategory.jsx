@@ -50,9 +50,9 @@ const EditCategory = ({ history }) => {
   // const url = 'http://localhost:3500/uploads/'
 
 
-  const imageUrlBanner = `${mediaFolder}/${category.banner}`;
-  const imageUrlIcon = `${mediaFolder}/${category.icon}`;
-  const url = `${mediaFolder}/`;
+  const imageUrlBanner = mediaFolder+category.banner;
+  const imageUrlIcon = mediaFolder+category.icon;
+  const url = mediaFolder;
 
   const fetchCategory = async () => {
 
