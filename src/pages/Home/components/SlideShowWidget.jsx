@@ -113,7 +113,7 @@ const SlideShowWidget = ({
                                       <Field
                                         as="select"
                                         className="form-select"
-                                        name={`items.${index}.slideShowBrand`}
+                                        name={`items.${index}.brand`}
                                       >
                                         <option value="">Select brand</option>
                                         {brands.map((brand, brandIndex) => (
