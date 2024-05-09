@@ -15,7 +15,7 @@ import {
   updateBrand,
 } from "../../features/brand/brandSlice";
 import { IoMdClose } from "react-icons/io";
-
+const mediaFolder = process.env.REACT_APP_MEDIA_URL;
 const EditBrand = () => {
   const [loading, setLoading] = useState(false);
   const [error, seError] = useState([]);
@@ -23,6 +23,7 @@ const EditBrand = () => {
   const { id } = useParams();
   const [uploadImages, setUploadImages] = useState([])
   const [deletedImages, setDeletedImages] = useState([])
+const[brands,setbrands]=useState({})
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -33,18 +34,33 @@ const EditBrand = () => {
     logo: "",
     website: "",
     images: [],
-    labels: []
+    labels: [],
+    slide_show: []
   };
 
   const fetchBrand = async () => {
-    const res = await dispatch(fetchBrandById({ id })).unwrap();
-    console.log(res)
+    const res = await dispatch(fetchBrandById({ id })).unwrap()
+    .then(res => {
+      console.log("then", res)
 
-    setUploadImages(res.images);
-    initialValues.name = res.name;
+      setbrands(res);
+      setUploadImages(res.images);
+      initialValues.name = res.name;
     initialValues.description = res.description;
     initialValues.website = res.website;
      initialValues.images = [];
+     initialValues.slide_show=res.slide_show
+  })
+    .catch(err => {
+      console.log(err)
+    });
+
+    // setcategory(res)
+    // initialValues.name = res.name;
+    // initialValues.description = res.description;
+    // initialValues.website = res.website;
+    //  initialValues.images = [];
+    //  initialValues.slide_show=res.slide_show
      
 
     // setFilteredCategories(res);
@@ -54,17 +70,21 @@ const EditBrand = () => {
   // const imageBaseUrl = "http://165.22.222.184/api/uploads/";
   // const imageBaseUrl = "https://64.227.162.145/api/uploads/";
   
-  const imageBaseUrl = `${process.env.REACT_APP_API_URL}/api/uploads/`;
+  // const imageBaseUrl = `${mediaFolder}/api/uploads/`;
+  const url = mediaFolder;
   useEffect(() => {
     fetchBrand();
   }, [dispatch]);
 
   const handleSubmit = async (values) => {
-     values.deletedImages = deletedImages
+    //  values.deletedImages = deletedImages
     //  console.log(values);
-    
+    const updatedValues = {
+      ...values,
+      deletedImages: deletedImages
+    };
 
-    const res = await dispatch(updateBrand({id,  values})).unwrap();
+    const res = await dispatch(updateBrand({id,  values:updatedValues})).unwrap();
     console.log(res);
     if (res) {
       toast.success("Brand updated successfully!");
@@ -91,10 +111,11 @@ const EditBrand = () => {
     </div>
    
                           <Formik
-                            initialValues={initialValues}
+                            initialValues={brands}
                             validationSchema={addBrandValidation}
+                            enableReinitialize={true}
                             onSubmit={(values) => {
-                              // console.log(values);
+                              console.log(values);
                               handleSubmit(values);
                             }}
                           >
@@ -174,12 +195,12 @@ const EditBrand = () => {
                                   <label htmlFor="logo" className="form-label">
                                     Logo
                                   </label>
-                               {!initialValues.logo=="" &&  <img
-                                    src={imageBaseUrl + brand.logo}
+                               {/* {!brands.logo=="" &&  <img
+                                    src={url + brand.logo}
                                     alt=""
                                     width={50}
                                     height={50}
-                                  />}
+                                  />} */}
                            
                                   <input
                                     type="file"
@@ -202,14 +223,24 @@ const EditBrand = () => {
                                   )}
                                 </div>
 
+                                {typeof values.logo=="string"&&values.logo&& <div className="mb-2">
 
+<img src={url + values.logo} height="150px" />
+
+</div>}
+
+{values.logo && values.logo instanceof File && <div>
+
+<img src={URL.createObjectURL(values.logo)} height="150px" />
+
+</div>}
                                 <h6>Images:</h6>
                                 <div className="row mt-4 mb-2">
                                   {uploadImages?.map((image, key) => {
                                     return (
                                       <div key={key} class="col-md-3 grid-item">
                                         <img
-                                          src={imageBaseUrl + image.value}
+                                          src={url + image.value}
                                           className="img-fluid"
                                           alt="Image 2"
                                           width={150}
@@ -222,11 +253,12 @@ const EditBrand = () => {
                                     );
                                   })}
                                 </div>
-
-                                <FieldArray name="images" >
+                                <div >
+                    <h4>Upload Images</h4>
+                    <FieldArray name="images" >
                                   {({ push, remove }) => (
                                     <div>
-                                      {values.images.map((image, index) => (
+                                      {values.images&&values.images.map((image, index) => (
                                         <div key={index}  style={{display:"flex",gap:"30vh"}}>
                                         <div className="mb-1">
 
@@ -299,34 +331,39 @@ const EditBrand = () => {
                                     </div>
                                   )}
                                 </FieldArray>
+                  </div>
+
+
+
+
+                          
           </div>
         </div>
         <div className="card">
           <div  className="card-body">
           <div className="mb-4">
-                                  <label htmlFor="logo" className="form-label">
+                                  <label htmlFor="slide_show" className="form-label">
                                   Slideshow image
                                   </label>
-                               {!initialValues.logo=="" &&  <img
-                                    src={imageBaseUrl + brand.logo}
-                                    alt=""
-                                    width={50}
-                                    height={50}
-                                  />}
+                              
                            
                                   <input
                                     type="file"
                                     className="form-control"
-                                    id="image"
-                                    name="image"
+                                    id="slide_show"
+                                    name="slide_show"
                                   
                                     onChange={(event) => {
-                                      // Set the uploaded file to Formik state
-                                      setFieldValue(
-                                        "logo",
-                                        event.currentTarget.files[0]
-                                      );
-                                    }}
+  const newFiles = Array.from(event.currentTarget.files);
+  // Create a new object with the updated 'slide_show' property
+  const updatedValues = {
+    ...values, // Spread the existing values
+    slide_show: values.slide_show ? values.slide_show.concat(newFiles) : newFiles,
+  };
+  // Update 'values' using Formik's setValues function
+  setFieldValue('slide_show', updatedValues.slide_show);
+  
+}}
                                   />
                                   {errors.logo && (
                                     <small className="text-danger">
@@ -335,7 +372,33 @@ const EditBrand = () => {
                                   )}
                                 </div>
 
+                                <div style={{ display: "flex", gap: "40px" }}>
 
+
+{values.slide_show&&values.slide_show.map((image,index) => (
+  
+  <div style={{display:"flex",flexDirection:"column",gap:"10px"}}>
+  
+
+   
+   {typeof image === "string"&&<img src={url + image} height="150px" />}
+
+   {typeof image === "string"&&<button
+      type="button"
+      className="btn btn-sm  mt-2"
+      onClick={() => {
+    setFieldValue('slide_show', values.slide_show.filter((_, i) => i !== index));
+    console.log(values.slide_show)
+  }}
+      style={{ backgroundColor: 'transparent', border: "1px solid #D93D6E" }}
+    >
+      Remove Image
+    </button>}
+  </div>
+
+))}
+
+</div>
                          
           </div>
         </div>

@@ -6,25 +6,19 @@ import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faUpDownLeftRight } from "@fortawesome/free-solid-svg-icons";
 import CustomFileInput from "./CustomFileInput";
-import EditFileInput from "./EditFileInput";
+import MultiSelectDropdown from "../../../components/MultiSelectDropDown";
 
-const CategoryWidget = ({
+const FeaturedCategories = ({
   values,
   setFieldValue,
   onDragEnd,
   showButton,
+  productOptions,
   handleAddItem,
+  handleFeaturedCategoryChange,
+  featuredCategoryProducts,
   categories,
-
 }) => {
-
-  // const imageBaseUrl = "http://localhost:3500/api/uploads/";
-    
-  // const imageBaseUrl = `${process.env.REACT_APP_API_URL}/api/uploads/`;
-  
-
-  const imageBaseUrl = `${process.env.REACT_APP_MEDIA_URL}`;
-  // console.log(process.env.REACT_APP_MEDIA_URL)
   return (
     <DragDropContext
       onDragEnd={(result) => onDragEnd(result, values, setFieldValue)}
@@ -35,11 +29,11 @@ const CategoryWidget = ({
             <FieldArray name="items">
               {({ push, remove }) => (
                 <div>
-                  <h5>Category Items:</h5>
+                  <h5>Featured Category Items:</h5>
                   {values.items?.map((item, index) => (
                     <Draggable
                       key={index}
-                      draggableId={`Item ${index + 1}`}
+                      draggableId={`Item ${index}`}
                       index={index}
                     >
                       {(provided, snapshot) => (
@@ -50,36 +44,51 @@ const CategoryWidget = ({
                         >
                           <div className="card">
                             <div className="card-body">
-                              <h6>{`Item ${index + 1}`}</h6>
+                              <h4>{`Item ${index + 1}`}</h4>
                               <div className="d-flex">
                                 <div className="col-md-8">
                                   <div className="row">
                                     <div className="col-md-6 mb-2">
                                       <label className="form-label">
-                                        Category:
+                                        Categories:
                                       </label>
                                       <Field
                                         as="select"
                                         className="form-select"
-                                        name={`items.${index}.category`}
+                                        name={`items.${index}.featuredCategories`}
                                         required
+                                        onChange={(e) => {
+                                            handleFeaturedCategoryChange(e);
+                                            setFieldValue(
+                                              `items.${index}.featuredCategories`,
+                                              e.target.value
+                                            );
+                                          }}
                                       >
-                                        <option value="">
-                                          Select Category
-                                        </option>
-                                        {categories.map(
-                                          (category, categoryIndex) => (
-                                            <option
-                                              key={categoryIndex}
-                                              value={category.id}
-                                            >
-                                              {category.name}
-                                            </option>
-                                            
-                                          )
-                                        )}
+                                        <option value="">Select Categories</option>
+                                        {categories?.map((cat, catIndex) => (
+                                          <option
+                                            key={catIndex}
+                                            value={cat.id}
+                                          >
+                                            {cat.name}
+                                          </option>
+                                        ))}
                                       </Field>
                                     </div>
+                                    <div className="col-md-6 mb-2">
+                                      <label className="form-label">
+                                        Product:
+                                      </label>
+                                      <MultiSelectDropdown
+                                        name={`items.${index}.product`}
+                                        options={featuredCategoryProducts}
+                                        
+                                      />
+                                    </div>
+                                   
+                                  </div>
+                                  <div className="row">
                                     <div className="col-md-6 mb-2">
                                       <label className="form-label">Tag:</label>
                                       <Field
@@ -87,7 +96,8 @@ const CategoryWidget = ({
                                         className="form-control"
                                         name={`items.${index}.tag`}
                                       />
-                                      <div className="mt-2">
+                                    </div>
+                                    <div className="mt-2">
                                       {values?.items?.[index]?.tag &&
                                         typeof values.items[index].tag ===
                                           "string" &&
@@ -102,28 +112,18 @@ const CategoryWidget = ({
                                             </span>
                                           ))}
                                     </div>
-                                    </div>
-                                    
-                                   
-                                  </div>
-
-                                  <div className="row">
-                                  <div className="col-md-12 mb-2">
+                                    <div className="col-md-6 mb-2">
                                       <label className="form-label">
-                                        Image:
+                                        Description:
                                       </label>
                                       <Field
-                                        component={values.items[index].image ? EditFileInput : CustomFileInput}
+                                        as="textarea"
+                                        type="text"
                                         className="form-control"
-                                        name={`items.${index}.image`}
+                                        name={`items.${index}.description`}
                                       />
-                                     {values.items[index].image && <img
-                                    src={imageBaseUrl + values.items[index].image}
-                                    alt=""
-                                    width={80}
-                                    height={80}
-                                  />}
                                     </div>
+                                   
                                   </div>
                                 </div>
                                 <div className="col-md-4 ms-4 mt-2">
@@ -175,4 +175,4 @@ const CategoryWidget = ({
   );
 };
 
-export default CategoryWidget;
+export default FeaturedCategories;

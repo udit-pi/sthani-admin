@@ -8,7 +8,7 @@ const Aside = () => {
             {/* Sidebar scroll*/}
             <div>
                 <div className="brand-logo d-flex align-items-center justify-content-between mb-3 mt-3">
-                    <Link to="/" className="text-nowrap logo-img">
+                    <Link to="/dashboard" className="text-nowrap logo-img">
                         {/* <h2><strong>Dashboa</strong></h2> */}
                         <img src={MainLogo}  width="120px"/>
                     </Link>

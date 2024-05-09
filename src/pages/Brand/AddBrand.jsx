@@ -23,7 +23,8 @@ const AddBrand = () => {
     logo: "",
     website: "",
     images: [],
-    labels: []
+    labels: [],
+    slide_show: [],
   };
 
   const handleSubmit = async (values) => {
@@ -37,249 +38,260 @@ const AddBrand = () => {
   return (
     <Layout>
       <div className="col-12 stretch-card container-fluid">
-      <div style={{marginBottom: '30px',display:"flex",alignItems:"center",gap:"20px",color:'#D93D6E'  }}>
-      <FaArrowLeft size={30} cursor="pointer"/>
-      <h2 className="heading">Add Brands</h2>
-    </div>
-    
-                          <Formik
-                            initialValues={initialValues}
-                            validationSchema={addBrandValidation}
-                            onSubmit={(values) => {
-                               console.log(values);
-                              handleSubmit(values);
-                            }}
-                          >
-                            {({ values, errors, setFieldValue }) => (
-                              <Form>
-                              <div className="card">
-                            <div className="card-body">
-                                <div className="mb-3">
-                                  <label htmlFor="name" className="form-label">
-                                    Brand Name
-                                  </label>
-                                  <Field
-                                    type="name"
-                                    className="form-control"
-                                    id="name"
-                                    name="name"
-                                    aria-describedby="nameHelp"
-                                  ></Field>
-                                  {errors.name && (
-                                    <small className="text-danger">
-                                      {errors.name}
-                                    </small>
-                                  )}
-                                </div>
-                                <div className="mb-4">
-                                  <label
-                                    htmlFor="description"
-                                    className="form-label"
-                                  >
-                                    Description
-                                  </label>
-                                  <Field
-                                    as="textarea"
-                                    type="text"
-                                    className="form-control"
-                                    id="description"
-                                    name="description"
-                                  ></Field>
-                                  {errors.description && (
-                                    <small className="text-danger">
-                                      {errors.description}
-                                    </small>
-                                  )}
-                                </div>
-                                <div className="mb-4">
-                                  <label
-                                    htmlFor="website"
-                                    className="form-label"
-                                  >
-                                    Website
-                                  </label>
-                                  <Field
-                                    type="website"
-                                    className="form-control"
-                                    id="website"
-                                    name="website"
-                                  ></Field>
-                                  {errors.website && (
-                                    <small className="text-danger">
-                                      {errors.website}
-                                    </small>
-                                  )}
-                                </div>
-               
-                               
+        <div style={{ marginBottom: '30px', display: "flex", alignItems: "center", gap: "20px", color: '#D93D6E' }}>
+          <FaArrowLeft size={30} cursor="pointer" />
+          <h2 className="heading">Add Brands</h2>
+        </div>
 
-                                {/* <button
+        <Formik
+          initialValues={initialValues}
+          validationSchema={addBrandValidation}
+          onSubmit={(values) => {
+            console.log(values);
+            handleSubmit(values);
+          }}
+        >
+          {({ values, errors, setFieldValue }) => (
+            <Form>
+              <div className="card">
+                <div className="card-body">
+                  <div className="mb-3">
+                    <label htmlFor="name" className="form-label">
+                      Brand Name
+                    </label>
+                    <Field
+                      type="name"
+                      className="form-control"
+                      id="name"
+                      name="name"
+                      aria-describedby="nameHelp"
+                    ></Field>
+                    {errors.name && (
+                      <small className="text-danger">
+                        {errors.name}
+                      </small>
+                    )}
+                  </div>
+                  <div className="mb-4">
+                    <label
+                      htmlFor="description"
+                      className="form-label"
+                    >
+                      Description
+                    </label>
+                    <Field
+                      as="textarea"
+                      type="text"
+                      className="form-control"
+                      id="description"
+                      name="description"
+                    ></Field>
+                    {errors.description && (
+                      <small className="text-danger">
+                        {errors.description}
+                      </small>
+                    )}
+                  </div>
+                  <div className="mb-4">
+                    <label
+                      htmlFor="website"
+                      className="form-label"
+                    >
+                      Website
+                    </label>
+                    <Field
+                      type="website"
+                      className="form-control"
+                      id="website"
+                      name="website"
+                    ></Field>
+                    {errors.website && (
+                      <small className="text-danger">
+                        {errors.website}
+                      </small>
+                    )}
+                  </div>
+
+
+
+                  {/* <button
                                   className="btn  w-100 py-8 fs-4 mb-4 rounded-2 mt-4"
                                   type="submit"
                                   style={{ backgroundColor: '#D93D6E',color:"white" }}
                                 >
                                   {loading ? "Loading..." : "Create Brand"}
                                 </button> */}
-                                {
-                                  // error && (
-                                  //     <div className='alert alert-danger' role='alert'>{error}</div>
-                                  // )
-                                }
-                                </div>
+                  {
+                    // error && (
+                    //     <div className='alert alert-danger' role='alert'>{error}</div>
+                    // )
+                  }
+                </div>
 
-        </div>
+              </div>
 
-        <div className="card" >
-          <div className="card-body">
-          <div className="mb-4">
-                                  <label htmlFor="logo" className="form-label">
-                                    Logo
-                                  </label>
-                                  <input
-                                    type="file"
-                                    className="form-control"
-                                    id="logo"
-                                    name="logo"
-                                    onChange={(event) => {
-                                      // Set the uploaded file to Formik state
-                                      setFieldValue(
-                                        "logo",
-                                        event.currentTarget.files[0]
-                                      );
-                                    }}
-                                  />
-                                  {errors.logo && (
-                                    <small className="text-danger">
-                                      {errors.logo}
-                                    </small>
-                                  )}
-                                </div>
+              <div className="card" >
+                <div className="card-body">
+                  <div className="mb-4">
+                    <label htmlFor="logo" className="form-label">
+                      Logo
+                    </label>
+                    <input
+                      type="file"
+                      className="form-control"
+                      id="logo"
+                      name="logo"
+                      onChange={(event) => {
+                        // Set the uploaded file to Formik state
+                        setFieldValue(
+                          "logo",
+                          event.currentTarget.files[0]
+                        );
+                      }}
+                    />
+                    {errors.logo && (
+                      <small className="text-danger">
+                        {errors.logo}
+                      </small>
+                    )}
+                  </div>
 
-                            
-                                <div >
-                                    <h4>Upload Images</h4>
-                                    <FieldArray name="images" >
-                                  {({ push, remove }) => (
-                                    <div>
-                                      {values.images.map((image, index) => (
-                                        <div key={index} style={{display:"flex",gap:"30vh"}}>
-                                        <div className="mb-1">
 
-                                       
-                                          <input
-                                            type="file"
-                                            className="form-control"
-                                            onChange={(event) => {
-                                              const file =
-                                                event.currentTarget.files[0];
-                                              setFieldValue(
-                                                `images[${index}]`,
-                                                file
-                                              );
-                                            }}
-                                          />
-                                           </div>
-                                          <div  style={{ marginBottom: '1rem' }}>
-                                            <label htmlFor="label" style={{ fontWeight:"bold", marginBottom: '0.5rem' ,marginRight:"10px" }}>
-                                              Label:
-                                            </label>
-                                            <Field
-                                              as="select"
-                                              id="label"
-                                              name={`labels.${index}`}
-                                              placeholder="Select label"
-                                            //   className="form-select"
-                                            style={{ padding: '0.5rem', borderRadius: '5px', border: '1px solid #ccc' }}
-                                            >
-                                              <option value="">
-                                                Select Label
-                                              </option>
-                                              <option value="banner">
-                                                Banner
-                                              </option>
-                                              <option value="hero">
-                                                Hero Image
-                                              </option>
-                                              {/* Add more options as needed */}
-                                            </Field>
-                                            <ErrorMessage
-                                              name="label"
-                                              component="div"
-                                            />
-                                          </div>
-                                          <ErrorMessage
-                                            name={`images[${index}]`}
-                                            component="div"
-                                          />
-                                          {/* <button
+                  <div >
+                    <h4>Upload Images</h4>
+                    <FieldArray name="images" >
+                      {({ push, remove }) => (
+                        <div>
+                          {values.images.map((image, index) => (
+                            <div key={index} style={{ display: "flex", gap: "30vh" }}>
+                              <div className="mb-1">
+
+
+                                <input
+                                  type="file"
+                                  className="form-control"
+                                  onChange={(event) => {
+                                    const file =
+                                      event.currentTarget.files[0];
+                                    setFieldValue(
+                                      `images[${index}]`,
+                                      file
+                                    );
+                                  }}
+                                />
+                              </div>
+                              <div style={{ marginBottom: '1rem' }}>
+                                <label htmlFor="label" style={{ fontWeight: "bold", marginBottom: '0.5rem', marginRight: "10px" }}>
+                                  Label:
+                                </label>
+                                <Field
+                                  as="select"
+                                  id="label"
+                                  name={`labels.${index}`}
+                                  placeholder="Select label"
+                                  //   className="form-select"
+                                  style={{ padding: '0.5rem', borderRadius: '5px', border: '1px solid #ccc' }}
+                                >
+                                  <option value="">
+                                    Select Label
+                                  </option>
+                                  <option value="banner">
+                                    Banner
+                                  </option>
+                                  <option value="hero">
+                                    Hero Image
+                                  </option>
+                                  {/* Add more options as needed */}
+                                </Field>
+                                <ErrorMessage
+                                  name="label"
+                                  component="div"
+                                />
+                              </div>
+                              <ErrorMessage
+                                name={`images[${index}]`}
+                                component="div"
+                              />
+                              {/* <button
                                             type="button"
                                             className="btn btn-sm btn-danger"
                                             onClick={() => remove(index)}
                                           >
                                             Remove
                                           </button> */}
-                                          <IoMdClose size={32} color="#D93D6E" onClick={() => remove(index)} cursor="pointer"/>
-                                        </div>
-                                      ))}
-                                      <button
-                                        type="button"
-                                        className="btn btn-sm  mt-2"
-                                        onClick={() => push({ label: '', file: null })}
-                                        style={{ backgroundColor: 'transparent',border:"1px solid #D93D6E" }}
-                                      >
-                                        Add Image
-                                      </button>
-                                    </div>
-                                  )}
-                                </FieldArray>
-                                </div>
-                               
+                              <IoMdClose size={32} color="#D93D6E" onClick={() => remove(index)} cursor="pointer" />
+                            </div>
+                          ))}
+                          <button
+                            type="button"
+                            className="btn btn-sm  mt-2"
+                            onClick={() => push({ label: '', file: null })}
+                            style={{ backgroundColor: 'transparent', border: "1px solid #D93D6E" }}
+                          >
+                            Add Image
+                          </button>
+                        </div>
+                      )}
+                    </FieldArray>
+                  </div>
 
 
-          </div>
-        </div>
+
+                </div>
+              </div>
 
 
-<div className="card">
-<div className="card-body">
-<div className="mb-4">
-                                  <label htmlFor="logo" className="form-label">
-                                  Slideshow image
-                                  </label>
-                                  <input
-                                    type="file"
-                                    className="form-control"
-                                    id="logo"
-                                    name="logo"
-                                    onChange={(event) => {
-                                      // Set the uploaded file to Formik state
-                                      setFieldValue(
-                                        "logo",
-                                        event.currentTarget.files[0]
-                                      );
-                                    }}
-                                  />
-                                  {errors.logo && (
-                                    <small className="text-danger">
-                                      {errors.logo}
-                                    </small>
-                                  )}
-                                </div>
-</div>
+              <div className="card">
+                <div className="card-body">
+                  <div className="mb-4">
+                    <label htmlFor="slide_show" className="form-label">
+                      Slideshow image
+                    </label>
+                    <input
+                      type="file"
+                      className="form-control"
+                      id="slide_show"
+                      name="slide_show"
+                      onChange={(event) => {
 
-</div>
+                        const selectedFiles = [];
 
 
-        <button
-                                  className="btn  w-100 py-8 fs-4 mb-4 rounded-2 mt-4"
-                                  type="submit"
-                                  style={{ backgroundColor: '#D93D6E',color:"white" }}
-                                >
-                                  {loading ? "Loading..." : "Create Brand"}
-                                </button>
-                              </Form>
-                            )}
-                          </Formik>
+                        for (let i = 0; i < event.currentTarget.files.length; i++) {
+
+
+                          values.slide_show.push(event.currentTarget.files[i])
+
+                        }
+
+
+
+                        console.log(values.slide_show)
+
+
+                      }}
+                    />
+                    {errors.logo && (
+                      <small className="text-danger">
+                        {errors.logo}
+                      </small>
+                    )}
+                  </div>
+                </div>
+
+              </div>
+
+
+              <button
+                className="btn  w-100 py-8 fs-4 mb-4 rounded-2 mt-4"
+                type="submit"
+                style={{ backgroundColor: '#D93D6E', color: "white" }}
+              >
+                {loading ? "Loading..." : "Create Brand"}
+              </button>
+            </Form>
+          )}
+        </Formik>
 
       </div>
     </Layout>

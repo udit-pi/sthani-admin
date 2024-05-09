@@ -6,25 +6,18 @@ import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faUpDownLeftRight } from "@fortawesome/free-solid-svg-icons";
 import CustomFileInput from "./CustomFileInput";
-import EditFileInput from "./EditFileInput";
 
-const CategoryWidget = ({
+const BrandWidget = ({
   values,
   setFieldValue,
   onDragEnd,
   showButton,
   handleAddItem,
-  categories,
+  brands,
 
 }) => {
 
-  // const imageBaseUrl = "http://localhost:3500/api/uploads/";
     
-  // const imageBaseUrl = `${process.env.REACT_APP_API_URL}/api/uploads/`;
-  
-
-  const imageBaseUrl = `${process.env.REACT_APP_MEDIA_URL}`;
-  // console.log(process.env.REACT_APP_MEDIA_URL)
   return (
     <DragDropContext
       onDragEnd={(result) => onDragEnd(result, values, setFieldValue)}
@@ -35,7 +28,7 @@ const CategoryWidget = ({
             <FieldArray name="items">
               {({ push, remove }) => (
                 <div>
-                  <h5>Category Items:</h5>
+                  <h5>Brand Items:</h5>
                   {values.items?.map((item, index) => (
                     <Draggable
                       key={index}
@@ -56,75 +49,34 @@ const CategoryWidget = ({
                                   <div className="row">
                                     <div className="col-md-6 mb-2">
                                       <label className="form-label">
-                                        Category:
+                                        Brand:
                                       </label>
                                       <Field
                                         as="select"
                                         className="form-select"
-                                        name={`items.${index}.category`}
+                                        name={`items.${index}.brand`}
                                         required
                                       >
                                         <option value="">
-                                          Select Category
+                                          Select Brand
                                         </option>
-                                        {categories.map(
-                                          (category, categoryIndex) => (
+                                        {brands.map(
+                                          (brand, brandIndex) => (
                                             <option
-                                              key={categoryIndex}
-                                              value={category.id}
+                                              key={brandIndex}
+                                              value={brand.id}
                                             >
-                                              {category.name}
+                                              {brand.name}
                                             </option>
-                                            
                                           )
                                         )}
                                       </Field>
+                                      <ErrorMessage name={`items.${index}.brand`} component="div" /> 
                                     </div>
-                                    <div className="col-md-6 mb-2">
-                                      <label className="form-label">Tag:</label>
-                                      <Field
-                                        type="text"
-                                        className="form-control"
-                                        name={`items.${index}.tag`}
-                                      />
-                                      <div className="mt-2">
-                                      {values?.items?.[index]?.tag &&
-                                        typeof values.items[index].tag ===
-                                          "string" &&
-                                        values.items[index].tag
-                                          .split(", ")
-                                          .map((keyword, index) => (
-                                            <span
-                                              key={index}
-                                              className="badge bg-secondary me-1"
-                                            >
-                                              {keyword.trim()}
-                                            </span>
-                                          ))}
-                                    </div>
-                                    </div>
-                                    
                                    
                                   </div>
 
-                                  <div className="row">
-                                  <div className="col-md-12 mb-2">
-                                      <label className="form-label">
-                                        Image:
-                                      </label>
-                                      <Field
-                                        component={values.items[index].image ? EditFileInput : CustomFileInput}
-                                        className="form-control"
-                                        name={`items.${index}.image`}
-                                      />
-                                     {values.items[index].image && <img
-                                    src={imageBaseUrl + values.items[index].image}
-                                    alt=""
-                                    width={80}
-                                    height={80}
-                                  />}
-                                    </div>
-                                  </div>
+                                
                                 </div>
                                 <div className="col-md-4 ms-4 mt-2">
                                   <button
@@ -175,4 +127,4 @@ const CategoryWidget = ({
   );
 };
 
-export default CategoryWidget;
+export default BrandWidget;

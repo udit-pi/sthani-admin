@@ -2,7 +2,7 @@ import React from "react";
 import Layout from "../../components/layouts/Layout";
 import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-
+import { useHistory } from 'react-router-dom'
 import { Formik, Form, Field } from "formik";
 import { addCategoryValidation } from "../../validations/addCategoryValidation";
 import { addCategory } from "../../features/category/categorySlice";
@@ -14,6 +14,7 @@ const AddCategory = () => {
   const [loading, setLoading] = useState(false);
   const [error, seError] = useState([]);
 
+
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
@@ -23,7 +24,7 @@ const AddCategory = () => {
     parent_category: " ",
     banner: " ",
     icon: " ",
-    slide_show: [],
+    slide_show:[] ,
   };
   console.log(initialValues.slide_show)
 
@@ -38,11 +39,17 @@ const AddCategory = () => {
 
     }
   }
+
+
+
+  const goBack = () => {
+    window.history.back();
+  };
   return (
     <Layout>
       <div className="col-12 stretch-card container-fluid">
         <div style={{ marginBottom: '30px', display: "flex", alignItems: "center", gap: "20px", color: '#D93D6E' }}>
-          <FaArrowLeft size={30} cursor="pointer" />
+          <FaArrowLeft size={20} cursor="pointer" onClick={goBack} />
           <h2 className="heading"> Add Category</h2>
         </div>
         <div>
@@ -152,6 +159,7 @@ const AddCategory = () => {
                             "banner",
                             event.currentTarget.files[0]
                           );
+                          console.log(values.banner)
                         }}
                       />
                       {errors.banner && (
@@ -166,7 +174,7 @@ const AddCategory = () => {
                         htmlFor="icon"
                         className="form-label"
                       >
-                        icon image
+                        Icon image
                       </label>
                       <input
                         type="file"
@@ -201,26 +209,35 @@ const AddCategory = () => {
                         htmlFor="slide_show"
                         className="form-label"
                       >
-                        Slideshow image
+                        Slideshow images
                       </label>
                       <input
                         type="file"
                         className="form-control"
                         id="slide_show"
                         name="slide_show"
-                        onChange={(event) => {
-            const selectedFiles = Array.from(event.target.files); // Convert FileList to array
-            
-            // Iterate over each selected file
-            selectedFiles.forEach(file => {
-                // Push the file into the slide_show array
-                setFieldValue("slide_show", prevSlideShow => [...prevSlideShow, file]);
-            });
-            
-            console.log(values.slide_show); // Log values.slide_show instead of initialValues.slide_show
-        }}
                         multiple
+                        onChange={(event) => {
+    
+    const selectedFiles = [];
+   
+   
+    for (let i = 0; i < event.currentTarget.files.length; i++) {
+     
+     
+      values.slide_show.push(event.currentTarget.files[i])
+     
+    }
+    
+
+
+console.log(values.slide_show)
+
+
+  }}
                       />
+
+
                       {errors.banner && (
                         <small className="text-danger">
                           {errors.banner}
@@ -231,7 +248,7 @@ const AddCategory = () => {
                   </div>
                 </div>
 
-                {/* {values.slide_show && values.slide_show.length > 0 && (
+                {/* {showSlide && (
                 <div className="card mt-4">
                     <div className="card-body">
                         <h5>Selected Slideshow Images:</h5>

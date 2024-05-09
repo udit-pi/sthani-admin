@@ -6,9 +6,10 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCircleInfo } from '@fortawesome/free-solid-svg-icons'
+import { faCircleInfo, faRemove } from '@fortawesome/free-solid-svg-icons'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { toast } from "react-toastify";
+import { deleteWidget, fetchAllwidget } from "../../features/widget/homeWidgetSlice";
 
 
 const HomeWidget = () => {
@@ -22,16 +23,16 @@ const HomeWidget = () => {
   const navigate = useNavigate();
 
   // console.log(allCategories)
-//   const fetchCategory = async () => {
-//     const res = await dispatch(fetchAllCategories()).unwrap();
-//     //  console.log(res)
-//     setCategories(res);
-//     setFilteredCategories(res);
-//   };
+  const fetchWidget = async () => {
+    const res = await dispatch(fetchAllwidget()).unwrap();
+    //  console.log(res)
+    setHomeWidgets(res);
+    setFilteredHomeWidgets(res);
+  };
 
-//   useEffect(() => {
-//     fetchCategory();
-//   }, [dispatch]);
+  useEffect(() => {
+    fetchWidget();
+  }, [dispatch]);
 
 //   useEffect(() => {
 //     const result = categories.filter((cat) => {
@@ -44,38 +45,34 @@ const HomeWidget = () => {
     // console.log(str);
     return str.toUpperCase();
   };
-//   const handleDelete = (id) => {
+  const handleDelete = (id) => {
       
-//     dispatch(deleteCategory({id}))
-//     .unwrap()
-//     .then(() => {
+    dispatch(deleteWidget({id}))
+    .unwrap()
+    .then(() => {
     
-//       fetchCategory();
+      fetchWidget();
       
-//       navigate("/category");
-//       // window.location.reload();
-//       toast.success('Category deleted successfully!')
-//       // setSuccessful(true);
+      navigate("/homePage");
+      // window.location.reload();
+      toast.success('Widget deleted successfully!')
+      // setSuccessful(true);
    
-//     })
-//     .catch((err) => {
+    })
+    .catch((err) => {
       
-//       toast.success(err)
-//       // setSuccessful(false);
+      toast.success(err)
+      // setSuccessful(false);
       
-//     });
-// }
+    });
+}
 
   // filteredCategories.forEach((cat, index) => {
   //   cat.serial = index + 1;
   // });
 
   const columns = [
-    {
-      name: "Id",
-      selector: (row) => row.id,
-      sortable: true,
-    },
+   
     {
       name: "Position",
       selector: (row) => row.placement_id,
@@ -91,11 +88,7 @@ const HomeWidget = () => {
       selector: (row) => row.title,
       sortable: true,
     },
-    {
-      name: "Sub Title",
-      selector: (row) => row.sub_title,
-      sortable: true,
-    },
+   
     // {
     //     name: 'Meta Description',
     //     selector: row => row.meta_description,
@@ -105,23 +98,25 @@ const HomeWidget = () => {
       name: "Action",
       cell: (row) => (
         <div>
+          
           <Link
-            to={`/showcategory/${row.id}`}
-            className="btn btn-sm btn-primary"
-          >
-            <span>
-            <FontAwesomeIcon icon={faCircleInfo} />
-             
-            </span>
-          </Link>
-          <Link
-            to={`/editcategory/${row.id}`}
+            to={`/editWidget/${row.id}`}
             className="btn btn-sm btn-warning ms-1"
           >
             <span>
               <i className="ti ti-pencil" />
             </span>
           </Link>
+          <button
+            type="button"
+            onClick ={() => handleDelete(row.id)}
+            className="btn btn-sm btn-danger ms-2"
+          >
+            <span>
+            <FontAwesomeIcon icon={faTrash} />
+             
+            </span>
+          </button>
           {/* <button
             className="btn btn-sm btn-danger ms-1"
             onClick={() => handleDelete(row.id)}
