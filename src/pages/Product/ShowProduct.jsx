@@ -26,8 +26,8 @@ const ShowProduct = () => {
 
   // const imageBaseUrl = "http://165.22.222.184/api/uploads/";
 
-  const imageBaseUrl = `${process.env.REACT_APP_API_URL}/api/uploads/`;
-
+  // const imageBaseUrl = `${process.env.REACT_APP_API_URL}/api/uploads/`;
+  const imageBaseUrl = `${process.env.REACT_APP_MEDIA_URL}`;
   const initialValues = {
     name: product.name,
   };

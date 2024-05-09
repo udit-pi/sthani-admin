@@ -6,6 +6,7 @@ import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faUpDownLeftRight } from "@fortawesome/free-solid-svg-icons";
 import CustomFileInput from "./CustomFileInput";
+import EditFileInput from "./EditFileInput";
 
 const SlideShowWidget = ({
   values,
@@ -18,6 +19,12 @@ const SlideShowWidget = ({
   handleDestinationChange,
   brands,
 }) => {
+
+  // const imageBaseUrl = "http://localhost:3500/api/uploads/";
+
+  const imageBaseUrl = `${process.env.REACT_APP_MEDIA_URL}`;    
+  // const imageBaseUrl = `${process.env.REACT_APP_API_URL}/api/uploads/`;
+  
   return (
     <DragDropContext
       onDragEnd={(result) => onDragEnd(result, values, setFieldValue)}
@@ -52,10 +59,16 @@ const SlideShowWidget = ({
                                         Image:
                                       </label>
                                       <Field
-                                        component={CustomFileInput}
+                                        component={values.items[index].image ? EditFileInput : CustomFileInput}
                                         className="form-control"
                                         name={`items.${index}.image`}
                                       />
+                                     {values.items[index].image && <img
+                                    src={imageBaseUrl + values.items[index].image}
+                                    alt=""
+                                    width={80}
+                                    height={80}
+                                  />}
                                     </div>
                                     <div className="col-md-6 mb-2">
                                       <label className="form-label">
@@ -102,6 +115,7 @@ const SlideShowWidget = ({
                                         className="form-select"
                                         name={`items.${index}.brand`}
                                       >
+                                        <option value="">Select brand</option>
                                         {brands.map((brand, brandIndex) => (
                                           <option
                                             key={brandIndex}
