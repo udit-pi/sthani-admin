@@ -117,33 +117,39 @@ const[deleteId,setdeleteId]=useState("")
      
       {
         name: "Icon",
-        cell: (row) => <>
+        cell: (row) => (
+        <>
         {row.icon ? ( 
+
           <img
             src={`${mediaFolder}/${row.icon}`}
             alt="Icon"
             height="50px"
-           
+           style={{ padding: '5px'}}
           />
         ) : (
           <span>-</span> 
              
         )}
-      </>,
+      </>
+      ),
+      width: '10%'
       },
    
   
     {
       name: "Name",
       selector: (row) => row.name,
+      cell: row => <div style={{ fontWeight: "bold" }}>{row.name}</div>,
       sortable: true,
+      width: ''
     },
    
     {
       name: "Parent category",
       selector: (row) => parentCategoryName(row, categories),
-     
       sortable: true,
+      width: '30%'
     },
   
     {
@@ -177,6 +183,7 @@ const[deleteId,setdeleteId]=useState("")
             </span>
         </div>
       ),
+      width:'15%'
     },
     // {
     //     name: 'Created',
@@ -209,14 +216,14 @@ console.log(categories.length)
 
       <div style={{ marginBottom: '30px' }}>
    
-      <h2 className="heading">Category</h2>
+      <h2 className="heading">Categories</h2>
     </div>
         <div className="card">
           <div className="card-body">
 
           <div style={{display:"flex",justifyContent:"space-between" ,gap:"20px"}} >
           <div style={{ color: 'gray', fontWeight: 'bold' }}>
-  {categories.length} Category
+  {categories.length} Categories
 </div>
         <div style={{display:"flex",flexDirection:"row" ,gap:"10px"}}>
 
