@@ -18,6 +18,7 @@ import { FaCircle } from "react-icons/fa";
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import Button from '@mui/material/Button';
+import { Typography } from "@mui/material";
 
 const mediaFolder = process.env.REACT_APP_MEDIA_URL ;
 
@@ -101,7 +102,15 @@ const[deleteId,setdeleteId]=useState("")
   // filteredCategories.forEach((cat, index) => {
   //   cat.serial = index + 1;
   // });
-
+  const parentCategoryName = (row, categories) => {
+    const parentCategoryId = row.parent_category;
+  
+    // Find the category with the matching ID
+    const parentCategory = categories.find(category => category.id === parentCategoryId);
+  
+    // If parent category is found, return its name, otherwise return a default value
+    return parentCategory ? parentCategory.name : '-';
+  };
  
   const columns = [
    
@@ -132,7 +141,8 @@ const[deleteId,setdeleteId]=useState("")
    
     {
       name: "Parent category",
-      selector: (row) => row.parent_category,
+      selector: (row) => parentCategoryName(row, categories),
+     
       sortable: true,
     },
   
@@ -192,7 +202,7 @@ const[deleteId,setdeleteId]=useState("")
   const handleClose = () => {
     setOpen(false);
   };
-
+console.log(categories.length)
   return (
     <Layout>
       <div className="col-12 stretch-card container-fluid">
@@ -203,24 +213,31 @@ const[deleteId,setdeleteId]=useState("")
     </div>
         <div className="card">
           <div className="card-body">
-          <div style={{display:"flex",justifyContent:"end" ,gap:"20px"}} >
 
-        
+          <div style={{display:"flex",justifyContent:"space-between" ,gap:"20px"}} >
+          <div style={{ color: 'gray', fontWeight: 'bold' }}>
+  {categories.length} Category
+</div>
+        <div style={{display:"flex",flexDirection:"row" ,gap:"10px"}}>
+
+      
           <Link
             to={`/addcategory`}
             className="btn "
-            style={{ backgroundColor: '#D93D6E',color:"white" }}
+            style={{ backgroundColor: '#D93D6E',color:"white", width:"200px" }}
           >
             Add Category
           </Link>
 
           <input
                     type="text"
-                    className="w-25 form-control"
+                    className="w-30 form-control"
                     placeholder="Search Category"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                   />
+
+</div>
           </div>
             <div className="table-responsive">
               <DataTable
@@ -256,9 +273,11 @@ const[deleteId,setdeleteId]=useState("")
         aria-labelledby="child-modal-title"
         aria-describedby="child-modal-description"
       >
-        <Box sx={{ ...style, width: 400 }}>
+        <Box sx={{ ...style, width: 400 ,display:"flex",flexDirection:"column",  alignItems:"center",justifyContent:"center"}}>
           <h2 id="child-modal-title"  >Do you want to delete?</h2>
-         
+         <Typography  sx={{display:"flex",alignItems:"center",justifyContent:"center" ,gap:"20px"}}>
+
+       
           <button
                           type="button"
                           className="btn btn-sm  mt-4"
@@ -277,6 +296,7 @@ const[deleteId,setdeleteId]=useState("")
                         >
                         No
                         </button>
+                        </Typography>
         </Box>
 </Modal>
 

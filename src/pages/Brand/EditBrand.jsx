@@ -102,11 +102,15 @@ const[brands,setbrands]=useState({})
     // console.log(newImages);
   }
   console.log(deletedImages)
+
+  const goBack = () => {
+    window.history.back();
+  };
   return (
     <Layout>
       <div className="col-12 stretch-card container-fluid">
       <div style={{marginBottom: '30px',display:"flex",alignItems:"center",gap:"20px",color:'#D93D6E'  }}>
-      <FaArrowLeft size={30} cursor="pointer"/>
+      <FaArrowLeft size={20} cursor="pointer" onClick={goBack}/>
       <h2 className="heading">Edit Brands</h2>
     </div>
    
@@ -191,16 +195,13 @@ const[brands,setbrands]=useState({})
         </div>
         <div className="card">
           <div  className="card-body">
+
+          <div style={{display:"flex",gap:"40px",marginTop:"30px"}}>
           <div className="mb-4">
                                   <label htmlFor="logo" className="form-label">
                                     Logo
                                   </label>
-                               {/* {!brands.logo=="" &&  <img
-                                    src={url + brand.logo}
-                                    alt=""
-                                    width={50}
-                                    height={50}
-                                  />} */}
+
                            
                                   <input
                                     type="file"
@@ -234,6 +235,7 @@ const[brands,setbrands]=useState({})
 <img src={URL.createObjectURL(values.logo)} height="150px" />
 
 </div>}
+</div>
                                 <h6>Images:</h6>
                                 <div className="row mt-4 mb-2">
                                   {uploadImages?.map((image, key) => {
@@ -372,7 +374,7 @@ const[brands,setbrands]=useState({})
                                   )}
                                 </div>
 
-                                <div style={{ display: "flex", gap: "40px" }}>
+                                <div style={{ display: "flex", gap: "20px" ,flexWrap:"wrap"}}>
 
 
 {values.slide_show&&values.slide_show.map((image,index) => (
@@ -397,6 +399,34 @@ const[brands,setbrands]=useState({})
   </div>
 
 ))}
+
+
+
+
+{values.slide_show&&values.slide_show.map((image,index) => (
+  
+  <div style={{display:"flex",flexDirection:"column",gap:"20px"}}>
+  
+
+   
+   {typeof image != "string"&&<img src={URL.createObjectURL(image)} height="150px" />}
+
+   {typeof image != "string"&&<button
+      type="button"
+      className="btn btn-sm  mt-2"
+      onClick={() => {
+    setFieldValue('slide_show', values.slide_show.filter((_, i) => i !== index));
+    console.log(values.slide_show)
+  }}
+      style={{ backgroundColor: 'transparent', border: "1px solid #D93D6E" }}
+    >
+      Remove Image
+    </button>}
+  </div>
+
+))}
+
+
 
 </div>
                          
