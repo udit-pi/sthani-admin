@@ -76,14 +76,14 @@ const Product = () => {
   // });
 
   const columns = [
-    {
-      name: "Id",
-      selector: (row) => row.id,
-      sortable: true,
-    },
+    // {
+    //   name: "Id",
+    //   selector: (row) => row.id,
+    //   sortable: true,
+    // },
     {
       name: "Name",
-      selector: (row) => row.name,
+      selector: (row) => <b>{row.name}</b>,
       sortable: true,
     },
     // {
@@ -110,32 +110,20 @@ const Product = () => {
       name: "Action",
       cell: (row) => (
         <div>
-          <Link
-            to={`/showproduct/${row.id}`}
-            className="btn btn-sm btn-primary"
-          >
-            <span>
-            <FontAwesomeIcon icon={faCircleInfo} />
-             
-            </span>
-          </Link>
-          <Link
+            <Link
             to={`/editproduct/${row.id}`}
-            className="btn btn-sm btn-warning ms-1"
+            
           >
-            <span>
-              <i className="ti ti-pencil" />
-            </span>
+            <span style={{ color: ' #D93D6E ' }}>
+             Edit
+              
+               </span>
           </Link>
-          {/* <button
-            className="btn btn-sm btn-danger ms-1"
-            onClick={() => handleDelete(row.id)}
-          >
-            <span>
-            <FontAwesomeIcon icon={faTrash} />
+        
+            <span  onClick={() => handleDelete(row.id)}  style={{marginLeft:"20px",cursor:"pointer",color: ' #D93D6E ' }}>
+           Delete
               
             </span>
-          </button>    */}
         </div>
       ),
     },
@@ -152,39 +140,57 @@ const Product = () => {
 
   return (
     <Layout>
-      <div className="col-12 stretch-card container-fluid">
-        <div className="card">
-          <div className="card-body">
-          <Link
-            to={`/addproduct`}
-            className="btn btn-sm btn-success ms-1"
-          >
-            Add Product
-          </Link>
-            <div className="table-responsive">
-              <DataTable
-                // title="Category"
-                columns={columns}
-                data={filteredProducts}
-                fixedHeader
-                pagination
-                highlightOnHover
-                subHeader
-                subHeaderComponent={
-                  <input
-                    type="text"
-                    className="w-25 form-control"
-                    placeholder="Search Category"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
-                }
-              />
-            </div>
+    <div className="col-12 stretch-card container-fluid">
+    <div style={{ marginBottom: '30px' }}>
+    <h2 className="heading">Product</h2>
+  </div>
+      <div className="card">
+        <div className="card-body">
+        <div>
+          <p className="">{products?.length} products</p>
+        </div>
+        <div style={{display:"flex",justifyContent:"end" ,gap:"20px"}}>
+      
+        <Link
+          to={`/addproduct`}
+          className="btn ms-1"
+          style={{ backgroundColor: '#D93D6E',color:"white" }}
+        >
+          Add Product
+        </Link>
+        <input
+                  type="text"
+                  className="w-25 form-control"
+                  placeholder="Search Product"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+        </div>
+          <div className="table-responsive">
+            <DataTable
+              // title="Category"
+              columns={columns}
+              data={filteredProducts}
+              fixedHeader
+              pagination
+              highlightOnHover
+              subHeader
+              // onRowClicked={handleRowClick}
+              // subHeaderComponent={
+              //   <input
+              //     type="text"
+              //     className="w-25 form-control"
+              //     placeholder="Search Category"
+              //     value={search}
+              //     onChange={(e) => setSearch(e.target.value)}
+              //   />
+              // }
+            />
           </div>
         </div>
       </div>
-    </Layout>
+    </div>
+  </Layout>
   );
 };
 

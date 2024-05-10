@@ -9,6 +9,7 @@ import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { addPropertyValidation } from "../../validations/addPropertyValidation";
 import { addProperty } from "../../features/properties/propertySlice";
+import { FaArrowLeft } from "react-icons/fa";
 
 const AddProperty = () => {
   const [loading, setLoading] = useState(false);
@@ -38,7 +39,13 @@ const AddProperty = () => {
       <div className="col-12 stretch-card container-fluid">
         <div className="card">
           <div className="card-body">
-            <h4>Add Property</h4>
+          <Link
+          to={`/properties`}
+          style={{ display: "flex", alignItems: "center", gap: "20px", color: '#D93D6E' }}
+        >
+         <FaArrowLeft size={30} cursor="pointer" />
+         <h2 className="heading">Add Property</h2>
+        </Link>
 
             <div
               // className="page-wrapper"
@@ -49,7 +56,7 @@ const AddProperty = () => {
               data-sidebar-position="fixed"
               data-header-position="fixed"
             >
-              <div className="position-relative overflow-hidden  min-vh-100 d-flex align-items-center justify-content-center">
+              <div className="position-relative overflow-hidden  d-flex align-items-center justify-content-center">
                 <div className="container">
                   <div className="row">
                     <div className="">
