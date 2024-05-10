@@ -5,24 +5,33 @@ import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { useHistory } from 'react-router-dom'
 import { Formik, Form, Field } from "formik";
 import { editCategoryValidation } from "../../validations/editCategoryValidation";
-import { addCategory, editCategory, fetchCategoryById } from "../../features/category/categorySlice";
+import { addCategory, editCategory, fetchAllCategories, fetchCategoryById } from "../../features/category/categorySlice";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import MultiSelectDropdown from "../../components/MultiSelectDropDown";
 import { FaArrowLeft } from "react-icons/fa";
+import Box from '@mui/material/Box';
+
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
 const EditCategory = ({ history }) => {
   const [loading, setLoading] = useState(false);
   const [error, seError] = useState([]);
   const [category, setCategory] = useState({})
   const { id } = useParams();
   const [dataLoaded, setDataLoaded] = useState(false)
+const[Allcategory,setAllcategory]=useState([])
 
+const[catOption,setcatOption]=useState([])
 
+const[defaultValue,setdefaultValue]=useState(null)
   console.log(dataLoaded)
   const mediaFolder = process.env.REACT_APP_MEDIA_URL;
 
-
-  console.log(category)
+console.log(id)
+  console.log(category.parent_category)
+  console.log(Allcategory)
 
   //image usestate
 
@@ -41,7 +50,8 @@ const EditCategory = ({ history }) => {
     // meta_title: "",
     description: "",
     icon: "",
-    slide_show: []
+    slide_show: [],
+    parent_category:""
   };
 
   // const imageUrlBanner = 'http://localhost:3500/uploads/' + category.banner;
@@ -61,34 +71,27 @@ const EditCategory = ({ history }) => {
         console.log("then", res)
 
         setCategory(res);
+        setdefaultValue(res.parent_category)
         setDataLoaded(true)
         initialValues.name = res.name
         initialValues.description = res.description
         initialValues.icon = res.icon
         initialValues.banner = res.banner
         initialValues.slide_show = res.slide_show
+        initialValues.parent_category = res.parent_category
+
       })
       .catch(err => {
         console.log(err)
       });
 
+      const resAll = await dispatch(fetchAllCategories()).unwrap();
 
-    // setCategory(res);
-
-
-
-
-    //   initialValues.name = res.name
-    //   initialValues.description = res.description
-    //   initialValues.icon = res.icon
-    //   initialValues.banner = res.banner
-    //   initialValues.slide_show = res.slide_show
-
-
+setAllcategory(resAll)
 
   };
 
-
+console.log( defaultValue)
   // const imageUrl = 'http://165.22.222.184/api/uploads/' + category.banner;
 
     useEffect(() => {
@@ -114,11 +117,28 @@ const EditCategory = ({ history }) => {
   }
 
 
+  const catOptions = [];
+useEffect(()=>{
+  const index =Allcategory.findIndex(category => category.id === id);
+
+  
+
+  // Return a new array without the category with the matching ID
+  const newArray= Allcategory.filter((category, i) => i !== index);
+  newArray?.map((cat) => {
+    catOptions.push({ label: cat.name, value: cat.id });
+  });
+  setcatOption(catOptions)
+},[Allcategory])
+
+console.log(catOption)
+
   const goBack = () => {
     window.history.back();
   };
 
-// console.log(category.slide_show.length)
+console.log(category.parent_category)
+
   return (
     <Layout>
       <div className="col-12 stretch-card container-fluid">
@@ -193,10 +213,48 @@ const EditCategory = ({ history }) => {
                       >
                         Parent category:
                       </label>
-                      <MultiSelectDropdown
+                      {/* <MultiSelectDropdown
                         name="Parent category"
                       // options={catOption}
-                      />
+                      /> */}
+
+<Box sx={{ minWidth: 120 }}>
+      <FormControl fullWidth>
+  
+       <Select
+          labelId="demo-simple-select-label"
+          id="parent_category"
+          name="parent_category"
+        defaultOpen={category.parent_category}
+        value={defaultValue}
+      onChange={(event) => {
+ setdefaultValue(event.target.value)
+setFieldValue("parent_category",event.target.value)
+
+
+ }}
+    >
+        
+          {Allcategory.map((option) => (
+
+
+       option.id!=id&& <MenuItem key={option.id.toString()} value={option.id}>{option.name}</MenuItem>
+        
+      
+          ))}
+
+    
+        </Select>
+   
+      </FormControl>
+    </Box>
+
+
+
+
+
+
+
                       {errors.category && (
                         <small className="text-danger">
                           {errors.category}
@@ -217,6 +275,8 @@ const EditCategory = ({ history }) => {
                 </div>
                 <div className="card">
                   <div className="card-body">
+
+                  <div style={{display:"flex",gap:"40px"}}>
 
                     <div className="mb-4">
                       <label
@@ -259,14 +319,16 @@ const EditCategory = ({ history }) => {
 
                   </div>}
 
+</div>
+          <div style={{display:"flex",gap:"40px",marginTop:"30px"}}>
 
-
+     
                     <div className="mb-4">
                       <label
                         htmlFor="icon"
                         className="form-label"
                       >
-                        icon image
+                        Icon image
                       </label>
                       <input
                         type="file"
@@ -288,6 +350,7 @@ const EditCategory = ({ history }) => {
                         </small>
                       )}
                     </div>
+
                     {category.icon&&icon && <div className="mb-2">
 
                     <img src={icon} height="150px" />
@@ -299,6 +362,10 @@ const EditCategory = ({ history }) => {
                     <img src={URL.createObjectURL(values.icon)} height="150px" />
 
                   </div>}
+
+                  </div>
+
+
                   </div>
                 </div>
 
@@ -318,6 +385,7 @@ const EditCategory = ({ history }) => {
                         type="file"
                         className="form-control"
                         id="slide_show"
+                        multiple
                         name="slide_show"
                         // onChange={(event) => {
 
@@ -365,7 +433,7 @@ const EditCategory = ({ history }) => {
                       )}
                     </div>
 
-                   { <div style={{ display: "flex", gap: "40px" }}>
+                   { <div style={{ display: "flex", gap: "20px",flexWrap:"wrap" }}>
 
 
                     { values.slide_show&& values.slide_show.map((image,index) => (
@@ -375,6 +443,11 @@ const EditCategory = ({ history }) => {
 
                        
                        {typeof image === "string"&&<img src={url + image} height="150px" />}
+                    
+                       
+
+
+
 
                        {typeof image === "string"&&<button
                           type="button"
@@ -390,6 +463,39 @@ const EditCategory = ({ history }) => {
                       </div>
                    
                     ))}
+
+
+
+
+
+                    { values.slide_show&& values.slide_show.map((image,index) => (
+                      
+                      <div style={{display:"flex",flexDirection:"column",gap:"10px",flexWrap:"wrap"}}>
+                      
+
+                       
+                       {typeof image !== "string"&&<img src={URL.createObjectURL(image)} height="150px" />}
+                    
+                       
+
+
+
+
+                       {typeof image !== "string"&&<button
+                          type="button"
+                          className="btn btn-sm  mt-2"
+                          onClick={() => {
+                        setFieldValue('slide_show', values.slide_show.filter((_, i) => i !== index));
+                        console.log(values.slide_show)
+                      }}
+                          style={{ backgroundColor: 'transparent', border: "1px solid #D93D6E" }}
+                        >
+                          Remove Image
+                        </button>}
+                      </div>
+                   
+                    ))}
+
 
                   </div>}
 
