@@ -52,11 +52,11 @@ const EditBrand = () => {
     // setFilteredCategories(res);
   };
 
-  //  const imageBaseUrl = "http://localhost:3500/uploads/";
+    const imageBaseUrl = `${process.env.REACT_APP_MEDIA_URL}`;
   // const imageBaseUrl = "http://165.22.222.184/api/uploads/";
   // const imageBaseUrl = "https://64.227.162.145/api/uploads/";
   
-  const imageBaseUrl = `${process.env.REACT_APP_API_URL}/api/uploads/`;
+  // const imageBaseUrl = `${process.env.REACT_APP_API_URL}/api/uploads/`;
   useEffect(() => {
     fetchBrand();
   }, [dispatch]);

@@ -38,15 +38,21 @@ const EditCategory = ({ history }) => {
     slide_show: []
   };
 
-  // const imageUrlBanner = 'http://localhost:3500/uploads/' + category.banner;
+    const imageUrlBanner = `${process.env.REACT_APP_MEDIA_URL}/${category.banner}`;
+    
+    const imageUrlIcon = `${process.env.REACT_APP_MEDIA_URL}/${category.icon}`;
+    const url = `${process.env.REACT_APP_MEDIA_URL}`
+  //  const imageUrlBanner = 'http://localhost:3500/api/uploads/' + category.banner;
+  //  const  imageUrlIcon  = `http://localhost:3500/api/uploads/${category.icon}`;
+  //  const  url  = `http://localhost:3500/api/uploads/api/uploads/`;
   // const imageUrlIcon = 'http://localhost:3500/uploads/' + category.icon;
 
   // const url = 'http://localhost:3500/uploads/'
 
 
-  const  imageUrlBanner  = `${process.env.REACT_APP_API_URL}/api/uploads/${category.banner}`;
-  const  imageUrlIcon  = `${process.env.REACT_APP_API_URL}/api/uploads/${category.icon}`;
-  const  url  = `${process.env.REACT_APP_API_URL}/api/uploads/`;
+  // const  imageUrlBanner  = `${process.env.REACT_APP_API_URL}/api/uploads/${category.banner}`;
+  // const  imageUrlIcon  = `${process.env.REACT_APP_API_URL}/api/uploads/${category.icon}`;
+  // const  url  = `${process.env.REACT_APP_API_URL}/api/uploads/`;
 
   const fetchCategory = async () => {
     const res = await dispatch(fetchCategoryById({ id })).unwrap();
