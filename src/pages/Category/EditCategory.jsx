@@ -67,7 +67,7 @@ console.log(id)
 
 
 
-  const imageUrlBanner = mediaFolder+category.banner;
+ // const imageUrlBanner = mediaFolder+category.banner;
   const imageUrlIcon = mediaFolder+category.icon;
   const url = mediaFolder;
 
