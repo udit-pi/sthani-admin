@@ -14,18 +14,35 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleInfo } from '@fortawesome/free-solid-svg-icons'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { toast } from "react-toastify";
+import Box from '@mui/material/Box';
+import Modal from '@mui/material/Modal';
+import { Typography } from "@mui/material";
+const mediaFolder = process.env.REACT_APP_MEDIA_URL ;
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
 
-
+  bgcolor: 'background.paper',
+  border: '2px solid white',
+  borderRadius:"10px",
+  boxShadow: 24,
+  pt: 4,
+  px: 4,
+  pb: 5,
+};
 const Brand = () => {
   const { user: currentUser } = useSelector((state) => state.auth);
   const allBrands = useSelector(getAllBrands);
   const [brands, setBrands] = useState([]);
   const [search, setSearch] = useState("");
   const [filteredBrands, setFilteredBrands] = useState([]);
-
+  const[deleteId,setdeleteId]=useState("")
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const [open, setOpen] = useState(false);
   // console.log(allCategories)
   const fetchBrand = async () => {
     const res = await dispatch(fetchAllBrands()).unwrap();
@@ -60,7 +77,7 @@ const Brand = () => {
       // window.location.reload();
       toast.success('Category deleted successfully!')
       // setSuccessful(true);
-   
+      setOpen(false)
     })
     .catch((err) => {
       
@@ -75,11 +92,23 @@ const Brand = () => {
   // });
 
   const columns = [
-    // {
-    //   name: "Id",
-    //   selector: (row) => row.id,
-    //   sortable: true,
-    // },
+      
+    {
+      name: "Icon",
+      cell: (row) => <>
+      {row.logo ? ( 
+        <img
+          src={`${mediaFolder}/${row.logo}`}
+          alt="Icon"
+          height="50px"
+         
+        />
+      ) : (
+        <span>-</span> 
+           
+      )}
+    </>,
+    },
     {
       name: "Name",
       selector: (row) => row.name,
@@ -128,7 +157,9 @@ const Brand = () => {
                </span>
           </Link>
         
-            <span  onClick={() => handleDelete(row.id)}  style={{marginLeft:"20px",cursor:"pointer",color: ' #D93D6E ' }}>
+            {/* <span  onClick={() => handleDelete(row.id)}  style={{marginLeft:"20px",cursor:"pointer",color: ' #D93D6E ' }}> */}
+          <span  onClick={() => handleOpen(row.id)}  style={{marginLeft:"20px",cursor:"pointer",color: ' #D93D6E ' }}>
+
            Delete
               
             </span>
@@ -151,6 +182,14 @@ const Brand = () => {
     navigate(`/editbrand/${row.id}`);
   };
 
+
+  const handleOpen = (id) => {
+    setdeleteId(id)
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
   return (
     <Layout>
       <div className="col-12 stretch-card container-fluid">
@@ -159,22 +198,26 @@ const Brand = () => {
     </div>
         <div className="card">
           <div className="card-body">
-          <div style={{display:"flex",justifyContent:"end" ,gap:"20px"}}>
-
+          <div style={{display:"flex",justifyContent:"space-between" ,gap:"20px"}}>
+          <div style={{ color: 'gray', fontWeight: 'bold' }}>
+  {brands.length}  Brands
+</div>
+          <div style={{display:"flex",flexDirection:"row" ,gap:"10px"}}>
           <Link
             to={`/addbrand`}
             className="btn ms-1"
-            style={{ backgroundColor: '#D93D6E',color:"white" }}
+            style={{ backgroundColor: '#D93D6E',color:"white", width:"200px"}}
           >
             Add Brand
           </Link>
           <input
                     type="text"
-                    className="w-25 form-control"
-                    placeholder="Search Category"
+                    className="w-30 form-control"
+                    placeholder="Search Brands"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                   />
+                  </div>
           </div>
             <div className="table-responsive">
               <DataTable
@@ -200,6 +243,37 @@ const Brand = () => {
           </div>
         </div>
       </div>
+
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="child-modal-title"
+        aria-describedby="child-modal-description"
+      >
+        <Box sx={{ ...style, width: 400 ,display:"flex",flexDirection:"column",  alignItems:"center",justifyContent:"center" }}>
+          <h2 id="child-modal-title"  >Do you want to delete?</h2>
+          <Typography  sx={{display:"flex",alignItems:"center",justifyContent:"center" ,gap:"20px"}}>
+          <button
+                          type="button"
+                          className="btn btn-sm  mt-4"
+                        
+                          style={{ backgroundColor: 'transparent', border: "1px solid #D93D6E",width:"100px" }}
+                          onClick={() => handleDelete(deleteId)}
+                        >
+                          Yes
+                        </button>
+
+                        <button
+                          type="button"
+                          className="btn btn-sm  mt-4"
+                        onClick={handleClose}
+                          style={{ backgroundColor: 'transparent', border: "1px solid #D93D6E",width:"100px",marginLeft:"20px" }}
+                        >
+                        No
+                        </button>
+                        </Typography>
+        </Box>
+</Modal>
     </Layout>
   );
 };

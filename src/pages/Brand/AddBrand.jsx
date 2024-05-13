@@ -35,11 +35,15 @@ const AddBrand = () => {
       navigate("/brand");
     }
   };
+
+  const goBack = () => {
+    window.history.back();
+  };
   return (
     <Layout>
       <div className="col-12 stretch-card container-fluid">
         <div style={{ marginBottom: '30px', display: "flex", alignItems: "center", gap: "20px", color: '#D93D6E' }}>
-          <FaArrowLeft size={30} cursor="pointer" />
+          <FaArrowLeft size={20} cursor="pointer" onClick={goBack}/>
           <h2 className="heading">Add Brands</h2>
         </div>
 
@@ -132,6 +136,7 @@ const AddBrand = () => {
 
               <div className="card" >
                 <div className="card-body">
+                <div  style={{display:"flex",gap:"40px",marginTop:"10px"}}>
                   <div className="mb-4">
                     <label htmlFor="logo" className="form-label">
                       Logo
@@ -156,7 +161,17 @@ const AddBrand = () => {
                     )}
                   </div>
 
+     <div className="LogoImage" >
+     {values.logo instanceof File && 
+     
+     <div >
 
+  
+     <img  src={URL.createObjectURL(values.logo)} height="100px"/>
+     </div>
+     }
+     </div>  
+     </div>
                   <div >
                     <h4>Upload Images</h4>
                     <FieldArray name="images" >
@@ -265,7 +280,7 @@ const AddBrand = () => {
                         }
 
 
-
+                        setFieldValue('slide_show',  values.slide_show);
                         console.log(values.slide_show)
 
 
@@ -277,6 +292,17 @@ const AddBrand = () => {
                       </small>
                     )}
                   </div>
+
+
+                  <div style={{display:"flex",gap:"20px",flexWrap:"wrap"}}>
+
+                   
+{values.slide_show.map((file, index) => (
+            <div key={index} className="col-md-3 mb-2" >
+            {typeof image !== "string"&&<img src={URL.createObjectURL(file)} height="150px" />}
+            </div>
+        ))}
+        </div>
                 </div>
 
               </div>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Layout from "../../components/layouts/Layout";
 import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
@@ -10,11 +10,22 @@ import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import MultiSelectDropdown from "../../components/MultiSelectDropDown";
 import { FaArrowLeft } from "react-icons/fa";
+import {
+
+  fetchAllCategories,
+
+} from "../../features/category/categorySlice";
+
+import Box from '@mui/material/Box';
+
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
 const AddCategory = () => {
   const [loading, setLoading] = useState(false);
   const [error, seError] = useState([]);
-
-
+  const [categories, setCategories] = useState([]);
+  const [catOption, setCatOption] = useState([]);
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
@@ -26,8 +37,23 @@ const AddCategory = () => {
     icon: " ",
     slide_show:[] ,
   };
-  console.log(initialValues.slide_show)
+  const catOptions = [];
+ 
+  const fetchCategory = async () => {
+    const res = await dispatch(fetchAllCategories()).unwrap();
+     console.log(res)
+    setCategories(res);
+    res?.map((cat) => {
+      catOptions.push({ label: cat.name, value: cat.id });
+    });
 
+    setCatOption(catOptions);
+
+  };
+
+  useEffect(() => {
+    fetchCategory();
+  }, [dispatch]);
 
   const handleSubmit = async (values) => {
 
@@ -116,10 +142,35 @@ const AddCategory = () => {
                       >
                         Parent category:
                       </label>
-                      <MultiSelectDropdown
+                      {/* <MultiSelectDropdown
                         name="parent_category"
-                      // options={catOption}
-                      />
+                        options={catOption}
+           
+                      
+                    
+                      /> */}
+ <Box sx={{ minWidth: 120 }}>
+      <FormControl fullWidth>
+  
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+      
+          onChange={(event) => {
+ 
+setFieldValue("parent_category",event.target.value)
+
+ }}
+        >
+        
+          {catOption.map((option) => (
+            <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+        
+      
+      ))}
+        </Select>
+      </FormControl>
+    </Box>
                       {errors.parent_category && (
                         <small className="text-danger">
                           {errors.parent_category}
@@ -140,6 +191,10 @@ const AddCategory = () => {
                 </div>
                 <div className="card">
                   <div className="card-body">
+               
+<div style={{display:"flex",gap:"40px"}}>
+
+
 
                     <div className="mb-4">
                       <label
@@ -169,7 +224,20 @@ const AddCategory = () => {
                       )}
                     </div>
 
-                    <div className="mb-4">
+                    <div className="BannerImage">
+     {values.banner instanceof File && 
+     
+     <div >
+
+  
+     <img  src={URL.createObjectURL(values.banner)} height="100px"/>
+     </div>
+     }
+     </div>             
+</div>
+                  <div  style={{display:"flex",gap:"40px",marginTop:"30px"}}>
+                 
+                    <div className="mb-4" >
                       <label
                         htmlFor="icon"
                         className="form-label"
@@ -180,6 +248,7 @@ const AddCategory = () => {
                         type="file"
                         className="form-control"
                         id="icon"
+                    
                         name="icon"
                         onChange={(event) => {
                           // Set the uploaded file to Formik state
@@ -194,7 +263,27 @@ const AddCategory = () => {
                           {errors.banner}
                         </small>
                       )}
-                    </div>
+                      </div>
+
+
+
+
+                 
+  <div className="iconImage" >
+     {values.icon instanceof File && 
+     
+     <div >
+
+  
+     <img  src={URL.createObjectURL(values.icon)} height="100px"/>
+     </div>
+     }
+     </div>  
+
+
+ </div>  
+                      
+                
 
                   </div>
                 </div>
@@ -229,7 +318,7 @@ const AddCategory = () => {
      
     }
     
-
+    setFieldValue('slide_show',  values.slide_show);
 
 console.log(values.slide_show)
 
@@ -244,28 +333,48 @@ console.log(values.slide_show)
                         </small>
                       )}
                     </div>
+                    <div style={{display:"flex",gap:"20px",flexWrap:"wrap"}}>
 
+                   
+                    {values.slide_show.map((file, index) => (
+                                <div key={index} className="col-md-3 mb-2" style={{display:"flex",flexDirection:"column",gap:"10px"}} >
+                                {typeof image !== "string"&&<img src={URL.createObjectURL(file)} height="150px" />}
+
+
+
+                                {typeof file !== "string"&&<button
+                          type="button"
+                          className="btn btn-sm  mt-2"
+                          onClick={() => {
+                        setFieldValue('slide_show', values.slide_show.filter((_, i) => i !== index));
+                        console.log(values.slide_show)
+                      }}
+                          style={{ backgroundColor: 'transparent', border: "1px solid #D93D6E" }}
+                        >
+                          Remove Image
+                        </button>}
+
+
+                                </div>
+
+
+
+
+
+                                
+                            ))}
+                            </div>
                   </div>
                 </div>
 
-                {/* {showSlide && (
-                <div className="card mt-4">
-                    <div className="card-body">
-                        <h5>Selected Slideshow Images:</h5>
-                        <div className="row">
-                            {values.slide_show.map((file, index) => (
-                                <div key={index} className="col-md-3 mb-2">
-                                    <img
-                                        src={URL.createObjectURL(file)}
-                                        alt={`Slideshow Image ${index + 1}`}
-                                        className="img-fluid"
-                                    />
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            )} */}
+               
+              
+                       
+                 
+                        
+                   
+               
+        
 
 
                 <button
