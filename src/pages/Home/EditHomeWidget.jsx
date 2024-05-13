@@ -20,6 +20,7 @@ import {
   updateWidget,
 } from "../../features/widget/homeWidgetSlice";
 import { toast } from "react-toastify";
+import { FaArrowLeft } from "react-icons/fa";
 
 const EditHomeWidget = () => {
   const dispatch = useDispatch();
@@ -306,13 +307,21 @@ const EditHomeWidget = () => {
   //   }
   // };
 
+  const goBack = () => {
+    window.history.back();
+  };
+
   return (
     <Layout>
       {/* <DndProvider backend={HTML5Backend}> */}
       <div className="col-12 stretch-card container-fluid">
+      <div style={{ marginBottom: '30px', display: "flex", alignItems: "center", gap: "20px", color: '#D93D6E' }}>
+          <FaArrowLeft size={20} cursor="pointer" onClick={goBack} />
+          <h2 className="heading">Edit Widget</h2>
+        </div>
         <div className="card">
           <div className="card-body">
-            <h4>Edit Home Widget</h4>
+          
             <Formik
               initialValues={formData}
               validationSchema={addWidgetValidation}
@@ -332,6 +341,7 @@ const EditHomeWidget = () => {
                       id="placement_id"
                       name="placement_id"
                       className="form-select"
+                      style={{ width: '30%' }}
                     >
                       <option value="">Select Position</option>
                       {widgetPositions?.map((pos) => {
@@ -368,6 +378,7 @@ const EditHomeWidget = () => {
                       id="title"
                       name="title"
                       aria-describedby="titleHelp"
+                      style={{ width: '50%' }}
                     ></Field>
                     {errors.title && (
                       <p className="text-danger">{errors.title}</p>
@@ -383,6 +394,7 @@ const EditHomeWidget = () => {
                       id="subtitle"
                       name="subtitle"
                       aria-describedby="subtitleHelp"
+                      style={{ width: '50%' }}
                     ></Field>
                     {errors.subtitle && (
                       <p className="text-danger">{errors.subtitle}</p>
@@ -402,6 +414,7 @@ const EditHomeWidget = () => {
                         setFieldValue("widget_type", e.target.value);
                         setFieldValue("items", []);
                       }}
+                      style={{ width: '50%' }}
                     >
                       <option value="">Select Widget</option>
                       <option value="slideshow">Slide Show</option>
@@ -499,12 +512,16 @@ const EditHomeWidget = () => {
                       className="text-danger"
                       component="div"
                     />
+                    <div className="d-flex justify-content-end">
                     <button
                       type="submit"
-                      className="btn btn-sm btn-success mt-4"
+                      className="btn btn-sm mt-2"
+                      style={{ backgroundColor: '#D93D6E', color: "white", width: "10%" }}
                     >
-                      Update
+                      Save
                     </button>
+                    </div>
+                  
                   </>
                 </Form>
               )}

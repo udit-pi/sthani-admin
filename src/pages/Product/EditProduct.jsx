@@ -747,16 +747,17 @@ const EditProduct = () => {
   //   // },
   // ];
 
+  const goBack = () => {
+    window.history.back();
+  };
+
   return (
     <Layout>
       <div className="col-12 stretch-card container-fluid">
-      <Link
-          to={`/product`}
-          style={{ marginBottom: '30px', display: "flex", alignItems: "center", gap: "20px", color: '#D93D6E' }}
-        >
-         <FaArrowLeft size={30} cursor="pointer" />
-         <h2 className="heading">Update Product</h2>
-        </Link>
+      <div style={{ marginBottom: '30px', display: "flex", alignItems: "center", gap: "20px", color: '#D93D6E' }}>
+          <FaArrowLeft size={20} cursor="pointer" onClick={goBack} />
+          <h2 className="heading">Edit Product</h2>
+        </div>
 
         <div
           className="page-wrapper"

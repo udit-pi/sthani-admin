@@ -28,7 +28,22 @@ const BrandWidget = ({
             <FieldArray name="items">
               {({ push, remove }) => (
                 <div>
-                  <h5>Brand Items:</h5>
+                 <div className="d-flex justify-content-between">
+                    <h5>Brand Items:</h5>
+                    {showButton && (
+                      <button
+                        type="button"
+                        className="btn  btn-dark"
+                        // style={{ width: "65px", height: "65px" }}
+                        onClick={() => {
+                          push({});
+                          handleAddItem(values, setFieldValue);
+                        }}
+                      >
+                        Add Item
+                      </button>
+                    )}
+                  </div>
                   {values.items?.map((item, index) => (
                     <Draggable
                       key={index}
@@ -43,9 +58,10 @@ const BrandWidget = ({
                         >
                           <div className="card">
                             <div className="card-body">
+                            <div className="d-flex justify-content-between">
                               <h6>{`Item ${index + 1}`}</h6>
-                              <div className="d-flex">
-                                <div className="col-md-8">
+                              
+                                <div className="col-md-10">
                                   <div className="row">
                                     <div className="col-md-6 mb-2">
                                       <label className="form-label">
@@ -78,7 +94,10 @@ const BrandWidget = ({
 
                                 
                                 </div>
-                                <div className="col-md-4 ms-4 mt-2">
+                               
+                            
+                              </div>
+                               <div className="col-md-4  mt-2">
                                   <button
                                     className="btn btn-sm btn-danger ms-1"
                                     onClick={() => remove(index)}
@@ -87,15 +106,9 @@ const BrandWidget = ({
                                       <FontAwesomeIcon icon={faTrash} />
                                     </span>
                                   </button>
-                                  <button className="btn btn-sm btn-warning ms-4">
-                                    <span>
-                                      <FontAwesomeIcon
-                                        icon={faUpDownLeftRight}
-                                      />
-                                    </span>
-                                  </button>
+                                  <p>Remove</p>
+                                 
                                 </div>
-                              </div>
                             </div>
                           </div>
                         </div>
@@ -104,19 +117,7 @@ const BrandWidget = ({
                     </Draggable>
                   ))}
                   {provided.placeholder}
-                  {showButton && (
-                    <button
-                      type="button"
-                      className="btn btn-circle btn-success rounded-circle mt-1"
-                      style={{ width: "65px", height: "65px" }}
-                      onClick={() => {
-                        push({});
-                        handleAddItem(values, setFieldValue);
-                      }}
-                    >
-                      Add Item
-                    </button>
-                  )}
+                 
                 </div>
               )}
             </FieldArray>

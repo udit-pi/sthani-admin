@@ -10,6 +10,10 @@ import { faCircleInfo, faRemove } from '@fortawesome/free-solid-svg-icons'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { toast } from "react-toastify";
 import { deleteWidget, fetchAllwidget } from "../../features/widget/homeWidgetSlice";
+import Box from "@mui/material/Box";
+import Modal from "@mui/material/Modal";
+import Button from "@mui/material/Button";
+import { Typography } from "@mui/material";
 
 
 const HomeWidget = () => {
@@ -18,9 +22,27 @@ const HomeWidget = () => {
   const [homeWidgets, setHomeWidgets] = useState([]);
   const [search, setSearch] = useState("");
   const [filteredHomeWidgets, setFilteredHomeWidgets] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [deleteId, setdeleteId] = useState("");
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const style = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: 400,
+  
+    bgcolor: "background.paper",
+    border: "2px solid white",
+    borderRadius: "10px",
+    boxShadow: 24,
+    pt: 4,
+    px: 4,
+    pb: 5,
+  };
 
   // console.log(allCategories)
   const fetchWidget = async () => {
@@ -98,34 +120,20 @@ const HomeWidget = () => {
       name: "Action",
       cell: (row) => (
         <div>
-          
-          <Link
-            to={`/editWidget/${row.id}`}
-            className="btn btn-sm btn-warning ms-1"
-          >
-            <span>
-              <i className="ti ti-pencil" />
-            </span>
+          <Link to={`/editWidget/${row.id}`}>
+            <span style={{ color: " #D93D6E " }}>Edit</span>
           </Link>
-          <button
-            type="button"
-            onClick ={() => handleDelete(row.id)}
-            className="btn btn-sm btn-danger ms-2"
+
+          <span
+            onClick={() => handleOpen(row.id)}
+            style={{
+              marginLeft: "20px",
+              cursor: "pointer",
+              color: " #D93D6E ",
+            }}
           >
-            <span>
-            <FontAwesomeIcon icon={faTrash} />
-             
-            </span>
-          </button>
-          {/* <button
-            className="btn btn-sm btn-danger ms-1"
-            onClick={() => handleDelete(row.id)}
-          >
-            <span>
-            <FontAwesomeIcon icon={faTrash} />
-              
-            </span>
-          </button> */}
+            Delete
+          </span>
         </div>
       ),
     },
@@ -140,17 +148,52 @@ const HomeWidget = () => {
     return <Navigate to="/login" />;
   }
 
+  const handleOpen = (id) => {
+    setdeleteId(id);
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
+
   return (
     <Layout>
       <div className="col-12 stretch-card container-fluid">
         <div className="card">
           <div className="card-body">
-          <Link
-            to={`/addwidget`}
-            className="btn btn-sm btn-success ms-1"
-          >
-            Add Widget
-          </Link>
+          <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                gap: "20px",
+              }}
+            >
+              <div style={{ color: "gray", fontWeight: "bold" }}>
+                <p className="">{homeWidgets?.length} widgets</p>
+              </div>
+              <div
+                style={{ display: "flex", flexDirection: "row", gap: "10px" }}
+              >
+                <Link
+                  to={`/addWidget`}
+                  className="btn"
+                  style={{
+                    backgroundColor: "#D93D6E",
+                    color: "white",
+                    width: "200px",
+                  }}
+                >
+                  Add Widget
+                </Link>
+                <input
+                  type="text"
+                  className="w-30 form-control"
+                  placeholder="Search Widget"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+            </div>
             <div className="table-responsive">
               <DataTable
                 // title="Category"
@@ -160,20 +203,74 @@ const HomeWidget = () => {
                 pagination
                 highlightOnHover
                 subHeader
-                subHeaderComponent={
-                  <input
-                    type="text"
-                    className="w-25 form-control"
-                    placeholder="Search Widget"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
-                }
+                // subHeaderComponent={
+                //   <input
+                //     type="text"
+                //     className="w-25 form-control"
+                //     placeholder="Search Widget"
+                //     value={search}
+                //     onChange={(e) => setSearch(e.target.value)}
+                //   />
+                // }
               />
             </div>
           </div>
         </div>
       </div>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="child-modal-title"
+        aria-describedby="child-modal-description"
+      >
+        <Box
+          sx={{
+            ...style,
+            width: 400,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <h2 id="child-modal-title">Do you want to delete?</h2>
+          <Typography
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "20px",
+            }}
+          >
+            <button
+              type="button"
+              className="btn btn-sm  mt-4"
+              style={{
+                backgroundColor: "transparent",
+                border: "1px solid #D93D6E",
+                width: "100px",
+              }}
+              onClick={() => handleDelete(deleteId)}
+            >
+              Yes
+            </button>
+
+            <button
+              type="button"
+              className="btn btn-sm  mt-4"
+              onClick={handleClose}
+              style={{
+                backgroundColor: "transparent",
+                border: "1px solid #D93D6E",
+                width: "100px",
+                marginLeft: "20px",
+              }}
+            >
+              No
+            </button>
+          </Typography>
+        </Box>
+      </Modal>
     </Layout>
   );
 };

@@ -19,12 +19,11 @@ const SlideShowWidget = ({
   handleDestinationChange,
   brands,
 }) => {
-
   // const imageBaseUrl = "http://localhost:3500/api/uploads/";
 
-  const imageBaseUrl = `${process.env.REACT_APP_MEDIA_URL}`;    
+  const imageBaseUrl = `${process.env.REACT_APP_MEDIA_URL}`;
   // const imageBaseUrl = `${process.env.REACT_APP_API_URL}/api/uploads/`;
-  
+
   return (
     <DragDropContext
       onDragEnd={(result) => onDragEnd(result, values, setFieldValue)}
@@ -35,7 +34,23 @@ const SlideShowWidget = ({
             <FieldArray name="items">
               {({ push, remove }) => (
                 <div>
-                  <h5>Slideshow Items:</h5>
+                  <div className="d-flex justify-content-between">
+                    <h5>Slideshow Items:</h5>
+                    {showButton && (
+                      <button
+                        type="button"
+                        className="btn  btn-dark"
+                        // style={{ width: "65px", height: "65px" }}
+                        onClick={() => {
+                          push({});
+                          handleAddItem(values, setFieldValue);
+                        }}
+                      >
+                        Add Item
+                      </button>
+                    )}
+                  </div>
+
                   {values.items?.map((item, index) => (
                     <Draggable
                       key={index}
@@ -50,27 +65,43 @@ const SlideShowWidget = ({
                         >
                           <div className="card">
                             <div className="card-body">
-                              <h4>{`Item ${index + 1}`}</h4>
-                              <div className="d-flex">
-                                <div className="col-md-8">
+                              <div className="d-flex justify-content-between">
+                                <h4>{`Item ${index + 1}`}</h4>
+                                <div className="col-md-10">
                                   <div className="row">
-                                    <div className="col-md-6 mb-2">
+                                    <div className="col-md-12 mb-2">
                                       <label className="form-label">
                                         Image:
                                       </label>
-                                      <Field
-                                        component={values.items[index].image ? EditFileInput : CustomFileInput}
-                                        className="form-control"
-                                        name={`items.${index}.image`}
-                                      />
-                                     {values.items[index].image && <img
-                                    src={imageBaseUrl + values.items[index].image}
-                                    alt=""
-                                    width={80}
-                                    height={80}
-                                  />}
+                                      <div className="d-flex justify-content-between">
+                                        <Field
+                                          component={
+                                            values.items[index].image
+                                              ? EditFileInput
+                                              : CustomFileInput
+                                          }
+                                          className="form-control"
+                                          name={`items.${index}.image`}
+                                          style={{
+                                            height: "10%",
+                                            width: "78%",
+                                          }}
+                                        />
+                                        {values.items[index].image && (
+                                          <img
+                                            src={
+                                              imageBaseUrl +
+                                              values.items[index].image
+                                            }
+                                            className="ms-2"
+                                            alt=""
+                                            width={100}
+                                            height={80}
+                                          />
+                                        )}
+                                      </div>
                                     </div>
-                                    <div className="col-md-6 mb-2">
+                                    <div className="col-md-12 mb-2">
                                       <label className="form-label">
                                         Description:
                                       </label>
@@ -79,34 +110,37 @@ const SlideShowWidget = ({
                                         type="text"
                                         className="form-control"
                                         name={`items.${index}.description`}
+                                        style={{ width: "78%" }}
+                                        rows={3}
                                       />
                                     </div>
                                   </div>
-                                  <div className="row">
-                                    <div className="col-md-6 mb-2">
+                                  <div className="d-flex">
+                                    <div className="col-md-5 mb-2">
                                       <label className="form-label">Tag:</label>
                                       <Field
                                         type="text"
                                         className="form-control"
                                         name={`items.${index}.tag`}
                                       />
+                                      <div className="mt-2">
+                                        {values?.items?.[index]?.tag &&
+                                          typeof values.items[index].tag ===
+                                            "string" &&
+                                          values.items[index].tag
+                                            .split(", ")
+                                            .map((keyword, index) => (
+                                              <span
+                                                key={index}
+                                                className="badge bg-secondary me-1"
+                                              >
+                                                {keyword.trim()}
+                                              </span>
+                                            ))}
+                                      </div>
                                     </div>
-                                    <div className="mt-2">
-                                      {values?.items?.[index]?.tag &&
-                                        typeof values.items[index].tag ===
-                                          "string" &&
-                                        values.items[index].tag
-                                          .split(", ")
-                                          .map((keyword, index) => (
-                                            <span
-                                              key={index}
-                                              className="badge bg-secondary me-1"
-                                            >
-                                              {keyword.trim()}
-                                            </span>
-                                          ))}
-                                    </div>
-                                    <div className="col-md-6 mb-2">
+
+                                    <div className="col-md-4 mb-2 ms-4">
                                       <label className="form-label">
                                         Brand:
                                       </label>
@@ -133,7 +167,7 @@ const SlideShowWidget = ({
                                     {/* <Field type="text" name={`slideshowItems.${index}.link`} /> */}
                                   </div>
                                   <div className="d-flex">
-                                    <div className="col-md-6 mb-2">
+                                    <div className="col-md-5 mb-2">
                                       <label className="form-label">
                                         Destination:
                                       </label>
@@ -159,7 +193,7 @@ const SlideShowWidget = ({
                                         </option>
                                       </Field>
                                     </div>
-                                    <div className="col-md-6 mb-2 ms-4">
+                                    <div className="col-md-4 mb-2 ms-4">
                                       <label className="form-label">ID:</label>
                                       <Select
                                         options={destinationOptions}
@@ -183,7 +217,9 @@ const SlideShowWidget = ({
                                     </div>
                                   </div>
                                 </div>
-                                <div className="col-md-4 ms-4 mt-2">
+                                
+                              </div>
+                              <div className="col-md-3 ms-4 mt-2">
                                   <button
                                     className="btn btn-sm btn-danger ms-1"
                                     onClick={() => remove(index)}
@@ -191,16 +227,17 @@ const SlideShowWidget = ({
                                     <span>
                                       <FontAwesomeIcon icon={faTrash} />
                                     </span>
+                                   
                                   </button>
-                                  <button className="btn btn-sm btn-warning ms-4">
+                                  <p>Remove</p>
+                                  {/* <button className="btn btn-sm btn-warning ms-4">
                                     <span>
                                       <FontAwesomeIcon
                                         icon={faUpDownLeftRight}
                                       />
                                     </span>
-                                  </button>
+                                  </button> */}
                                 </div>
-                              </div>
                             </div>
                           </div>
                         </div>
@@ -209,19 +246,6 @@ const SlideShowWidget = ({
                     </Draggable>
                   ))}
                   {provided.placeholder}
-                  {showButton && (
-                    <button
-                      type="button"
-                      className="btn btn-circle btn-success rounded-circle mt-1"
-                      style={{ width: "65px", height: "65px" }}
-                      onClick={() => {
-                        push({});
-                        handleAddItem(values, setFieldValue);
-                      }}
-                    >
-                      Add Item
-                    </button>
-                  )}
                 </div>
               )}
             </FieldArray>
