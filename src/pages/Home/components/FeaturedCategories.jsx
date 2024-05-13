@@ -60,7 +60,7 @@ const FeaturedCategories = ({
                                         onChange={(e) => {
                                             handleFeaturedCategoryChange(e);
                                             setFieldValue(
-                                              `items.${index}.featuredCategories`,
+                                              `items.${index}.category`,
                                               e.target.value
                                             );
                                           }}
@@ -81,7 +81,7 @@ const FeaturedCategories = ({
                                         Product:
                                       </label>
                                       <MultiSelectDropdown
-                                        name={`items.${index}.product`}
+                                        name={`items.${index}.products`}
                                         options={featuredCategoryProducts}
                                         
                                       />

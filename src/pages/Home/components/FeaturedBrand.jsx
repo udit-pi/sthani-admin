@@ -60,7 +60,7 @@ const FeaturedBrand = ({
                                         onChange={(e) => {
                                             handleFeaturedBrandChange(e);
                                             setFieldValue(
-                                              `items.${index}.featuredBrand`,
+                                              `items.${index}.brand`,
                                               e.target.value
                                             );
                                           }}
@@ -81,7 +81,7 @@ const FeaturedBrand = ({
                                         Product:
                                       </label>
                                       <MultiSelectDropdown
-                                        name={`items.${index}.product`}
+                                        name={`items.${index}.products`}
                                         options={featuredBrandProducts}
                                       />
                                     </div>

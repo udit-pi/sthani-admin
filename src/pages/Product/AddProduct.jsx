@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Formik, Form, Field, FieldArray, ErrorMessage } from "formik";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Layout from "../../components/layouts/Layout";
 import QuillEditor from "../../components/Editor";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -17,6 +17,7 @@ import { useDispatch } from "react-redux";
 import { fetchAllBrands } from "../../features/brand/brandSlice";
 import { fetchAllProperties } from "../../features/properties/propertySlice";
 import { addProduct } from "../../features/product/productSlice";
+import { FaArrowLeft } from "react-icons/fa";
 
 const AddProduct = () => {
     const dispatch = useDispatch();
@@ -372,7 +373,17 @@ const AddProduct = () => {
   return (
     <Layout>
       <div className="col-12 stretch-card container-fluid">
-        <h4>Add Product</h4>
+      <div >
+          
+        <Link
+          to={`/product`}
+          style={{ marginBottom: '30px', display: "flex", alignItems: "center", gap: "20px", color: '#D93D6E' }}
+        >
+         <FaArrowLeft size={30} cursor="pointer" />
+         <h2 className="heading">Add Product</h2>
+        </Link>
+      
+        </div>
 
         <div
           className="page-wrapper"

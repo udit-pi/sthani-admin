@@ -452,7 +452,7 @@ const CreateHomeWidget = () => {
                     
                    />
                    )}
-                    {widgetType === "featured_brand" && showItemForm && (
+                    {widgetType === "featured_brand"  && (
                      
                      <FeaturedBrand
                      values={values}

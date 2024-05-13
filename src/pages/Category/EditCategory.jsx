@@ -54,15 +54,23 @@ console.log(id)
     parent_category:""
   };
 
-  // const imageUrlBanner = 'http://localhost:3500/uploads/' + category.banner;
+    const imageUrlBanner = `${process.env.REACT_APP_MEDIA_URL}/${category.banner}`;
+    
+    const imageUrlIcon = `${process.env.REACT_APP_MEDIA_URL}/${category.icon}`;
+    const url = `${process.env.REACT_APP_MEDIA_URL}`
+  //  const imageUrlBanner = 'http://localhost:3500/api/uploads/' + category.banner;
+  //  const  imageUrlIcon  = `http://localhost:3500/api/uploads/${category.icon}`;
+  //  const  url  = `http://localhost:3500/api/uploads/api/uploads/`;
   // const imageUrlIcon = 'http://localhost:3500/uploads/' + category.icon;
 
   // const url = 'http://localhost:3500/uploads/'
 
 
+
   const imageUrlBanner = mediaFolder+category.banner;
   const imageUrlIcon = mediaFolder+category.icon;
   const url = mediaFolder;
+
 
   const fetchCategory = async () => {
 

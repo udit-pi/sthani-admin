@@ -66,12 +66,13 @@ const[brands,setbrands]=useState({})
     // setFilteredCategories(res);
   };
 
-  //  const imageBaseUrl = "http://localhost:3500/uploads/";
+    const imageBaseUrl = `${process.env.REACT_APP_MEDIA_URL}`;
   // const imageBaseUrl = "http://165.22.222.184/api/uploads/";
   // const imageBaseUrl = "https://64.227.162.145/api/uploads/";
   
-  // const imageBaseUrl = `${mediaFolder}/api/uploads/`;
+
   const url = mediaFolder;
+
   useEffect(() => {
     fetchBrand();
   }, [dispatch]);

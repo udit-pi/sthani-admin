@@ -11,11 +11,11 @@ const ShowCategory = () => {
 
   const [category,setCategory] = useState({})
  
-  // const imageUrl = 'http://localhost:3500/uploads/' + category.banner;
+  //  const imageUrl = 'http://localhost:3500/api/uploads/' + category.banner;
   // const imageUrl = 'http://165.22.222.184/api/uploads/' + category.banner;
   // const imageUrl = 'https://64.227.162.145/api/uploads/' + category.banner;
 
-  const imageUrl = `${process.env.REACT_APP_API_URL}/api/uploads/${category.banner}`;
+   const imageUrl = `${process.env.REACT_APP_MEDIA_URL}/${category.banner}`;
 
   const fetchCategory = async () => {
     const res = await dispatch(fetchCategoryById({id})).unwrap();

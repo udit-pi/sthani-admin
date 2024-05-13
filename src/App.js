@@ -2,7 +2,7 @@ import React, { Fragment } from "react";
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
-
+import './App.css';
 import Home from "./pages/Home";
 import Users from "./pages/Users";
 
