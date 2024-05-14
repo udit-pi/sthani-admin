@@ -42,30 +42,37 @@ const Users = () => {
     users.forEach((user, index) => { user.serial = index + 1; });
 
     const columns = [
-        {
-            name: 'Id',
-            selector: row => row.serial,
-            sortable: true,
-        },
+        // {
+        //     name: 'Id',
+        //     selector: row => row.serial,
+        //     sortable: true,
+        //     grow:0,
+        // },
         {
             name: 'Name',
             selector: row => row.name,
+            cell: (row) => <div style={{ fontWeight: "bold" }}>{row.name}</div>,
             sortable: true,
+            grow:2,
         },
         {
             name: 'Email',
             selector: row => row.email,
             sortable: true,
+            grow:2,
         },
         {
             name: 'Verified',
             selector: row => row.isEmailVerified ? 'Yes' : 'No',
             sortable: true,
+            grow:1,
         },
         {
             name: 'Registered At',
             selector: row => row.createdAt,
             sortable: true,
+            grow:2,
+            right:true,
         }
     ];
 

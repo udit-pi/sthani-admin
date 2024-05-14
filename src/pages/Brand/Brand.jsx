@@ -95,12 +95,15 @@ const Brand = () => {
       
     {
       name: "Icon",
+      // width:"10%",
+      grow:0.5,
       cell: (row) => <>
       {row.logo ? ( 
         <img
           src={`${mediaFolder}/${row.logo}`}
           alt="Icon"
           height="50px"
+          className="custom-icon"
          
         />
       ) : (
@@ -109,10 +112,13 @@ const Brand = () => {
       )}
     </>,
     },
+    
     {
       name: "Name",
       selector: (row) => row.name,
+      cell: (row) => <div style={{ fontWeight: "bold" }}>{row.name}</div>,
       sortable: true,
+      grow:2,
     },
     // {
     //   name: "Slug",
@@ -128,6 +134,8 @@ const Brand = () => {
       name: "Website",
       selector: (row) => row.website,
       sortable: true,
+      // width:"20%",
+      grow:2,
     },
     // {
     //     name: 'Meta Description',
@@ -136,8 +144,9 @@ const Brand = () => {
     // },
     {
       name: "Action",
+      right:true,
       cell: (row) => (
-        <div>
+        <div >
           {/* <Link
             to={`/showbrand/${row.id}`}
             className="btn btn-sm btn-primary"
@@ -193,9 +202,9 @@ const Brand = () => {
   return (
     <Layout>
       <div className="col-12 stretch-card container-fluid">
-      <div style={{ marginBottom: '30px' }}>
+      
       <h2 className="heading">Brand</h2>
-    </div>
+   
         <div className="card">
           <div className="card-body">
           <div style={{display:"flex",justifyContent:"space-between" ,gap:"20px"}}>

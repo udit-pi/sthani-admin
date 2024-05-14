@@ -99,16 +99,20 @@ const HomeWidget = () => {
       name: "Position",
       selector: (row) => row.placement_id,
       sortable: true,
+      grow:0,
     },
     {
       name: "Widget Type",
       selector: (row) => row.widget_type,
+      cell: (row) => <div style={{ fontWeight: "bold" }}>{row.widget_type}</div>,
       sortable: true,
+      grow:2,
     },
     {
       name: "Title",
       selector: (row) => row.title,
       sortable: true,
+      grow:2,
     },
    
     // {
@@ -118,6 +122,7 @@ const HomeWidget = () => {
     // },
     {
       name: "Action",
+      right:true,
       cell: (row) => (
         <div>
           <Link to={`/editWidget/${row.id}`}>

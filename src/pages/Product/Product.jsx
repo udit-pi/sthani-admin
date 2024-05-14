@@ -14,6 +14,8 @@ import { faCircleInfo } from "@fortawesome/free-solid-svg-icons";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import { fetchAllProducts } from "../../features/product/productSlice";
+import { Grow } from "@mui/material";
+const mediaFolder = process.env.REACT_APP_MEDIA_URL ;
 
 const Product = () => {
   const { user: currentUser } = useSelector((state) => state.auth);
@@ -75,9 +77,28 @@ const Product = () => {
     //   sortable: true,
     // },
     {
+      name: "Image",
+      grow:1,
+      cell: (row) => <>
+      {row.logo ? ( 
+        <img
+          src={`${mediaFolder}/${row.images[1]}`}
+          alt="Icon"
+          height="50px"
+          className="custom-icon"
+         
+        />
+      ) : (
+        <span>-</span> 
+           
+      )}
+    </>,
+    },
+    {
       name: "Name",
       selector: (row) => <b>{row.name}</b>,
       sortable: true,
+      grow:3,
     },
     // {
     //   name: "Short Description",
@@ -85,14 +106,16 @@ const Product = () => {
     //   sortable: true,
     // },
     {
-      name: "Meta Title",
-      selector: (row) => row.meta_title,
+      name: "Brand",
+      selector: (row) => row.brand,
       sortable: true,
+      grow:2,
     },
     {
       name: "Price",
-      selector: (row) => row.price,
+      selector: (row) => "AED "+row.price,
       sortable: true,
+      grow:1,
     },
     // {
     //     name: 'Meta Description',
@@ -101,6 +124,7 @@ const Product = () => {
     // },
     {
       name: "Action",
+      right:true,
       cell: (row) => (
         <div>
           <Link to={`/editproduct/${row.id}`}>

@@ -68,35 +68,32 @@ const Customer = () => {
   // });
 
   const columns = [
-    {
-      name: "Id",
-      selector: (row) => row.id,
-      sortable: true,
-    },
-    {
-      name: "First Name",
-      selector: (row) => row.first_name,
-      sortable: true,
-    },
     // {
-    //   name: "Short Description",
-    //   selector: (row) => row.description_short,
+    //   grow:2,
+    //   name: "Id",
+    //   selector: (row) => row.id,
     //   sortable: true,
+      
     // },
     {
-      name: "Last Name",
-      selector: (row) => row.last_name,
+      name: "Name",
+      selector: (row) => row.first_name ,
+      cell: (row) => <div style={{ fontWeight: "bold" }}>{row.first_name} {row.last_name}</div>,
       sortable: true,
+      grow:3,
     },
+   
     {
       name: "Date of Birth",
       selector: (row) => row.dob,
       sortable: true,
+      grow:2,
     },
     {
         name: "Gender",
         selector: (row) => row.gender,
         sortable: true,
+        grow:2,
       },
     // {
     //     name: 'Meta Description',
@@ -105,6 +102,8 @@ const Customer = () => {
     // },
     {
       name: "Action",
+      right:true,
+      grow:1,
       cell: (row) => (
         <div>
           {/* <Link
@@ -118,11 +117,12 @@ const Customer = () => {
           </Link> */}
           <Link
             to={`/editCustomer/${row.id}`}
-            className="btn btn-sm btn-warning ms-1"
+            // className="btn btn-sm btn-warning ms-1"
           >
-            <span>
-              <i className="ti ti-pencil" />
-            </span>
+           <span style={{ color: ' #D93D6E ' }}>
+             Edit
+              
+               </span>
           </Link>
           {/* <button
             className="btn btn-sm btn-danger ms-1"
