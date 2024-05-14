@@ -85,11 +85,13 @@ const Properties = () => {
       name: "Name",
       selector: (row) => <b>{row.name}</b>,
       sortable: true,
+      grow:2,
     },
     {
       name: "Options",
       selector: (row) => row.options.join(', '),
       sortable: true,
+      grow:2,
     },
     // {
     //   name: "Description",
@@ -100,6 +102,7 @@ const Properties = () => {
       name: "Unit",
       selector: (row) => row.unit,
       sortable: true,
+      grow:1,
     },
     // {
     //     name: 'Meta Description',
@@ -108,6 +111,7 @@ const Properties = () => {
     // },
     {
       name: "Action",
+      right:true,
       cell: (row) => (
         <div>
             <Link

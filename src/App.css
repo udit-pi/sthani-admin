@@ -45,4 +45,18 @@
 .heading{
   font-family: "Bricolage Grotesque", sans-serif;
   color: #D93D6E ;
+  padding-top:10px;
+  padding-bottom: 10px;
+}
+
+.table-responsive .action-col {
+  text-align: right;
+
+}
+
+/*//////////////////////////////// BRAND.JSX_CUSTOM_CLASSES ////////////////////////////////*/
+
+
+.table-responsive .custom-icon{
+  padding: 10px;
 }
