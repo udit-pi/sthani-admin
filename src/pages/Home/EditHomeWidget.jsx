@@ -45,6 +45,7 @@ const EditHomeWidget = () => {
   const [widgetPositions, setWidgetPositions] = useState([]);
   const [widget, setWidget] = useState({});
   const [formData,setFormData] = useState({})
+  const [showSaveButton,setShowSaveButton] = useState(false);
 
   const initialValues = {
     placement_id: widget.placement_id,
@@ -82,12 +83,20 @@ const EditHomeWidget = () => {
     const res = await dispatch(fetchAllProducts()).unwrap();
     //  console.log(res)
     setProducts(res);
-
+    const featuredCategoryOptions = []
     res?.map((prod) => {
       prodOptions.push({ label: prod.name, value: prod.id });
+     
+      // categories?.map(cat => {
+      //   prod.categories.includes(cat.id)
+      //   featuredCategoryOptions.push({ label: prod.name, value: prod.id });
+      // })
     });
 
     setProdOption(prodOptions);
+
+   
+    setFeaturedCategoryProducts(featuredCategoryOptions);
   };
 
   let positions = [
@@ -176,6 +185,7 @@ const EditHomeWidget = () => {
 
     // Show the button when a specific value is selected
     if (widgetType) {
+      widgetType !== 'featured_brand' ?  setShowSaveButton(true) : setShowSaveButton(false)
       setShowItemForm(true);
       setShowButton(true);
     } else {
@@ -184,6 +194,7 @@ const EditHomeWidget = () => {
   };
 
   const handleAddItem = (values, setFieldValue) => {
+    setShowSaveButton(true);
     setShowItemForm(true);
     setItems(values.item);
     // const newItems = [
@@ -202,7 +213,7 @@ const EditHomeWidget = () => {
     // setFieldValue('items', newItems);
   };
 
-  const handleDestinationChange = (e) => {
+  const handleDestinationChange = (e, setFieldValue, index) => {
     setDestinationOptions([]);
     if (e.target.value === "product") {
       setDestinationOptions(prodOption);
@@ -213,8 +224,11 @@ const EditHomeWidget = () => {
     } else {
       setDestinationOptions([]);
     }
+    setFieldValue(`items.${index}.destination`, e.target.value);
+    setFieldValue(`items.${index}.id`, null); // Reset ID when destination changes
   };
 
+  
   const handleFeaturedCategoryChange = (e) => {
     const featuredCategoryOptions = [];
     products?.map((prod) => {
@@ -225,15 +239,31 @@ const EditHomeWidget = () => {
     setFeaturedCategoryProducts(featuredCategoryOptions);
   };
 
-  const handleFeaturedBrandChange = (e) => {
-    const featuredBrandOptions = [];
-    products?.map((prod) => {
-      if (prod.brand_id === e.target.value) {
-        featuredBrandOptions.push({ label: prod.name, value: prod.id });
-      }
-    });
+  useEffect(() => {
+
+  },[featuredBrandProducts])
+
+  const handleFeaturedBrandChange = (e, setFieldValue, index) => {
+    const selectedBrandId = e.target.value;
+    const featuredBrandOptions = products
+      .filter((prod) => prod.brand_id === selectedBrandId)
+      .map((prod) => ({ label: prod.name, value: prod.id }));
+
     setFeaturedBrandProducts(featuredBrandOptions);
+    setFieldValue(`items.${index}.brand`, selectedBrandId);
+    setFieldValue(`items.${index}.products`, []);
   };
+
+  // const handleFeaturedBrandChange = (e) => {
+  //   const featuredBrandOptions = [];
+  //   products?.map((prod) => {
+  //     if (prod.brand_id === e.target.value) {
+  //       featuredBrandOptions.push({ label: prod.name, value: prod.id });
+  //     }
+  //   });
+  //   setFeaturedBrandProducts(featuredBrandOptions);
+  //   console.log(featuredBrandProducts);
+  // };
 
   const handleSelectIdChange = (fieldName, selectedOption, setFieldValue) => {
     setFieldValue(fieldName, selectedOption.value);
@@ -436,6 +466,7 @@ const EditHomeWidget = () => {
                   <>
                     {widgetType === "slideshow" && showItemForm && (
                       <SlideShowWidget
+                      
                         values={values}
                         brands={brands}
                         setFieldValue={setFieldValue}

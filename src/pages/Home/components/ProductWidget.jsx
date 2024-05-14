@@ -70,12 +70,11 @@ const ProductWidget = ({
                                       </label>
                                       <Select
                                         options={productOptions}
-                                        // value={productOptions.find(
-                                        //   (option) =>
-                                        //     option.value ===
-                                        //     (values.items[index]?.id ||
-                                        //       values.id)
-                                        // )}
+                                        value={productOptions.find(
+                                          (option) =>
+                                            option.value ===
+                                            (values.items[index]?.product)
+                                        )}
                                         onChange={(selectedOption) => {
                                           handleSelectIdChange(
                                             `items.${index}.product`,

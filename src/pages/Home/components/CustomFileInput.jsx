@@ -7,7 +7,7 @@ const CustomFileInput = ({ field, form, ...props }) => {
   return (
     <input
       type="file"
-      required
+
       onChange={handleChange}
       {...props}
     />
