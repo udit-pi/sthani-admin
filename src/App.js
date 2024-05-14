@@ -30,6 +30,7 @@ import EditCustomer from "./pages/Customer/EditCustomer";
 import CreateHomeWidget from "./pages/Home/CreateHomeWidget";
 import HomeWidget from "./pages/Home/HomeWidget";
 import EditHomeWidget from "./pages/Home/EditHomeWidget";
+import AddProductNew from "./pages/Product/AddProductNew";
 
 
 function App() {
@@ -61,7 +62,7 @@ function App() {
             {/* Product Routes */}
             <Route exact path="/product" element={<Product />} />
             <Route exact path="/showproduct/:id" element={<ShowProduct />} />
-            <Route exact path="/addproduct" element={<AddProduct />} />
+            <Route exact path="/addproduct" element={<AddProductNew />} />
             <Route exact path="/editproduct/:id" element={<EditProduct />} />
 
              {/* Product Routes */}

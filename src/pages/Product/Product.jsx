@@ -9,12 +9,11 @@ import {
   fetchAllCategories,
   deleteCategory,
 } from "../../features/category/categorySlice";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCircleInfo } from '@fortawesome/free-solid-svg-icons'
-import { faTrash } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleInfo } from "@fortawesome/free-solid-svg-icons";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import { fetchAllProducts } from "../../features/product/productSlice";
-
 
 const Product = () => {
   const { user: currentUser } = useSelector((state) => state.auth);
@@ -50,26 +49,20 @@ const Product = () => {
     return str.toUpperCase();
   };
   const handleDelete = (id) => {
-      
     // dispatch(deleteCategory({id}))
     // .unwrap()
     // .then(() => {
-    
     //   fetchCategory();
-      
     //   navigate("/category");
     //   // window.location.reload();
     //   toast.success('Category deleted successfully!')
     //   // setSuccessful(true);
-   
     // })
     // .catch((err) => {
-      
     //   toast.success(err)
     //   // setSuccessful(false);
-      
     // });
-}
+  };
 
   // filteredCategories.forEach((cat, index) => {
   //   cat.serial = index + 1;
@@ -110,20 +103,20 @@ const Product = () => {
       name: "Action",
       cell: (row) => (
         <div>
-            <Link
-            to={`/editproduct/${row.id}`}
-            
-          >
-            <span style={{ color: ' #D93D6E ' }}>
-             Edit
-              
-               </span>
+          <Link to={`/editproduct/${row.id}`}>
+            <span style={{ color: " #D93D6E " }}>Edit</span>
           </Link>
-        
-            <span  onClick={() => handleDelete(row.id)}  style={{marginLeft:"20px",cursor:"pointer",color: ' #D93D6E ' }}>
-           Delete
-              
-            </span>
+
+          <span
+            onClick={() => handleDelete(row.id)}
+            style={{
+              marginLeft: "20px",
+              cursor: "pointer",
+              color: " #D93D6E ",
+            }}
+          >
+            Delete
+          </span>
         </div>
       ),
     },
@@ -140,57 +133,70 @@ const Product = () => {
 
   return (
     <Layout>
-    <div className="col-12 stretch-card container-fluid">
-    <div style={{ marginBottom: '30px' }}>
-    <h2 className="heading">Product</h2>
-  </div>
-      <div className="card">
-        <div className="card-body">
-        <div>
-          <p className="">{products?.length} products</p>
+      <div className="col-12 stretch-card container-fluid">
+        <div style={{ marginBottom: "30px" }}>
+          <h2 className="heading">Product</h2>
         </div>
-        <div style={{display:"flex",justifyContent:"end" ,gap:"20px"}}>
-      
-        <Link
-          to={`/addproduct`}
-          className="btn ms-1"
-          style={{ backgroundColor: '#D93D6E',color:"white" }}
-        >
-          Add Product
-        </Link>
-        <input
+        <div className="card">
+          <div className="card-body">
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                gap: "20px",
+              }}
+            >
+              <div style={{ color: "gray", fontWeight: "bold" }}>
+                <p className="">{products?.length} products</p>
+              </div>
+              <div
+                style={{ display: "flex", flexDirection: "row", gap: "10px" }}
+              >
+                <Link
+                  to={`/addproduct`}
+                  className="btn"
+                  style={{
+                    backgroundColor: "#D93D6E",
+                    color: "white",
+                    width: "200px",
+                  }}
+                >
+                  Add Product
+                </Link>
+                <input
                   type="text"
-                  className="w-25 form-control"
+                  className="w-30 form-control"
                   placeholder="Search Product"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
-        </div>
-          <div className="table-responsive">
-            <DataTable
-              // title="Category"
-              columns={columns}
-              data={filteredProducts}
-              fixedHeader
-              pagination
-              highlightOnHover
-              subHeader
-              // onRowClicked={handleRowClick}
-              // subHeaderComponent={
-              //   <input
-              //     type="text"
-              //     className="w-25 form-control"
-              //     placeholder="Search Category"
-              //     value={search}
-              //     onChange={(e) => setSearch(e.target.value)}
-              //   />
-              // }
-            />
+              </div>
+            </div>
+            <div className="table-responsive">
+              <DataTable
+                // title="Category"
+                columns={columns}
+                data={filteredProducts}
+                fixedHeader
+                pagination
+                highlightOnHover
+                subHeader
+                // onRowClicked={handleRowClick}
+                // subHeaderComponent={
+                //   <input
+                //     type="text"
+                //     className="w-25 form-control"
+                //     placeholder="Search Category"
+                //     value={search}
+                //     onChange={(e) => setSearch(e.target.value)}
+                //   />
+                // }
+              />
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </Layout>
+    </Layout>
   );
 };
 

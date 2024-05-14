@@ -22,7 +22,7 @@ const axiosInstance = axios.create({
 
 // Add an interceptor for all requests
 axiosInstance.interceptors.request.use(config => {
-    // Retrieve the access token from React state or a state management system
+ 
 
     let user = getUser();
 

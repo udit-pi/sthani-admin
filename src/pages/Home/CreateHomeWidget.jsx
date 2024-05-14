@@ -15,6 +15,7 @@ import FeaturedCategories from "./components/FeaturedCategories";
 import { addWidgetValidation } from "../../validations/addWidgetValidation";
 import { addWidget, fetchAllwidget } from "../../features/widget/homeWidgetSlice";
 import { toast } from "react-toastify";
+import { FaArrowLeft } from "react-icons/fa";
 
 
 const CreateHomeWidget = () => {
@@ -37,6 +38,7 @@ const CreateHomeWidget = () => {
   const [featuredCategoryProducts,setFeaturedCategoryProducts] = useState([]);
   const [homeWidgets, setHomeWidgets] = useState([]);
   const [widgetPositions,setWidgetPositions] = useState([]);
+  const [showSaveButton,setShowSaveButton] = useState(false);
 
   const initialValues = {
     placement_id: "",
@@ -159,7 +161,7 @@ const CreateHomeWidget = () => {
   };
 
   const handleAddItem = (values, setFieldValue) => {
-    setShowItemForm(true);
+    setShowSaveButton(true);
     setItems(values.item);
     // const newItems = [
     //   ...values.items,
@@ -286,15 +288,23 @@ const CreateHomeWidget = () => {
   //     console.log("Formik Values:", values);
   //   }
   // };
-  
+  const goBack = () => {
+    window.history.back();
+  };
+
 
   return (
     <Layout>
       {/* <DndProvider backend={HTML5Backend}> */}
       <div className="col-12 stretch-card container-fluid">
+      <div style={{ marginBottom: '30px', display: "flex", alignItems: "center", gap: "20px", color: '#D93D6E' }}>
+          <FaArrowLeft size={20} cursor="pointer" onClick={goBack} />
+          <h2 className="heading">Add Widget</h2>
+        </div>
+      
         <div className="card">
           <div className="card-body">
-            <h4>Add Home Widget</h4>
+           
             <Formik
               initialValues={initialValues}
               validationSchema={addWidgetValidation}
@@ -313,6 +323,7 @@ const CreateHomeWidget = () => {
                       id="placement_id"
                       name="placement_id"
                       className="form-select"
+                      style={{ width: '30%' }}
                     >
                       <option value="">Select Position</option>
                      { widgetPositions?.map(pos => {
@@ -345,6 +356,7 @@ const CreateHomeWidget = () => {
                       id="title"
                       name="title"
                       aria-describedby="titleHelp"
+                      style={{ width: '50%' }}
                     ></Field>
                     {errors.title && (
                       <p className="text-danger">{errors.title}</p>
@@ -360,6 +372,7 @@ const CreateHomeWidget = () => {
                       id="subtitle"
                       name="subtitle"
                       aria-describedby="subtitleHelp"
+                      style={{ width: '50%' }}
                     ></Field>
                     {errors.subtitle && (
                       <p className="text-danger">{errors.subtitle}</p>
@@ -379,6 +392,7 @@ const CreateHomeWidget = () => {
                       setFieldValue('widget_type', e.target.value);
                       setFieldValue('items', []);
                     }}
+                    style={{ width: '50%' }}
                     >
                       <option value="">Select Widget</option>
                       <option value="slideshow">Slide Show</option>
@@ -486,7 +500,18 @@ const CreateHomeWidget = () => {
                    
                    )}
                     <ErrorMessage name="items" className="text-danger" component="div" />
-                   <button type="submit" className="btn btn-sm btn-success mt-4">Save</button>
+                    <div className="d-flex justify-content-end">
+                      { showSaveButton && (
+                            <button
+                            type="submit"
+                            className="btn btn-sm mt-2"
+                            style={{ backgroundColor: '#D93D6E', color: "white", width: "10%" }}
+                          >
+                            Save
+                          </button>
+                      )}
+                
+                    </div>
                   </>
                 </Form>
               )}
