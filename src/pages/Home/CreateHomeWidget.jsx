@@ -106,12 +106,12 @@ const CreateHomeWidget = () => {
     setWidgetPositions(positions)
     res.forEach(widget => {
      
-      // console.log(widget.placement_id)
+    
       const index = positions.findIndex(position => position.value === widget.placement_id);
-      // console.log(position.value);
+
       
       console.log(index);
-      // If a match is found, remove it from the positions array
+  
       if (index !== -1) {
           positions.splice(index, 1);
           setWidgetPositions(positions)
@@ -138,11 +138,11 @@ const CreateHomeWidget = () => {
 
     setSubmitting(false);
 
-    const res = await dispatch(addWidget(values)).unwrap();
-    if (res) {
-      toast.success("Widget created successfully!");
-      navigate("/homePage");
-    }
+    // const res = await dispatch(addWidget(values)).unwrap();
+    // if (res) {
+    //   toast.success("Widget created successfully!");
+    //   navigate("/homePage");
+    // }
   };
 
   const handleWidgetChange = async (e) => {
@@ -153,6 +153,7 @@ const CreateHomeWidget = () => {
 
     // Show the button when a specific value is selected
     if (widgetType) {
+      widgetType !== 'featured_brand' ?  setShowSaveButton(true) : setShowSaveButton(false)
       setShowItemForm(true);
       setShowButton(true);
     } else {

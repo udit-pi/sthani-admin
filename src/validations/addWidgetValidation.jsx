@@ -15,7 +15,7 @@ export const addWidgetValidation = Yup.object({
   placement_id: Yup.string().required("Please select position"),
   widget_type: Yup.string().required("Please select widget type"),
   items: Yup.array().when('widget_type', {
-    is: (widgetType) => widgetType  ? true: false, 
+    is: (widgetType) => widgetType !== 'featured_brand'  ? true: false, 
     then:  () =>  Yup.array()
       .min(1, "At least one item is required")
       .required("At least one item is required"),

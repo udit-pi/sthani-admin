@@ -175,13 +175,7 @@ const SlideShowWidget = ({
                                         as="select"
                                         className="form-select"
                                         name={`items.${index}.destination`}
-                                        onChange={(e) => {
-                                          handleDestinationChange(e);
-                                          setFieldValue(
-                                            `items.${index}.destination`,
-                                            e.target.value
-                                          );
-                                        }}
+                                        onChange={(e) => handleDestinationChange(e, setFieldValue, index)}
                                       >
                                         <option value="">
                                           Select Destination
@@ -199,9 +193,8 @@ const SlideShowWidget = ({
                                         options={destinationOptions}
                                         value={destinationOptions.find(
                                           (option) =>
-                                            option.value ===
-                                            (values.items[index]?.id ||
-                                              values.id)
+                                            option.value ==
+                                            (values.items[index]?.id)
                                         )}
                                         onChange={(selectedOption) => {
                                           handleSelectIdChange(

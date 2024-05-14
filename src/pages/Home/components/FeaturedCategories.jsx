@@ -71,7 +71,8 @@ const FeaturedCategories = ({
                                       <Field
                                         as="select"
                                         className="form-select"
-                                        name={`items.${index}.featuredCategories`}
+                                        name={`items.${index}.category`}
+                                        value={values.items[index]?.category || ''}
                                         required
                                         onChange={(e) => {
                                             handleFeaturedCategoryChange(e);
@@ -113,7 +114,7 @@ const FeaturedCategories = ({
                                         name={`items.${index}.tag`}
                                       />
                                     </div>
-                                    <div className="mt-2">
+                                    {/* <div className="mt-2">
                                       {values?.items?.[index]?.tag &&
                                         typeof values.items[index].tag ===
                                           "string" &&
@@ -127,7 +128,7 @@ const FeaturedCategories = ({
                                               {keyword.trim()}
                                             </span>
                                           ))}
-                                    </div>
+                                    </div> */}
                                     <div className="col-md-5 mb-2 ms-4">
                                       <label className="form-label">
                                         Description:
