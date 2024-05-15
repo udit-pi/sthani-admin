@@ -195,8 +195,7 @@ const SlideShowWidget = ({
                                         options={destinationOptions}
                                         value={destinationOptions.find(
                                           (option) =>
-                                            option.value === formData.items[index].id
-                                            // (values.items[index]?.id)
+                                            option.value === values.items[index]?.id
                                         )}
                                         onChange={(selectedOption) => {
                                           handleSelectIdChange(
