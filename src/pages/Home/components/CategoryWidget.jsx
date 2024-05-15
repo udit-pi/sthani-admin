@@ -4,7 +4,7 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash, faUpDownLeftRight } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faUpDownLeftRight ,faBars} from "@fortawesome/free-solid-svg-icons";
 import CustomFileInput from "./CustomFileInput";
 import EditFileInput from "./EditFileInput";
 
@@ -60,103 +60,141 @@ const CategoryWidget = ({
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
                         >
-                          <div className="card">
+                          <div className="card mt-3" style={{ background: "#F2F2F2" }}>
                             <div className="card-body">
-                              <div className="d-flex justify-content-between">
-                                <h4>{`Item ${index + 1}`}</h4>
+                              <div className="">
 
-                                <div className="col-md-10">
-                                  <div className="row">
-                                    <div className="col-md-5 mb-2">
-                                      <label className="form-label">
-                                        Category:
-                                      </label>
-                                      <Field
-                                        as="select"
-                                        className="form-select"
-                                        name={`items.${index}.category`}
-                                        required
-                                      >
-                                        <option value="">
-                                          Select Category
-                                        </option>
-                                        {categories.map(
-                                          (category, categoryIndex) => (
-                                            <option
-                                              key={categoryIndex}
-                                              value={category.id}
-                                            >
-                                              {category.name}
-                                            </option>
-                                          )
-                                        )}
-                                      </Field>
+
+                                <div className="d-flex justify-content-between">
+
+                                  <div className="left-categoryWidget w-25 d-flex justify-content-between flex-column " >
+                                    <div className="d-flex w-100 align-items-center ">
+                                     
+
+                                      <FontAwesomeIcon icon={faBars} style={{ color: "#cc1d54" }} className="me-3" />
+                                     
+                               
+
+                                      <h4 className="fs-5 fw-semibold mb-0 ">{`Item ${index + 1}`}</h4>
+
                                     </div>
-                                    <div className="col-md-5 mb-2">
-                                      <label className="form-label">Tag:</label>
-                                      <Field
-                                        type="text"
-                                        className="form-control"
-                                        name={`items.${index}.tag`}
-                                      />
-                                      <div className="mt-2">
-                                        {values?.items?.[index]?.tag &&
-                                          typeof values.items[index].tag ===
-                                            "string" &&
-                                          values.items[index].tag
-                                            .split(", ")
-                                            .map((keyword, index) => (
-                                              <span
-                                                key={index}
-                                                className="badge bg-secondary me-1"
-                                              >
-                                                {keyword.trim()}
-                                              </span>
-                                            ))}
+
+
+                                    <div className="col-md-4 ms-4 mt-2">
+                                      <button
+                                        className="btn ms-1 py-0 bg-transparent"
+                                        onClick={() => remove(index)}
+                                      >
+                                        <FontAwesomeIcon icon={faTrash} />
+                                      </button>
+                                      <p>Remove</p>
+                                    </div>
+
+                                  </div>
+
+                                  <div className="right-categoryWidget w-75 ">
+
+                                    <div className="col-md-10">
+                                      <div className="row">
+                                        <div className="col-md-5 mb-2">
+                                          <label className="form-label">
+                                            Category:
+                                          </label>
+                                          <Field
+                                            as="select"
+                                            className="form-select bg-white "
+                                            name={`items.${index}.category`}
+                                            required
+                                          >
+                                            <option value="">
+                                              Select Category
+                                            </option>
+                                            {categories.map(
+                                              (category, categoryIndex) => (
+                                                <option
+                                                  key={categoryIndex}
+                                                  value={category.id}
+                                                >
+                                                  {category.name}
+                                                </option>
+                                              )
+                                            )}
+                                          </Field>
+                                        </div>
+                                        <div className="col-md-5 mb-2">
+                                          <label className="form-label">Tag:</label>
+                                          <Field
+                                            type="text"
+                                            className="form-control bg-white   "
+                                            name={`items.${index}.tag`}
+                                          />
+                                          <div className="mt-2">
+                                            {values?.items?.[index]?.tag &&
+                                              typeof values.items[index].tag ===
+                                              "string" &&
+                                              values.items[index].tag
+                                                .split(", ")
+                                                .map((keyword, index) => (
+                                                  <span
+                                                    key={index}
+                                                    className="badge bg-secondary me-1"
+                                                  >
+                                                    {keyword.trim()}
+                                                  </span>
+                                                ))}
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                      <div className="row">
+                                        <div className="col-md-10 mb-2">
+                                          <label className="form-label ">
+                                            Image:
+                                          </label>
+                                          <Field
+                                            component={
+                                              values.items[index].image
+                                                ? EditFileInput
+                                                : CustomFileInput
+                                            }
+                                            className="form-control bg-white mb-2"
+                                            name={`items.${index}.image`}
+                                          />
+                                          {values.items[index].image && (
+                                            <img
+                                              src={
+                                                imageBaseUrl +
+                                                values.items[index].image
+                                              }
+                                              alt=""
+                                              width={80}
+                                              height={80}
+                                            />
+                                          )}
+                                        </div>
                                       </div>
                                     </div>
                                   </div>
 
-                                  <div className="row">
-                                    <div className="col-md-10 mb-2">
-                                      <label className="form-label">
-                                        Image:
-                                      </label>
-                                      <Field
-                                        component={
-                                          values.items[index].image
-                                            ? EditFileInput
-                                            : CustomFileInput
-                                        }
-                                        className="form-control"
-                                        name={`items.${index}.image`}
-                                      />
-                                      {values.items[index].image && (
-                                        <img
-                                          src={
-                                            imageBaseUrl +
-                                            values.items[index].image
-                                          }
-                                          alt=""
-                                          width={80}
-                                          height={80}
-                                        />
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="col-md-4 ms-4 mt-2">
+                                  {/* <div className="col-md-4 ms-4 mt-2">
                                 <button
-                                  className="btn btn-sm btn-danger ms-1"
+                                  className="btn ms-1 py-0 bg-transparent"
                                   onClick={() => remove(index)}
                                 >
-                                  <span>
-                                    <FontAwesomeIcon icon={faTrash} />
-                                  </span>
+                                <FontAwesomeIcon icon={faTrash} />
                                 </button>
                                 <p>Remove</p>
+                              </div> */}
+
+                                </div>
+
+
+
                               </div>
+
+
+
+
                             </div>
                           </div>
                         </div>
