@@ -564,11 +564,7 @@ const EditHomeWidget = () => {
           </div>
         </div>
 
-        <div className="card">
-          <div className="card-body">
-
-            </div>
-            </div>
+    
 
 
 
