@@ -16,7 +16,7 @@ const STORE_URL = `${process.env.REACT_APP_API_URL}/api/store/`;
 
 
 const getProducts = async () => {
-    const res = await axiosInstance.get(STORE_URL + "products/getProducts")
+    const res = await axiosInstance.get(API_URL + "products")
 
     return res.data;
 
