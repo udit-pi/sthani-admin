@@ -352,7 +352,7 @@ const AddProduct = () => {
     // console.log(addedVariants);
     //  setShowVariant(true);
   };
-
+               
   const handleVariantDelete = (values, index) => {
     // console.log(index)
     setAddedVariants((prevVariants) =>
