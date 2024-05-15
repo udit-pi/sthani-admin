@@ -212,7 +212,7 @@ const SlideShowWidget = ({
                                     </div>
                                   </div>
                                 </div>
-                                {formData.items[index].id}
+                             
                               </div>
                               <div className="col-md-3 ms-4 mt-2">
                                   <button
