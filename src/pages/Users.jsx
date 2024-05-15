@@ -80,13 +80,14 @@ const Users = () => {
 
     return (
         <Layout>
+            <h2 className="heading ms-3">Users</h2>
 
             <div className="col-12 stretch-card container-fluid">
                 <div className="card">
                     <div className="card-body">
                         <div className='table-responsive'>
                             <DataTable
-                                title="Users"
+                              
                                 columns={columns}
                                 data={filteredUsers}
                                 fixedHeader

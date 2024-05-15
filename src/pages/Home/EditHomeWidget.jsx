@@ -563,7 +563,22 @@ const EditHomeWidget = () => {
             </Formik>
           </div>
         </div>
+
+        <div className="card">
+          <div className="card-body">
+
+            </div>
+            </div>
+
+
+
+
       </div>
+
+
+
+
+
       {/* </DndProvider> */}
     </Layout>
   );
