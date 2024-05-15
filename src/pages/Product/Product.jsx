@@ -158,9 +158,9 @@ const Product = () => {
   return (
     <Layout>
       <div className="col-12 stretch-card container-fluid">
-        <div style={{ marginBottom: "30px" }}>
+  
           <h2 className="heading">Product</h2>
-        </div>
+     
         <div className="card">
           <div className="card-body">
             <div
