@@ -18,6 +18,7 @@ const SlideShowWidget = ({
   handleSelectIdChange,
   handleDestinationChange,
   brands,
+  formData
 }) => {
   // const imageBaseUrl = "http://localhost:3500/api/uploads/";
 
@@ -123,7 +124,7 @@ const SlideShowWidget = ({
                                         className="form-control"
                                         name={`items.${index}.tag`}
                                       />
-                                      <div className="mt-2">
+                                      {/* <div className="mt-2">
                                         {values?.items?.[index]?.tag &&
                                           typeof values.items[index].tag ===
                                             "string" &&
@@ -137,7 +138,7 @@ const SlideShowWidget = ({
                                                 {keyword.trim()}
                                               </span>
                                             ))}
-                                      </div>
+                                      </div> */}
                                     </div>
 
                                     <div className="col-md-4 mb-2 ms-4">
@@ -190,11 +191,12 @@ const SlideShowWidget = ({
                                     <div className="col-md-4 mb-2 ms-4">
                                       <label className="form-label">ID:</label>
                                       <Select
+                                      name= {`items.${index}.id`}
                                         options={destinationOptions}
                                         value={destinationOptions.find(
                                           (option) =>
-                                            option.value ==
-                                            (values.items[index]?.id)
+                                            option.value === formData.items[index].id
+                                            // (values.items[index]?.id)
                                         )}
                                         onChange={(selectedOption) => {
                                           handleSelectIdChange(
@@ -210,7 +212,7 @@ const SlideShowWidget = ({
                                     </div>
                                   </div>
                                 </div>
-                                
+                                {formData.items[index].id}
                               </div>
                               <div className="col-md-3 ms-4 mt-2">
                                   <button

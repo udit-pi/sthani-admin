@@ -69,7 +69,7 @@ const EditHomeWidget = () => {
   const catOptions = [];
   const fetchCategory = async () => {
     const res = await dispatch(fetchAllCategories()).unwrap();
-      console.log(res)
+      // console.log(res)
     setCategories(res);
     res?.map((cat) => {
       catOptions.push({ label: cat.name, value: cat.id });
@@ -139,7 +139,7 @@ const EditHomeWidget = () => {
   const fetchWidget = async () => {
     try {
       const res = await dispatch(fetchWidgetById({ id })).unwrap();
-      console.log(res);
+      // console.log(res);
       setWidget(res);
       if (res) {
         positions.push({
@@ -152,6 +152,7 @@ const EditHomeWidget = () => {
         setShowButton(true);
       }
       setFormData(res);
+      // console.log(res);
     } catch (err) {
       throw err;
     }
@@ -229,7 +230,7 @@ const EditHomeWidget = () => {
   };
 
   
-  const handleFeaturedCategoryChange = (e) => {
+  const handleFeaturedCategoryChange = (e, setFieldValue, index) => {
     const featuredCategoryOptions = [];
     products?.map((prod) => {
       if (prod.categories.includes(e.target.value)) {
@@ -237,6 +238,8 @@ const EditHomeWidget = () => {
       }
     });
     setFeaturedCategoryProducts(featuredCategoryOptions);
+    setFieldValue(`items.${index}.category`, e.target.value);
+    setFieldValue(`items.${index}.products`, []);
   };
 
   useEffect(() => {
@@ -468,6 +471,7 @@ const EditHomeWidget = () => {
                       <SlideShowWidget
                       
                         values={values}
+                        formData={formData}
                         brands={brands}
                         setFieldValue={setFieldValue}
                         onDragEnd={onDragEnd}

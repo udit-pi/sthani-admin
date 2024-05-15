@@ -33,10 +33,13 @@ const AddProductNew = () => {
   const [filePreviews, setFilePreviews] = useState([]);
   const [showVariantField, setShowVariantField] = useState(false);
   const [variantErrors, setVariantErrors] = useState(true);
-  const [propertyOption, setPropertyOption] = useState([]);
+  const [propertyOption, setPropertyOption] = useState({});
   const [showVariantPills, setShowVariantPills] = useState(false);
   const [showDone, setShowDone] = useState(false);
   const [images, setImages] = useState([]);
+  const [options,setOptions] = useState([])
+  const [showOptionForm,setShowOptionForm] = useState(false);
+  const [showOptions,setShowOptions] = useState(false);
 
   // const brandOptions = []
   const catOptions = [];
@@ -58,6 +61,7 @@ const AddProductNew = () => {
     //   { name: "", options: [] },
 
     // ],
+    options: [{}, {}, {}],
   };
 
   const fetchCategory = async () => {
@@ -112,19 +116,7 @@ const AddProductNew = () => {
       values.meta_keywords = metaKeyword;
     }
 
-    // if(values.allow_out_of_stock_purchase === "true") {
-    //   values.allow_out_of_stock_purchase = true
-    // } else {
-    //   values.allow_out_of_stock_purchase = false
-    // }
-
-    // console.log(mergedArray)
-
-    console.log(errors);
-    // console.log(selectedVariants);
-    // console.log(images)
-    console.log(values);
-    //  console.log(errors)
+   //  console.log(errors)
     const res = await dispatch(addProduct({ values })).unwrap();
     if (res) {
       toast.success("Product created successfully!");
@@ -145,32 +137,7 @@ const AddProductNew = () => {
     console.log(addedVariants);
     // selectedVariants.map((variant,index) =>   )
     const filteredVariants = values.variants.filter((variant) => {
-      // Check if variant name exists in addedVariants
-      // if(variant.name === 'Custom') {
-      //   return !addedVariants.some(addedVariant => addedVariant.name === variant.customName);
-      // }
-      // return !addedVariants.some(addedVariant => addedVariant.name === variant.name);
-
-      // if (variant) {
-      //   // Check if the variant with the same name already exists in addedVariants
-
-      //   const variantExists = addedVariants.some(property => property.name === variant.name || (variant.name === "Custom" && variant.customName === property.name));
-      //   console.log(variantExists)
-      //   if (!variantExists) {
-      //     console.log(variant);
-      //     if(variant.name === 'Custom') {
-      //       let updatedOptions = [...variant.options];
-      //       setAddedVariants([...addedVariants, { name: variant.customName, options: updatedOptions }]);
-      //     } else {
-      //       setAddedVariants([...addedVariants, { name: variant.name, options: variant.options }]);
-      //     }
-
-      //   } else {
-      //     console.log("Variant already exists:", variant.name);
-      //     // Handle the case where the variant already exists, such as showing an error message
-      //   }
-      // }
-
+   
       if (variant) {
         // Check if the variant with the same name already exists in addedVariants
         const existingVariantIndex = addedVariants.findIndex(
@@ -208,43 +175,7 @@ const AddProductNew = () => {
         // Handle the case where the variant is invalid, such as showing an error message
       }
     });
-    // console.log(filteredVariants)
-    // setAddedVariants([...addedVariants, ...filteredVariants]);
-    // setAddedVariants(prevAddedVariants => [...prevAddedVariants, ...filteredVariants]);
-    // setAddedVariants(updatedVariants)
-    // console.log(addedVariants)
-    //   setAddedVariants([...addedVariants, ...filteredVariants]);
-    //  console.log(addedVariants)
-
-    // setShowVariantPills(true)
-    // console.log(addedVariants)
-
-    // const variantNames = [];
-    //   console.log(selectedVariants);
-    //   const options = addedVariants?.map((variant) => variant.options);
-
-    //   const generateVariantNames = (currentIndex, currentName) => {
-    //     if (currentIndex === addedVariants.length) {
-    //       variantNames.push(currentName.trim());
-    //     } else {
-    //       options[currentIndex].forEach((option) => {
-    //         const newName = currentName + option + " ";
-    //         generateVariantNames(currentIndex + 1, newName);
-    //       });
-    //     }
-    //   };
-    //   generateVariantNames(0, "");
-    //   //  console.log(values.variant)
-    //   const addedVariantOptions = [];
-    //   addedVariants?.map((variant) => {
-    //     variant.options?.map((option) => {
-    //       // console.log(option)
-    //       addedVariantOptions.push(option);
-    //     });
-    //   });
-
-    //   setVariantOptions(addedVariantOptions);
-    //   setSelectedVariants(variantNames);
+   
 
     setShowVariant(true);
   };
@@ -279,16 +210,7 @@ const AddProductNew = () => {
     setSelectedVariants(variantNames);
   }, [addedVariants]);
 
-  const renderVariantsByGroup = (groupName) => {
-    return selectedVariants
-      .filter((variant) => variant.name === groupName)
-      .map((variant, index) => (
-        <li key={index}>
-          <strong>{variant.customName || variant.name}</strong>:{" "}
-          {variant.options.join(", ")}
-        </li>
-      ));
-  };
+ 
 
   // console.log(showVariant);
   //  console.log(selectedVariants);
@@ -319,47 +241,8 @@ const AddProductNew = () => {
     setVariantOptions(filteredOptions);
   };
 
-  const handleSelectChange = (e, index) => {
-    // e.preventDefault();
 
-    // console.log(e.target.value);
-    // console.log(propertyOption)
-    setShowDone(true);
-    const variant = propertyOption?.find(
-      (property) => property.name === e.target.value
-    );
-
-    if (variant) {
-      // Check if the variant with the same name already exists in addedVariants
-      const variantExists = addedVariants.some(
-        (property) =>
-          property.name === variant.name ||
-          (property.name === "Custom" && property.customName === variant.name)
-      );
-
-      if (!variantExists) {
-        // console.log(variant);
-        setAddedVariants([
-          ...addedVariants,
-          { name: variant.name, options: variant.options },
-        ]);
-      } else {
-        console.log("Variant already exists:", variant.name);
-        // Handle the case where the variant already exists, such as showing an error message
-      }
-    }
-
-    // console.log(addedVariants);
-    //  setShowVariant(true);
-  };
-
-  const handleVariantDelete = (values, index) => {
-    // console.log(index)
-    setAddedVariants((prevVariants) =>
-      prevVariants.filter((_, i) => i !== index)
-    );
-    // setAddedVariants(values.variants)
-  };
+  
 
   const handleFileChange = (e, index) => {
     const selectedFile = e.target.files[0];
@@ -373,6 +256,30 @@ const AddProductNew = () => {
   const goBack = () => {
     window.history.back();
   };
+
+  const handleOptionDelete = (values) => {
+    values.optionName = '';
+    values.options = [{},{},{}]
+    setShowOptionForm(false);
+  }
+
+  const handleOptiondone = (values) => {
+      // console.log(values);
+      setOptions((prev) => [
+        ...prev,
+        {
+          optionName: values.optionName,
+          options: values.options
+        }
+
+      ])
+      values.optionName = '';
+      values.options = [{},{},{}]
+      setShowOptionForm(false);
+      setShowOptions(true);
+    
+  }
+  console.log(options)
 
   return (
     <Layout>
@@ -545,7 +452,9 @@ const AddProductNew = () => {
                           <div className="card mb-3">
                             <div className="card-body">
                               <div className="row">
-                                <h6><b>Pricing</b></h6>
+                                <h6>
+                                  <b>Pricing</b>
+                                </h6>
 
                                 <div className="col-md-6 mt-3">
                                   <label htmlFor="price" className="form-label">
@@ -586,7 +495,6 @@ const AddProductNew = () => {
                                 </div>
                               </div>
                               <div className="row mt-3">
-                               
                                 <div className="col-md-6">
                                   <label htmlFor="cost" className="form-label">
                                     Cost
@@ -610,14 +518,12 @@ const AddProductNew = () => {
 
                           <div className="card mb-3">
                             <div className="card-body">
-                            <h6><b>Inventory & Shipping</b></h6>
+                              <h6>
+                                <b>Inventory & Shipping</b>
+                              </h6>
                               <div className="row mt-4">
-                               
                                 <div className="col-md-4">
-                                  <label
-                                    htmlFor="sku"
-                                    className="form-label"
-                                  >
+                                  <label htmlFor="sku" className="form-label">
                                     SKU <span className="text-danger">*</span>
                                   </label>
                                   <Field
@@ -654,10 +560,7 @@ const AddProductNew = () => {
                                   )}
                                 </div>
                                 <div className="col-md-4">
-                                  <label
-                                    htmlFor="stock"
-                                    className="form-label"
-                                  >
+                                  <label htmlFor="stock" className="form-label">
                                     Stock
                                   </label>
                                   <Field
@@ -676,7 +579,10 @@ const AddProductNew = () => {
                               </div>
                               <div className="row mt-3">
                                 <div className="col-md-3">
-                                  <label htmlFor="length" className="form-label">
+                                  <label
+                                    htmlFor="length"
+                                    className="form-label"
+                                  >
                                     Length
                                   </label>
                                   <Field
@@ -693,10 +599,7 @@ const AddProductNew = () => {
                                   )}
                                 </div>
                                 <div className="col-md-3">
-                                  <label
-                                    htmlFor="width"
-                                    className="form-label"
-                                  >
+                                  <label htmlFor="width" className="form-label">
                                     Width
                                   </label>
                                   <Field
@@ -755,287 +658,138 @@ const AddProductNew = () => {
                               </div>
                             </div>
                           </div>
-                         
+
                           <div className="card mb-3">
                             <div className="card-body">
                               <div className="row">
-                                <h6><b>Variants</b></h6>
+                                <h6>
+                                  <b>Variants</b>
+                                </h6>
 
-                                <FieldArray name="variants">
-                                  {({ push, remove }) => (
-                                    
+                                <>
+                                  <a
+                                    onClick={() => {
+                                      // console.log(errors);
+                                      setShowOptionForm(true);
+                                    }}
+                                    // className="btn btn-sm btn-success mb-2 mt-2"
+                                    style={{
+                                      color: "blue",
+                                      "text-decoration": "underline",
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    Add options like size and color
+                                  </a>
+                                  {showOptionForm && (
                                     <>
-                                      <a
+                                      <div className="mb-2">
+                                      <FieldArray name="options">
+                                                {({ push, remove }) => (
+                                        <div className="card mb-3 border-dark">
+                                          <div className="card-body">
+                                            <div className="col-md-12">
+                                              <label
+                                                htmlFor="name"
+                                                className="form-label"
+                                              >
+                                                Name
+                                              </label>
+                                              <Field
+                                                type="text"
+                                                className="form-control"
+                                                id="optionName"
+                                                name="optionName"
+                                                aria-describedby="nameHelp"
+                                              ></Field>
+                                              {errors.optionName && (
+                                                <small className="text-danger">
+                                                  {errors.optionName}
+                                                </small>
+                                              )}
+                                            </div>
+                                            <div className="col-md-12 mt-2">
+                                              <label
+                                                htmlFor="options"
+                                                className="form-label"
+                                              >
+                                                Option Values
+                                              </label>
                                             
-                                            onClick={() => {
-                                              // console.log(errors);
-                                              setShowVariantField(true);
-                                              push({ name: "", options: [] });
-                                            }}
-                                            // className="btn btn-sm btn-success mb-2 mt-2"
-                                            style={{'color': 'blue', 'text-decoration': 'underline','cursor': 'pointer'}}
-                                          >
-                                            Add options like size and color
-                                          </a>
-                                      {!showVariant && (
-                                        <>
-                                          {values.options.map(
-                                            (option, index) => {
-                                              return (
-                                               <div></div>
-                                              );
-                                            }
+                                                  <div>
+                                                    {values.options?.map(
+                                                      (option, optionIndex) => {
+                                                        return (
+                                                          <>
+                                                            <div
+                                                              key={optionIndex}
+                                                              className="d-flex justify-content-start mb-2"
+                                                            >
+                                                              <Field
+                                                                type="text"
+                                                                className="form-control"
+                                                                id={`options[${optionIndex}].value`}
+                                                                name={`options[${optionIndex}].value`}
+                                                                aria-describedby="nameHelp"
+                                                              ></Field>
+                                                              <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                  remove(
+                                                                    optionIndex
+                                                                  );
+                                                                }}
+                                                                className="btn btn-sm btn-danger ms-2"
+                                                              >
+                                                                <span>
+                                                                  <FontAwesomeIcon
+                                                                    icon={
+                                                                      faTrash
+                                                                    }
+                                                                  />
+                                                                </span>
+                                                              </button>
+                                                            </div>
+                                                            <ErrorMessage
+                                                              name={`options.${optionIndex}.value`}
+                                                              component="div"
+                                                              className="text-danger"
+                                                            />
+                                                          </>
+                                                        );
+                                                      }
+                                                    )}
+                                                    <button
+                                                      type="button"
+                                                      onClick={() => {
+                                                        push("");
+                                                        
+                                                      }}
+                                                      className="btn btn-sm btn-dark mt-2"
+                                                    >
+                                                      + Add Values
+                                                    </button>
+                                                  </div>
+                                              
+                                            </div>
+                                          </div>
+                                      
+                                        </div>
                                           )}
-
-                                        
-                                         
-                                        </>
-                                      )}
+                                          </FieldArray>
+                                        <div className="d-flex justify-content-end mt-2">
+                                              <button  type="button" className="btn btn-sm btn-outline-dark"  onClick={() => handleOptionDelete(values)}>Delete</button>
+                                              <button  type="button" onClick={() => handleOptiondone(values)} className="btn btn-sm btn-dark ms-2">Done</button>
+                                        </div>
+                                      </div>
                                     </>
                                   )}
-                                </FieldArray>
+                                </>
 
-
-                                {showVariant && (
-                                  <div>
-                                    <FieldArray name="addedVariants">
-                                      {({
-                                        push,
-                                        remove: removeSelectedVariant,
-                                      }) => (
-                                        <>
-                                          {addedVariants?.map(
-                                            (selectedVariant, varIndex) => (
-                                              <div
-                                                className="border mb-2"
-                                                key={varIndex}
-                                              >
-                                                <label
-                                                  htmlFor="published"
-                                                  className="form-label"
-                                                >
-                                                  {selectedVariant.name ===
-                                                  "Custom"
-                                                    ? selectedVariant.customName
-                                                    : selectedVariant.name}
-                                                </label>
-                                                <div className="d-flex">
-                                                  {selectedVariant.options?.map(
-                                                    (option) => (
-                                                      <div
-                                                        className="badge rounded-pill text-bg-secondary ms-2"
-                                                        style={{
-                                                          cursor: "pointer",
-                                                        }}
-                                                        onClick={() =>
-                                                          removeOption(option)
-                                                        }
-                                                      >
-                                                        {option}
-                                                      </div>
-                                                    )
-                                                  )}
-                                                </div>
-                                                {/* <button
-                                                  type="button"
-                                                  onClick={() =>
-                                                    removeSelectedVariant(
-                                                      varIndex
-                                                    )
-                                                  }
-                                                >
-                                                  Remove Variant
-                                                </button> */}
-                                              </div>
-                                            )
-                                          )}
-                                        </>
-                                      )}
-                                    </FieldArray>
-                                  </div>
-                                )}
-
-                                {showVariant && (
-                                  <FieldArray name="productVariant">
-                                    <div className="row table-responsive">
-                                      <table className="table">
-                                        <thead>
-                                          <tr>
-                                            {/* <th scope="col">#</th> */}
-                                            <th
-                                              scope="col"
-                                              style={{ width: "200px" }}
-                                            >
-                                              Image
-                                            </th>
-                                            <th
-                                              scope="col"
-                                              style={{ width: "200px" }}
-                                            >
-                                              Variant
-                                            </th>
-                                            <th
-                                              scope="col"
-                                              style={{ width: "100px" }}
-                                            >
-                                              SKU
-                                            </th>
-                                            <th
-                                              scope="col"
-                                              style={{ width: "100px" }}
-                                            >
-                                              Price
-                                            </th>
-                                            <th
-                                              scope="col"
-                                              style={{ width: "100px" }}
-                                            >
-                                              Stock
-                                            </th>
-                                            <th
-                                              scope="col"
-                                              style={{ width: "100px" }}
-                                            >
-                                              Discounted Price
-                                            </th>
-                                          </tr>
-                                        </thead>
-                                        <tbody>
-                                          {selectedVariants?.map(
-                                            (variant, productIndex) => {
-                                              return (
-                                                <tr key={productIndex}>
-                                                  <td className="d-flex">
-                                                    <label
-                                                      htmlFor={`file-upload-${productIndex}`}
-                                                      style={{
-                                                        cursor: "pointer",
-                                                      }}
-                                                    >
-                                                      <FontAwesomeIcon
-                                                        icon={faUpload}
-                                                      />
-                                                    </label>
-                                                    <input
-                                                      id={`file-upload-${productIndex}`}
-                                                      type="file"
-                                                      onChange={(e) =>
-                                                        handleFileChange(
-                                                          e,
-                                                          productIndex
-                                                        )
-                                                      }
-                                                      style={{
-                                                        display: "none",
-                                                      }} // Hide the input element
-                                                    />
-
-                                                    {/* Thumbnail preview */}
-                                                    {images[productIndex] && (
-                                                      <div className="ms-2">
-                                                        <img
-                                                          src={URL.createObjectURL(
-                                                            images[productIndex]
-                                                          )}
-                                                          width={50}
-                                                          height={50}
-                                                          alt={`Thumbnail ${productIndex}`}
-                                                        />
-                                                      </div>
-                                                    )}
-                                                  </td>
-                                                  <td>
-                                                    <Field
-                                                      type="text"
-                                                      value={variant}
-                                                      name={`productVariant[${productIndex}].variantName`}
-                                                    />
-                                                  </td>
-
-                                                  <td>
-                                                    <Field
-                                                      type="text"
-                                                      name={`productVariant[${productIndex}].variantSKU`}
-                                                    />
-                                                    {/* {errors.productVariant &&
-                                                      errors.productVariant[
-                                                        productIndex
-                                                      ] &&
-                                                      errors.productVariant[
-                                                        productIndex
-                                                      ].variantSKU && (
-                                                        <small className="text-danger">
-                                                          {
-                                                            errors
-                                                              .productVariant[
-                                                              productIndex
-                                                            ].variantSKU
-                                                          }
-                                                        </small>
-                                                      )} */}
-
-                                                    <ErrorMessage
-                                                      name={`productVariant.${productIndex}.variantSKU`}
-                                                      component="div"
-                                                      className="text-danger"
-                                                    />
-                                                  </td>
-                                                  <td>
-                                                    <Field
-                                                      type="number"
-                                                      name={`productVariant[${productIndex}].variantPrice`}
-                                                    />
-
-                                                    <ErrorMessage
-                                                      name={`productVariant.${productIndex}.variantPrice`}
-                                                      component="div"
-                                                      className="text-danger"
-                                                    />
-                                                  </td>
-                                                  <td>
-                                                    <Field
-                                                      type="number"
-                                                      name={`productVariant[${productIndex}].variantStock`}
-                                                    />
-
-                                                    <ErrorMessage
-                                                      name={`productVariant.${productIndex}.variantStock`}
-                                                      component="div"
-                                                      className="text-danger"
-                                                    />
-                                                  </td>
-                                                  <td>
-                                                    <Field
-                                                      type="number"
-                                                      name={`productVariant[${productIndex}].variantDiscountedPrice`}
-                                                    />
-
-                                                    <ErrorMessage
-                                                      name={`productVariant.${productIndex}.variantDiscountedPrice`}
-                                                      component="div"
-                                                      className="text-danger"
-                                                    />
-                                                  </td>
-                                                </tr>
-                                              );
-                                            }
-                                          )}
-                                        </tbody>
-                                      </table>
-
-                                      <button
-                                        className="btn btn-sm btn-warning"
-                                        onClick={() => {
-                                          handleReset();
-                                          console.log(errors);
-                                          console.log(values);
-                                        }}
-                                      >
-                                        Edit Variants
-                                      </button>
-                                    </div>
-                                  </FieldArray>
-                                )}
+                              <>
+                               
+                               </>  
+                                
                               </div>
                             </div>
                           </div>

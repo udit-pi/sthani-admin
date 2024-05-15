@@ -138,11 +138,11 @@ const CreateHomeWidget = () => {
 
     setSubmitting(false);
 
-    // const res = await dispatch(addWidget(values)).unwrap();
-    // if (res) {
-    //   toast.success("Widget created successfully!");
-    //   navigate("/homePage");
-    // }
+    const res = await dispatch(addWidget(values)).unwrap();
+    if (res) {
+      toast.success("Widget created successfully!");
+      navigate("/homePage");
+    }
   };
 
   const handleWidgetChange = async (e) => {
@@ -180,8 +180,9 @@ const CreateHomeWidget = () => {
     // setFieldValue('items', newItems);
   };
 
-  const handleDestinationChange = (e) => {
+  const handleDestinationChange =(e, setFieldValue, index) => {
     setDestinationOptions([]);
+    setFieldValue(`items.${index}.destination`, e.target.value);
     if (e.target.value === "product") {
       setDestinationOptions(prodOption);
     } else if (e.target.value === "category") {
@@ -193,28 +194,29 @@ const CreateHomeWidget = () => {
     }
   };
 
-  const handleFeaturedCategoryChange = (e) => {
+  const handleFeaturedCategoryChange = (e, setFieldValue, index) => {
     const featuredCategoryOptions = [];
     products?.map((prod) => {
-      if(prod.categories.includes(e.target.value)) {
+      if (prod.categories.includes(e.target.value)) {
         featuredCategoryOptions.push({ label: prod.name, value: prod.id });
       }
-     
     });
     setFeaturedCategoryProducts(featuredCategoryOptions);
-  }
+    setFieldValue(`items.${index}.category`, e.target.value);
+    setFieldValue(`items.${index}.products`, []);
+  };
 
-  const handleFeaturedBrandChange = (e) => {
+ 
+  const handleFeaturedBrandChange = (e, setFieldValue, index) => {
+    const selectedBrandId = e.target.value;
+    const featuredBrandOptions = products
+      .filter((prod) => prod.brand_id === selectedBrandId)
+      .map((prod) => ({ label: prod.name, value: prod.id }));
 
-    const featuredBrandOptions = [];
-    products?.map((prod) => {
-      if(prod.brand_id === e.target.value) {
-        featuredBrandOptions.push({ label: prod.name, value: prod.id });
-      }
-     
-    });
     setFeaturedBrandProducts(featuredBrandOptions);
-  }
+    setFieldValue(`items.${index}.brand`, selectedBrandId);
+    setFieldValue(`items.${index}.products`, []);
+  };
 
   const handleSelectIdChange = (fieldName, selectedOption, setFieldValue) => {
     setFieldValue(fieldName, selectedOption.value);

@@ -75,11 +75,8 @@ const FeaturedCategories = ({
                                         value={values.items[index]?.category || ''}
                                         required
                                         onChange={(e) => {
-                                            handleFeaturedCategoryChange(e);
-                                            setFieldValue(
-                                              `items.${index}.category`,
-                                              e.target.value
-                                            );
+                                            handleFeaturedCategoryChange(e, setFieldValue, index);
+                                           
                                           }}
                                       >
                                         <option value="">Select Categories</option>
