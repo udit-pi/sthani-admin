@@ -160,20 +160,25 @@ const CategoryWidget = ({
                                             className="form-control bg-white mb-2"
                                             name={`items.${index}.image`}
                                           />
-                                          {values.items[index].image && (
+                                          
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div className="img-box w-15">
+                                  {values.items[index].image && (
                                             <img
                                               src={
                                                 imageBaseUrl +
                                                 values.items[index].image
                                               }
                                               alt=""
-                                              width={80}
-                                              height={80}
+                                              width={150}
+                                              height={150}
+                                              className="image-cover shadow-sm"
                                             />
                                           )}
-                                        </div>
-                                      </div>
-                                    </div>
                                   </div>
 
                                   {/* <div className="col-md-4 ms-4 mt-2">
