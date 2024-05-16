@@ -563,7 +563,15 @@ const EditHomeWidget = () => {
                                 
                                 
                                 </>
-
+                                <div className="d-flex justify-content-end pe-3">
+                                  <button
+                                    type="submit"
+                                    className="btn btn-sm mt-2 px-5 py-2"
+                                    style={{ backgroundColor: '#D93D6E', color: "white", fontSize:"15px" }}
+                                  >
+                                    Save
+                                  </button>
+                                </div>
                                 </div>
                       </div>
                   
@@ -572,15 +580,7 @@ const EditHomeWidget = () => {
             </Formik>
           </div>
 
-          <div className="d-flex justify-content-end pe-3">
-                                  <button
-                                    type="submit"
-                                    className="btn btn-sm mt-2 px-5 py-2"
-                                    style={{ backgroundColor: '#D93D6E', color: "white", fontSize:"15px" }}
-                                  >
-                                    Save
-                                  </button>
-        </div>
+          
 
 
       {/* </DndProvider> */}

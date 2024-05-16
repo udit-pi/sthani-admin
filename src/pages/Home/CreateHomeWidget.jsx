@@ -511,19 +511,7 @@ const CreateHomeWidget = () => {
                    
                    )}
                     <ErrorMessage name="items" className="text-danger" component="div" />
-                  
-                  </>
-
-                  </div>
-                  </div>
-
-                </Form>
-              )}
-            </Formik>
-        
-      </div>
-
-      <div className="d-flex justify-content-end">
+                    <div className="d-flex justify-content-end">
                       { showSaveButton && (
                             <button
                             type="submit"
@@ -535,6 +523,18 @@ const CreateHomeWidget = () => {
                       )}
                 
                     </div>
+                  </>
+
+                  </div>
+                  </div>
+
+                </Form>
+              )}
+            </Formik>
+        
+      </div>
+
+     
       {/* </DndProvider> */}
     </Layout>
   );
