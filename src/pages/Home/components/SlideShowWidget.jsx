@@ -4,7 +4,7 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash, faUpDownLeftRight } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faUpDownLeftRight, faBars } from "@fortawesome/free-solid-svg-icons";
 import CustomFileInput from "./CustomFileInput";
 import EditFileInput from "./EditFileInput";
 
@@ -40,7 +40,7 @@ const SlideShowWidget = ({
                     {showButton && (
                       <button
                         type="button"
-                        className="btn  btn-dark"
+                        className="btn  btn-dark mb-4 "
                         // style={{ width: "65px", height: "65px" }}
                         onClick={() => {
                           push({});
@@ -64,13 +64,49 @@ const SlideShowWidget = ({
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
                         >
-                          <div className="card">
+                          <div className="card" style={{ backgroundColor: "#F2F2F2" }}  >
                             <div className="card-body">
                               <div className="d-flex justify-content-between">
-                                <h4>{`Item ${index + 1}`}</h4>
-                                <div className="col-md-10">
+
+                                <div className="left-container d-flex justify-content-between flex-column  " style={{width:"20%"}} >
+
+                                  <div className=" d-flex align-items-center ">
+
+                                    <FontAwesomeIcon icon={faBars} style={{ color: "#cc1d54" }} className="me-3" />
+
+                                    <h4 className="fs-5 mb-0">{`Item ${index + 1}`}</h4>
+
+
+                                  </div>
+
+
+
+
+                                  <div className=" ms-4 mt-2">
+                                    <button
+                                      className="btn ms-1"
+                                      onClick={() => remove(index)}
+                                    >
+                                      <span>
+                                        <FontAwesomeIcon icon={faTrash} />
+                                      </span>
+
+                                    </button>
+                                    <p>Remove</p>
+                                    {/* <button className="btn btn-sm btn-warning ms-4">
+                                              <span>
+                                                <FontAwesomeIcon
+                                                  icon={faUpDownLeftRight}
+                                                />
+                                              </span>
+                                            </button> */}
+                                  </div>
+
+                                </div>
+
+                                <div className="middle-container  " style={{width:"70%"}}  >
                                   <div className="row">
-                                    <div className="col-md-12 mb-2">
+                                    <div className="col-md-12 mt-2">
                                       <label className="form-label">
                                         Image:
                                       </label>
@@ -81,35 +117,24 @@ const SlideShowWidget = ({
                                               ? EditFileInput
                                               : CustomFileInput
                                           }
-                                          className="form-control"
+                                          className="form-control bg-white "
                                           name={`items.${index}.image`}
                                           style={{
                                             height: "10%",
                                             width: "78%",
                                           }}
                                         />
-                                        {values.items[index].image && (
-                                          <img
-                                            src={
-                                              imageBaseUrl +
-                                              values.items[index].image
-                                            }
-                                            className="ms-2"
-                                            alt=""
-                                            width={100}
-                                            height={80}
-                                          />
-                                        )}
+                                        
                                       </div>
                                     </div>
-                                    <div className="col-md-12 mb-2">
+                                    <div className="col-md-12 mt-2">
                                       <label className="form-label">
                                         Description:
                                       </label>
                                       <Field
                                         as="textarea"
                                         type="text"
-                                        className="form-control"
+                                        className="form-control bg-white  "
                                         name={`items.${index}.description`}
                                         style={{ width: "78%" }}
                                         rows={3}
@@ -117,11 +142,11 @@ const SlideShowWidget = ({
                                     </div>
                                   </div>
                                   <div className="d-flex">
-                                    <div className="col-md-5 mb-2">
+                                    <div className="col-md-5 mt-2">
                                       <label className="form-label">Tag:</label>
                                       <Field
                                         type="text"
-                                        className="form-control"
+                                        className="form-control bg-white "
                                         name={`items.${index}.tag`}
                                       />
                                       {/* <div className="mt-2">
@@ -141,13 +166,13 @@ const SlideShowWidget = ({
                                       </div> */}
                                     </div>
 
-                                    <div className="col-md-4 mb-2 ms-4">
+                                    <div className="col-md-4 mt-2 ms-4">
                                       <label className="form-label">
                                         Brand:
                                       </label>
                                       <Field
                                         as="select"
-                                        className="form-select"
+                                        className="form-select bg-white  "
                                         name={`items.${index}.brand`}
                                       >
                                         <option value="">Select brand</option>
@@ -163,8 +188,8 @@ const SlideShowWidget = ({
                                     </div>
                                   </div>
 
-                                  <div className="mt-2">
-                                    <label className="form-label">Link:</label>
+                                  <div className="mt-2 mb-2 ">
+                                    <label className="form-label ">Link:</label>
                                     {/* <Field type="text" name={`slideshowItems.${index}.link`} /> */}
                                   </div>
                                   <div className="d-flex">
@@ -174,7 +199,7 @@ const SlideShowWidget = ({
                                       </label>
                                       <Field
                                         as="select"
-                                        className="form-select"
+                                        className="form-select bg-white "
                                         name={`items.${index}.destination`}
                                         onChange={(e) => handleDestinationChange(e, setFieldValue, index)}
                                       >
@@ -191,7 +216,7 @@ const SlideShowWidget = ({
                                     <div className="col-md-4 mb-2 ms-4">
                                       <label className="form-label">ID:</label>
                                       <Select
-                                      name= {`items.${index}.id`}
+                                        name={`items.${index}.id`}
                                         options={destinationOptions}
                                         value={destinationOptions.find(
                                           (option) =>
@@ -211,27 +236,25 @@ const SlideShowWidget = ({
                                     </div>
                                   </div>
                                 </div>
-                             
-                              </div>
-                              <div className="col-md-3 ms-4 mt-2">
-                                  <button
-                                    className="btn btn-sm btn-danger ms-1"
-                                    onClick={() => remove(index)}
-                                  >
-                                    <span>
-                                      <FontAwesomeIcon icon={faTrash} />
-                                    </span>
-                                   
-                                  </button>
-                                  <p>Remove</p>
-                                  {/* <button className="btn btn-sm btn-warning ms-4">
-                                    <span>
-                                      <FontAwesomeIcon
-                                        icon={faUpDownLeftRight}
-                                      />
-                                    </span>
-                                  </button> */}
+
+
+                                <div className="right-container" style={{width:"auto"}} >
+                                {values.items[index].image && (
+                                          <img
+                                            src={
+                                              imageBaseUrl +
+                                              values.items[index].image
+                                            }
+                                            className="ms-2  image-cover bg-white "
+                                            alt=""
+                                            width={150}
+                                            height={150}
+                                          />
+                                        )}
                                 </div>
+
+                              </div>
+
                             </div>
                           </div>
                         </div>

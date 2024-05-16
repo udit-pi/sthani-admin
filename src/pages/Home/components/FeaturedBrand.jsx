@@ -4,7 +4,7 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash, faUpDownLeftRight } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faUpDownLeftRight , faBars } from "@fortawesome/free-solid-svg-icons";
 import CustomFileInput from "./CustomFileInput";
 import MultiSelectDropdown from "../../../components/MultiSelectDropDown";
 
@@ -22,15 +22,17 @@ const FeaturedBrand = ({
   const index = 0
   return (
     <div>
-      <div className="d-flex justify-content-between">
+      <div className="d-flex justify-content-between mb-4">
         <h5>Featured Brand Item:</h5>
        
       </div>
 
-      <div className="card">
+      <div className="card" style={{ background: "#F2F2F2" }} >
         <div className="card-body">
           <div className="d-flex justify-content-between">
-            <h4>{`Item`}</h4>
+
+
+        
 
             <div className="col-md-10">
               <div className="d-flex">
@@ -38,7 +40,7 @@ const FeaturedBrand = ({
                   <label className="form-label">Brand:</label>
                   <Field
                     as="select"
-                    className="form-select"
+                    className="form-select bg-white"
                     name={`items.${index}.brand`}
                     required={true}
                     onChange={(e) =>
@@ -67,7 +69,7 @@ const FeaturedBrand = ({
                   <label className="form-label">Tag:</label>
                   <Field
                     type="text"
-                    className="form-control"
+                    className="form-control bg-white"
                     name={`items.${index}.tag`}
                   />
                 
@@ -78,7 +80,7 @@ const FeaturedBrand = ({
                   <Field
                     as="textarea"
                     type="text"
-                    className="form-control"
+                    className="form-control bg-white "
                     name={`items.${index}.description`}
                   />
                 </div>

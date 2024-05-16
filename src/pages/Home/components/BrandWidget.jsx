@@ -4,7 +4,7 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash, faUpDownLeftRight } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faUpDownLeftRight , faBars } from "@fortawesome/free-solid-svg-icons";
 import CustomFileInput from "./CustomFileInput";
 
 const BrandWidget = ({
@@ -33,7 +33,7 @@ const BrandWidget = ({
                     {showButton && (
                       <button
                         type="button"
-                        className="btn  btn-dark"
+                        className="btn  btn-dark mb-4"
                         // style={{ width: "65px", height: "65px" }}
                         onClick={() => {
                           push({});
@@ -56,20 +56,47 @@ const BrandWidget = ({
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
                         >
-                          <div className="card">
-                            <div className="card-body">
-                            <div className="d-flex justify-content-between">
-                              <h6>{`Item ${index + 1}`}</h6>
+                          <div className="card" style={{ background: "#F2F2F2" }} >
+                            <div className="card-body ">
+                            <div className="d-flex justify-content-between " style={{height:"150px"}}>
+
+                              <div className="left-container w-25 d-flex justify-content-between flex-column">
+
+                              <div className="d-flex w-100 align-items-center ">
+                                     
+
+                                     <FontAwesomeIcon icon={faBars} style={{ color: "#cc1d54" }} className="me-3" />
+                                    
+
+                                     <h6 className="fs-5 mb-0 ">{`Item ${index + 1}`}</h6>
+
+                              </div>
+
+                              <div className="  mt-2 ms-4">
+                                  <button
+                                    className="btn  ms-1"
+                                    onClick={() => remove(index)}
+                                  >
+                                    <span>
+                                      <FontAwesomeIcon icon={faTrash} />
+                                    </span>
+                                  </button>
+                                  <p>Remove</p>
+                                 
+                                </div>
+
+                              </div>
+                           
                               
-                                <div className="col-md-10">
+                                <div className="right-container w-75">
                                   <div className="row">
-                                    <div className="col-md-6 mb-2">
-                                      <label className="form-label">
+                                    <div className="col-md-6 mb-2"  >
+                                      <label className="form-label ms-1">
                                         Brand:
                                       </label>
                                       <Field
                                         as="select"
-                                        className="form-select"
+                                        className="form-select bg-white "
                                         name={`items.${index}.brand`}
                                         required
                                       >
@@ -97,18 +124,7 @@ const BrandWidget = ({
                                
                             
                               </div>
-                               <div className="col-md-4  mt-2">
-                                  <button
-                                    className="btn btn-sm btn-danger ms-1"
-                                    onClick={() => remove(index)}
-                                  >
-                                    <span>
-                                      <FontAwesomeIcon icon={faTrash} />
-                                    </span>
-                                  </button>
-                                  <p>Remove</p>
-                                 
-                                </div>
+                             
                             </div>
                           </div>
                         </div>
