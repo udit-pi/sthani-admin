@@ -561,8 +561,6 @@ const EditHomeWidget = () => {
                                     component="div"
                                   />
                                 
-                                
-                                </>
                                 <div className="d-flex justify-content-end pe-3">
                                   <button
                                     type="submit"
@@ -572,6 +570,8 @@ const EditHomeWidget = () => {
                                     Save
                                   </button>
                                 </div>
+                                </>
+                                
                                 </div>
                       </div>
                   
