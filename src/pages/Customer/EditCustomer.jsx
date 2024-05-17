@@ -1,11 +1,13 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Layout from '../../components/layouts/Layout'
 import DataTable from "react-data-table-component";
 import { FaArrowLeft } from "react-icons/fa";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-const EditCustomer = () => {
+import { fetchAllCustomersById } from '../../features/customer/customerSlice';
 
+const EditCustomer = () => {
+  const { id } = useParams();
   const dummydata = [
     {
       name: "Udit Aggarwal",
@@ -49,21 +51,21 @@ const EditCustomer = () => {
     {
       name: "Address",
       selector: (row) => row.address,
-      cell: (row) => <div style={{ fontWeight: "" }}>{row.address}</div>,
+      cell: (row) => <div style={{ fontWeight: "" }}>{row.address_line}</div>,
       sortable: true,
       width: "",
     },
     {
       name: "City, State",
       selector: (row) => row.state_country,
-      cell: (row) => <div style={{ fontWeight: "" }}>{row.state_country}</div>,
+      cell: (row) => <div style={{ fontWeight: "" }}>{`${row.city} , ${row.state}`}</div>,
       sortable: true,
       width: "",
     },
     {
       name: "Type",
       selector: (row) => row.type,
-      cell: (row) => <div style={{ fontWeight: "" }}>{row.type}</div>,
+      cell: (row) => <div style={{ fontWeight: "" }}>{row.address_type}</div>,
       sortable: true,
       width: "",
 
@@ -71,7 +73,7 @@ const EditCustomer = () => {
     {
       name: "Default",
       selector: (row) => row.default,
-      cell: (row) => <div style={{ fontWeight: "" }}>{row.default}</div>,
+      cell: (row) => <div style={{ fontWeight: "" }}>{`${row.default}`}</div>,
       sortable: true,
       width: "",
 
@@ -81,7 +83,28 @@ const EditCustomer = () => {
 
   ];
 
+  const [customers, setCustomers] = useState([]);
+  const [address, setaddress] = useState([]);
+  const [Wishlist, setWishlist] = useState([]);
+  const [Brands, setBrands] = useState([]);
 
+// console.log(customers)
+
+
+  const dispatch = useDispatch();
+  const fetchCustomers = async () => {
+    const res = await dispatch(fetchAllCustomersById({ id })).unwrap();
+      // console.log(res)
+      setCustomers(res)
+      setaddress(res.addresses)
+      setWishlist(res.wishlist)
+      setBrands(res.favoriteBrands)
+
+  };
+
+  useEffect(() => {
+    fetchCustomers();
+  }, [dispatch]);
 
   return (
     <Layout>
@@ -91,7 +114,7 @@ const EditCustomer = () => {
           <FaArrowLeft size={20} cursor="pointer"  style={{marginTop:"6px"}} />
           <div>
 
-          <h2 className="heading m-0 p-0"  >Udit Aggarwal</h2>
+          <h2 className="heading m-0 p-0"  >{customers.first_name}</h2>
           <p style={{color:'#333'}}>Register on: 14th jan 2024 | Registered with Email</p>
 
           </div>
@@ -105,19 +128,19 @@ const EditCustomer = () => {
           <div className="card-body row">
             <div className='col-4'>
               <h5 className="card-title">Email Address</h5>
-              <p className="card-text">udit.aggarwal@gmail.com</p>
+              <p className="card-text">{customers.email}</p>
             </div>
             <div className='col-3'>
               <h5 className="card-title">Mobile</h5>
-              <p className="card-text">971-9821327758</p>
+              <p className="card-text">{customers.mobile}</p>
             </div>
             <div className='col-3'>
               <h5 className="card-title">Date of birth</h5>
-              <p className="card-text">10-01-1995</p>
+              <p className="card-text">{customers.dob}</p>
             </div>
             <div className='col'>
               <h5 className="card-title">Gender</h5>
-              <p className="card-text">Male</p>
+              <p className="card-text">{customers.gender}</p>
             </div>
           </div>
         </div>
@@ -129,7 +152,7 @@ const EditCustomer = () => {
               <DataTable
                 // title="Category"
                 columns={columns}
-                data={dummydata}
+                data={address}
                 // fixedHeader
                 pagination
                 highlightOnHover
@@ -153,32 +176,31 @@ const EditCustomer = () => {
           <div className="card " style={{ width: "48%" }} >
             <div className="card-body " >
               <h6 className="fw-bold">Wishlist</h6>
+              {Wishlist.map(whishlist=>(
+
+
+            
               <ol className="list-group ms-3 gap-1">
-                <li className="">Product Name</li>
-                <li className="">Product Name</li>
-                <li className="">Product Name</li>
-                <li className="">Product Name</li>
-                <li className="">Product Name</li>
-                <li className="">Product Name</li>
-                <li className="">Product Name</li>
+                <li className="">{whishlist.name}</li>
+          
                 <var></var>
               </ol>
+            ))}
             </div>
           </div>
 
           <div className="card " style={{ width: "48%" }} >
             <div className="card-body" >
               <h6 className="fw-bold">Brands Following</h6>
+              {Brands.map(brand=>(
+
+           
               <ol className="list-group ms-3 gap-1">
-                <li className="">Product Name</li>
-                <li className="">Product Name</li>
-                <li className="">Product Name</li>
-                <li className="">Product Name</li>
-                <li className="">Product Name</li>
-                <li className="">Product Name</li>
-                <li className="">Product Name</li>
-                <var></var>
+                <li className="">{brand.name}</li>
+             
+              
               </ol>
+            ))}
             </div>
           </div>
 

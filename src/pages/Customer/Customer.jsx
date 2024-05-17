@@ -67,6 +67,14 @@ const Customer = () => {
   //   cat.serial = index + 1;
   // });
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-based
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
   const columns = [
     // {
     //   grow:2,
@@ -84,14 +92,20 @@ const Customer = () => {
     },
    
     {
-      name: "Date of Birth",
-      selector: (row) => row.dob,
+      name: "Email",
+      selector: (row) => row.email,
       sortable: true,
       grow:2,
     },
     {
-        name: "Gender",
-        selector: (row) => row.gender,
+        name: "Mobile",
+        selector: (row) => row.mobile,
+        sortable: true,
+        grow:2,
+      },
+      {
+        name: "Registered On",
+        selector: (row) =>formatDate(row.createdAt),
         sortable: true,
         grow:2,
       },
@@ -120,7 +134,7 @@ const Customer = () => {
             // className="btn btn-sm btn-warning ms-1"
           >
            <span style={{ color: ' #D93D6E ' }}>
-             Edit
+           View Details
               
                </span>
           </Link>
