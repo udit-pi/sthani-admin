@@ -515,7 +515,7 @@ const EditHomeWidget = () => {
                                       handleAddItem={handleAddItem}
                                     />
                                   )}
-                                  ,
+
                                   {widgetType === "products" && showItemForm && (
                                     <ProductWidget
                                       values={values}
@@ -560,7 +560,8 @@ const EditHomeWidget = () => {
                                     className="text-danger"
                                     component="div"
                                   />
-                                  <div className="d-flex justify-content-end">
+                                
+                                <div className="d-flex justify-content-end pe-3">
                                   <button
                                     type="submit"
                                     className="btn btn-sm mt-2 px-5 py-2"
@@ -568,10 +569,9 @@ const EditHomeWidget = () => {
                                   >
                                     Save
                                   </button>
-                                  </div>
-                                
+                                </div>
                                 </>
-
+                                
                                 </div>
                       </div>
                   
@@ -579,6 +579,8 @@ const EditHomeWidget = () => {
               )}
             </Formik>
           </div>
+
+          
 
 
       {/* </DndProvider> */}

@@ -33,6 +33,28 @@ export const fetchAllCustomers = createAsyncThunk(
     }
   );
 
+
+  export const fetchAllCustomersById = createAsyncThunk(
+    "customer/fetchAllCustomersById",
+    async ({id},thunkAPI) => {
+      try {
+        const data = await CustomerService.getCustomersById(id);
+      //   thunkAPI.dispatch(setMessage(data.message));
+      console.log(data)
+        return data;
+      } catch (error) {
+        const message =
+          (error.response &&
+            error.response.data &&
+            error.response.data.message) ||
+          error.message ||
+          error.toString();
+        thunkAPI.dispatch(setMessage(message));
+        return thunkAPI.rejectWithValue();
+      }
+    }
+  );
+
   const customerSlice = createSlice({
     name: 'customer',
     initialState,
@@ -50,15 +72,15 @@ export const fetchAllCustomers = createAsyncThunk(
 
         })
 
-    //     builder.addCase(addCategory.fulfilled, (state, action) => {
-    //       //  console.log(action.payload)
-    //    state.category =  action.payload;
+        builder.addCase(fetchAllCustomersById.fulfilled, (state, action) => {
+          
+       state.customer =  action.payload;
     //   //  state.limit = action.payload.limit;
     //   //  state.page = action.payload.page;
     //   //  state.totalPages = action.payload.totalPages;
     //   //  state.totalResults = action.payload.totalResults
 
-    //   })
+      })
 
    
       

@@ -15,9 +15,21 @@ const getCustomers = async () => {
 
 }
 
+
+
+
+const getCustomersById = async (id) => {
+    const res = await axiosInstance.get(API_URL + "customers/" +id)
+
+    return res.data;
+
+}
+
+
+
 const CustomerService = {
     getCustomers,
-   
+    getCustomersById
    
 }
 

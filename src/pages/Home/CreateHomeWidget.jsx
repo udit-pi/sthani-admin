@@ -305,8 +305,7 @@ const CreateHomeWidget = () => {
           <h2 className="heading">Add Widget</h2>
         </div>
       
-        <div className="card">
-          <div className="card-body">
+      
            
             <Formik
               initialValues={initialValues}
@@ -317,6 +316,9 @@ const CreateHomeWidget = () => {
             >
               {({ values, errors, isSubmitting, setFieldValue,field }) => (
                 <Form>
+
+<div className="card">
+          <div className="card-body">
                   <div className="mb-3">
                     <label htmlFor="placement_id" className="form-label">
                       Placement:
@@ -413,6 +415,12 @@ const CreateHomeWidget = () => {
                     )}
                   </div>
 
+                  </div>
+        </div>
+                  
+        <div className="card">
+          <div className="card-body">
+
                   {/* items selection according to widget selection */}
                   <>
                     {widgetType === "slideshow" && showItemForm && (
@@ -454,7 +462,7 @@ const CreateHomeWidget = () => {
                      handleAddItem={handleAddItem}
                     
                    />
-                   )},
+                   )}
                     {widgetType === "products" && showItemForm && (
                      
                      <ProductWidget
@@ -507,8 +515,8 @@ const CreateHomeWidget = () => {
                       { showSaveButton && (
                             <button
                             type="submit"
-                            className="btn btn-sm mt-2"
-                            style={{ backgroundColor: '#D93D6E', color: "white", width: "10%" }}
+                            className="btn btn-sm mt-2 px-5 py-2 me-3"
+                            style={{ backgroundColor: '#D93D6E', color: "white", fontSize:"15px" }}
                           >
                             Save
                           </button>
@@ -516,12 +524,17 @@ const CreateHomeWidget = () => {
                 
                     </div>
                   </>
+
+                  </div>
+                  </div>
+
                 </Form>
               )}
             </Formik>
-          </div>
-        </div>
+        
       </div>
+
+     
       {/* </DndProvider> */}
     </Layout>
   );

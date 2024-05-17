@@ -4,7 +4,7 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash, faUpDownLeftRight } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faUpDownLeftRight , faBars } from "@fortawesome/free-solid-svg-icons";
 import CustomFileInput from "./CustomFileInput";
 import MultiSelectDropdown from "../../../components/MultiSelectDropDown";
 
@@ -34,7 +34,7 @@ const FeaturedCategories = ({
                     {showButton && (
                       <button
                         type="button"
-                        className="btn  btn-dark"
+                        className="btn  btn-dark mb-4"
                         // style={{ width: "65px", height: "65px" }}
                         onClick={() => {
                           push({});
@@ -57,12 +57,39 @@ const FeaturedCategories = ({
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
                         >
-                          <div className="card">
+                          <div className="card" style={{ background: "#F2F2F2" }} >
                             <div className="card-body">
                             <div className="d-flex justify-content-between">
-                              <h4>{`Item ${index + 1}`}</h4>
+
+
+                             <div className="left-container w-25 d-flex justify-content-between flex-column">
+
+                              <div className="d-flex w-100 align-items-center ">
+                                     
+
+                                     <FontAwesomeIcon icon={faBars} style={{ color: "#cc1d54" }} className="me-3" />
+                                    
+
+                                     <h6 className="fs-5 mb-0 ">{`Item ${index + 1}`}</h6>
+
+                              </div>
+
+                              <div className="  mt-2 ms-4">
+                                  <button
+                                    className="btn  ms-1"
+                                    onClick={() => remove(index)}
+                                  >
+                                    <span>
+                                      <FontAwesomeIcon icon={faTrash} />
+                                    </span>
+                                  </button>
+                                  <p>Remove</p>
+                                 
+                                </div>
+
+                              </div>
                               
-                                <div className="col-md-10">
+                                <div className="right-container w-75">
                                   <div className="d-flex">
                                     <div className="col-md-5 mb-2">
                                       <label className="form-label">
@@ -70,7 +97,7 @@ const FeaturedCategories = ({
                                       </label>
                                       <Field
                                         as="select"
-                                        className="form-select"
+                                        className="form-select bg-white "
                                         name={`items.${index}.category`}
                                         value={values.items[index]?.category || ''}
                                         required
@@ -107,7 +134,7 @@ const FeaturedCategories = ({
                                       <label className="form-label">Tag:</label>
                                       <Field
                                         type="text"
-                                        className="form-control"
+                                        className="form-control bg-white"
                                         name={`items.${index}.tag`}
                                       />
                                     </div>
@@ -133,7 +160,7 @@ const FeaturedCategories = ({
                                       <Field
                                         as="textarea"
                                         type="text"
-                                        className="form-control"
+                                        className="form-control bg-white "
                                         name={`items.${index}.description`}
                                       />
                                     </div>
@@ -142,18 +169,7 @@ const FeaturedCategories = ({
                                 </div>
                                
                              </div>
-                             <div className="col-md-4 mt-2">
-                                  <button
-                                    className="btn btn-sm btn-danger ms-1"
-                                    onClick={() => remove(index)}
-                                  >
-                                    <span>
-                                      <FontAwesomeIcon icon={faTrash} />
-                                    </span>
-                                  </button>
-                                  <p>Remove</p>
-                                
-                                </div>
+                            
                             </div>
                           </div>
                         </div>

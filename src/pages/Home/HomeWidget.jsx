@@ -105,7 +105,7 @@ const HomeWidget = () => {
     {
       name: "Widget Type",
       selector: (row) => row.widget_type,
-      cell: (row) => <div style={{ fontWeight: "bold" }}>{row.widget_type}</div>,
+      cell: (row) => <div style={{ fontWeight: "bold" }}>{row.widget_type.toUpperCase()}</div>,
       sortable: true,
       grow:2,
     },
