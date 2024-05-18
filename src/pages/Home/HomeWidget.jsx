@@ -79,6 +79,7 @@ const HomeWidget = () => {
       // window.location.reload();
       toast.success('Widget deleted successfully!')
       // setSuccessful(true);
+      setOpen(false);
    
     })
     .catch((err) => {

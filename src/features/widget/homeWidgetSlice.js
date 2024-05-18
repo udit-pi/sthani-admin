@@ -60,7 +60,7 @@ export const fetchAllwidget = createAsyncThunk(
 
 
 export const fetchWidgetById = createAsyncThunk(
-  "brand/fetchWidget",
+  "home/fetchWidget",
   async ({id},thunkAPI) => {
     try {
      
@@ -82,7 +82,7 @@ export const fetchWidgetById = createAsyncThunk(
 
 
 export const updateWidget = createAsyncThunk(
-  "brand/updateWidget",
+  "home/updateWidget",
   async ({id,values},thunkAPI) => {
     try {
      
@@ -104,7 +104,7 @@ export const updateWidget = createAsyncThunk(
 );
 
 export const deleteWidget = createAsyncThunk(
-  "brand/deleteWidget",
+  "home/deleteWidget",
   async ({id},thunkAPI) => {
     try {
     //   console.log(id)

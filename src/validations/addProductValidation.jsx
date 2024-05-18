@@ -62,13 +62,13 @@ export const addProductValidation = Yup.object({
   //       )
   //   })
   // ).nullable().default([]) ,
-  productVariant: Yup.array().nullable().transform(transformProductVariant).of(productVariantSchema),
+  // productVariant: Yup.array().nullable().transform(transformProductVariant).of(productVariantSchema),
   
   name: Yup.string().required("Please enter product name"),
-  sku: Yup.string().required("Please enter sku"),
+  sku: Yup.string().required('Please enter this field'),
   // short_description: Yup.string().required("Please enter short description"),
-  description: Yup.string().required("Please enter description"),
-  published: Yup.boolean().required("Please select yes or no"),
+  description: Yup.string().nullable(),
+  published: Yup.string(),
   category: Yup.array()
     .min(1, "At least one option is required")
     .required("This field is required"),
@@ -81,14 +81,29 @@ export const addProductValidation = Yup.object({
   discounted_price: Yup.number()
     .positive()
     .lessThan(Yup.ref("price"), "Discounted price must be less than price"),
-  variants: Yup.array()
-    .of(
-      Yup.object().shape({
-        name: Yup.string().required("Variant name is a required field"),
-        options: Yup.array()
-          .of(Yup.string().required("Option is a required field")),
-      })
-    ).nullable().default([]),
+
+    additional_descriptions: Yup.array()
+      .of(
+        Yup.object().shape({
+          label: Yup.string().required('Please select a label'),
+          value: Yup.string().required('Please enter a value'),
+        }))
+
+  // variants: Yup.array()
+  //   .of(
+  //     Yup.object().shape({
+  //       name: Yup.string().required("Variant name is a required field"),
+  //       options: Yup.array()
+  //         .of(Yup.string().required("Option is a required field")),
+  //     })
+  //   ).nullable().default([]),
+
+  //   optionName: Yup.string().required('Name is required'),
+  // options: Yup.array().of(
+  //   Yup.object().shape({
+  //     value: Yup.string().required('Option value is required'),
+  //   })
+  // ),
  
     // .test("is-unique", "Variants must have unique names", function (value) {
       // if (!value) return true; // Skip validation if variants array is empty
