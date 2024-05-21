@@ -128,7 +128,7 @@ const CategoryWidget = ({
                                             className="form-control bg-white   "
                                             name={`items.${index}.tag`}
                                           />
-                                          <div className="mt-2">
+                                          {/* <div className="mt-2">
                                             {values?.items?.[index]?.tag &&
                                               typeof values.items[index].tag ===
                                               "string" &&
@@ -142,7 +142,7 @@ const CategoryWidget = ({
                                                     {keyword.trim()}
                                                   </span>
                                                 ))}
-                                          </div>
+                                          </div> */}
                                         </div>
                                       </div>
 

@@ -202,7 +202,7 @@ const EditProduct = () => {
       published: res.product.published,
       brand_id:  res.product.brand_id,
       category: res.product.categories,
-       productVariant: res.productVariant
+      productVariant: res.productVariant
     })
    
 

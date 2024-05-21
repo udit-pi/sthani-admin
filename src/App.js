@@ -31,6 +31,7 @@ import CreateHomeWidget from "./pages/Home/CreateHomeWidget";
 import HomeWidget from "./pages/Home/HomeWidget";
 import EditHomeWidget from "./pages/Home/EditHomeWidget";
 import AddProductNew from "./pages/Product/AddProductNew";
+import EditProductNew from "./pages/Product/EditProductNew";
 import Discount from "./pages/Discount/Discount";
 import AddDiscount from "./pages/Discount/AddDiscount";
 import EditDiscount from "./pages/Discount/EditDiscount";
@@ -66,7 +67,8 @@ function App() {
             <Route exact path="/product" element={<Product />} />
             <Route exact path="/showproduct/:id" element={<ShowProduct />} />
             <Route exact path="/addproduct" element={<AddProductNew />} />     
-            <Route exact path="/editproduct/:id" element={<EditProduct />} />
+            {/* <Route exact path="/editproduct/:id" element={<EditProduct />} /> */}
+            <Route exact path="/editproduct/:id" element={<EditProductNew />} />
 
              {/* Product Routes */}
             <Route exact path="/properties" element={<Properties />} />

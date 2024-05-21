@@ -15,6 +15,8 @@ import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import { fetchAllProducts } from "../../features/product/productSlice";
 import { Grow } from "@mui/material";
+import { fetchBrandById, getBrand } from "../../features/brand/brandSlice";
+
 const mediaFolder = process.env.REACT_APP_MEDIA_URL ;
 
 const Product = () => {
@@ -23,6 +25,7 @@ const Product = () => {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [brand,setBrand] = useState({})
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -30,7 +33,11 @@ const Product = () => {
   // console.log(allCategories)
   const fetchProducts = async () => {
     const res = await dispatch(fetchAllProducts()).unwrap();
-    //  console.log(res)
+    // console.log(res)
+    // const id = res.brand_id
+    // const brand = await dispatch(fetchBrandById({id })).unwrap()
+    //  setBrand(brand);
+   
     setProducts(res);
     setFilteredProducts(res);
   };
@@ -80,9 +87,9 @@ const Product = () => {
       name: "Image",
       grow:1,
       cell: (row) => <>
-      {row.logo ? ( 
+      {row.image  ? ( 
         <img
-          src={`${mediaFolder}/${row.images[1]}`}
+          src={`${mediaFolder}/${row.image}`}
           alt="Icon"
           height="50px"
           className="custom-icon"
@@ -107,7 +114,7 @@ const Product = () => {
     // },
     {
       name: "Brand",
-      selector: (row) => row.brand,
+      selector: (row) =>  row.brand_id,
       sortable: true,
       grow:2,
     },
