@@ -82,6 +82,14 @@ const Navbar = () => {
                         <span className="hide-menu">Home Widget</span>
                     </Link>
                 </li>
+                <li className="sidebar-item">
+                    <Link id="home-page"className={`${location.pathname=='/discount' ?'sidebar-link active':'sidebar-link'}`} onClick={() => { setIsActive('home-page') }} to="/discount" aria-expanded="false">
+                        <span>
+                        <FontAwesomeIcon icon={faHouse} />
+                        </span>
+                        <span className="hide-menu">Discounts</span>
+                    </Link>
+                </li>
             </ul>
         </nav>
     )
