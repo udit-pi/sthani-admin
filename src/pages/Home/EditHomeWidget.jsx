@@ -46,6 +46,8 @@ const EditHomeWidget = () => {
   const [widget, setWidget] = useState({});
   const [formData,setFormData] = useState({})
   const [showSaveButton,setShowSaveButton] = useState(false);
+  const [fetchedId,setFecthedId] = useState([]);
+
 
   const initialValues = {
     placement_id: widget.placement_id,
@@ -151,8 +153,30 @@ const EditHomeWidget = () => {
         setShowItemForm(true);
         setShowButton(true);
       }
+      const fetchedId = []
       setFormData(res);
-      // console.log(res);
+       console.log(res);
+       if(res.widget_type === 'slideshow') {
+        
+        res.items?.map((item,index) => {
+          // if(item.destination === 'product') {
+            
+          //   setDestinationOptions(prodOption)
+          // }
+          // if(item.destination === 'brand') {
+          //   setDestinationOptions(brandOption)
+          // }
+          // if(item.destination === 'category') {
+          //   setDestinationOptions(catOption)
+          // }
+          fetchedId.push(item.id)
+        })
+       }
+       setFecthedId(fetchedId)
+       setDestinationOptions(prodOption)
+       
+       
+       
     } catch (err) {
       throw err;
     }
@@ -165,7 +189,7 @@ const EditHomeWidget = () => {
     fetchWidgets();
     fetchWidget();
   }, [dispatch]);
-
+  console.log(destinationOptions)
   const handleSubmit = async (values, { setSubmitting }) => {
     console.log("Submitting form with values:", values);
 
@@ -493,6 +517,7 @@ const EditHomeWidget = () => {
                                       handleAddItem={handleAddItem}
                                       handleSelectIdChange={handleSelectIdChange}
                                       handleDestinationChange={handleDestinationChange}
+                                      fetchedId = {fetchedId}
                                     />
                                   )}
                                   {widgetType === "categories" && showItemForm && (

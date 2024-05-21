@@ -43,8 +43,9 @@ const AddProductNew = () => {
   const [showOptions, setShowOptions] = useState(false);
   const [showVariants, setShowVariants] = useState(false);
   const [variants, setVariants] = useState([]);
-  const [optionErrors, setOptionErrors] = useState({});
-  const [optionsArray, setOptionsArray] = useState([])
+  const [optionErrors, setOptionErrors] = useState([]);
+  const [optionsArray, setOptionsArray] = useState([]);
+  const [showVariantOptions, setShowVariantOptions] = useState(false);
 
   // const brandOptions = []
   const catOptions = [];
@@ -67,8 +68,8 @@ const AddProductNew = () => {
     //   { name: "", options: [] },
 
     // ],
-    options: [{}, {}, {}],
-    additional_descriptions: []
+    options: [{ value: "" }, { value: "" }, { value: "" }],
+    additional_descriptions: [],
   };
 
   const fetchCategory = async () => {
@@ -110,15 +111,13 @@ const AddProductNew = () => {
 
   const handleSubmit = async (values, errors) => {
     // console.log(errors);
-  
+
     // console.log(images);
     // console.log(variants);
 
- 
     const mergedArray = values.productVariants?.map((variant, index) => ({
-      
       ...variant,
-      
+
       image: images[index],
       variantName: variants[index],
       // variantOption: options[index].optionName
@@ -136,7 +135,7 @@ const AddProductNew = () => {
       toast.success("Product created successfully!");
       navigate("/product");
     }
-    if(res.status === 400) {
+    if (res.status === 400) {
       toast.error(res.message);
     }
   };
@@ -158,7 +157,7 @@ const AddProductNew = () => {
     };
 
     generateCombinations(options);
-    setOptionsArray(options)
+    setOptionsArray(options);
 
     // console.log(combinedArray);
     setVariants(combinedArray);
@@ -177,81 +176,93 @@ const AddProductNew = () => {
     window.history.back();
   };
 
-  const handleOptionDelete = (values) => {
-    values.optionName = "";
-    values.options = [{}, {}, {}];
-    setShowOptionForm(false);
-  };
+  const handleOptionDelete = (values, optionName) => {
+    setOptions((prev) => prev.filter((opt) => opt.optionName !== optionName));
 
-  const handleOptiondone = async (values, validateForm) => {
-    setOptionErrors({});
-    const errors = await validateForm();
-    console.log(errors);
-    console.log(values);
-    if (values.optionName === "" || typeof values.optionName === "undefined") {
-      setOptionErrors({
-        name: "optionName",
-        message: "Name Field is required",
-      });
-
-      return;
-    }
-    const optionErrors1 = {};
-
-    // values.options?.forEach((option, index) => {
-    //   const optionName = option.value; // Assuming optionName is the property to be checked
-    //   console.log('Option:', optionName);
-    //   if (!optionName || optionName.trim() === "") {
-    //     console.log('Empty option found at index:', index);
-    //     optionErrors1[index] = {
-    //       name: optionName,
-    //       message: "This Field is required",
-    //     };
-       
-    //   }
-    //   return
-    // });
-    
-    // console.log('Option Errors:', optionErrors1);
-
-    // setOptionErrors(optionErrors1);
-
-    // setOptions((prev) => [
-    //   ...prev,
-    //   {
-    //     optionName: values.optionName,
-    //     options: values.options,
-    //   },
-    // ]);
-
-    setOptions((prev) => {
-      const index = prev.findIndex(
-        (opt) => opt.optionName === values.optionName
-      );
-      const newOption = {
-        optionName: values.optionName,
-        options: values.options,
-      };
-
-      if (index !== -1) {
-        const updatedOptions = [...prev];
-        updatedOptions[index] = newOption;
-        return updatedOptions;
-      } else {
-        return [...prev, newOption];
-      }
-    });
-
-   
-
+    // Reset form or any other necessary state changes
     values.optionName = "";
     values.options = [{}, {}, {}];
     setShowOptionForm(false);
     setShowOptions(true);
+    setShowVariantOptions(true);
+    setOptionErrors([]);
   };
+
+  useEffect(() => {
+    if (optionErrors.length === 0) {
+      setShowOptions(true);
+      setShowVariantOptions(true);
+    }
+  }, [optionErrors]);
+
+  const validateOptions = (values) => {
+    const newErrors = values.options
+      .map((opt, index) => {
+        console.log(opt)
+        if (opt.value === "" || opt === "" || Object.keys(opt).length === 0 ) {
+          console.log('inside')
+          return {
+            name: "options",
+            index,
+            message: "This field is required",
+          };
+        }
+        return null;
+      })
+      .filter((error) => error !== null);
+  
+    return newErrors;
+  };
+
+  const handleOptiondone = async (values, validateForm) => {
+    // setOptionErrors([]);
+   console.log(values.options)
+    const optionValidationErrors = validateOptions(values);
+
+    if (optionValidationErrors.length > 0) {
+      setOptionErrors(optionValidationErrors);
+      return;
+    }
+     
+   
+      
+      setOptions((prev) => {
+        const index = prev.findIndex(
+          (opt) => opt.optionName === values.optionName
+        );
+        const newOption = {
+          optionName: values.optionName,
+          options: values.options,
+        };
+  
+        if (index !== -1) {
+          const updatedOptions = [...prev];
+          updatedOptions[index] = newOption;
+          return updatedOptions;
+        } else {
+          return [...prev, newOption];
+        }
+      });
+  
+      values.optionName = "";
+      values.options = [];
+      setShowOptionForm(false);
+      setShowOptions(true);
+      setShowVariantOptions(true);
+      setOptionErrors([]);
+    
+    return null
+   
+  };
+
+  const getErrorMessage = (optionIndex) => {
+    console.log(optionErrors);
+    const error = optionErrors.find((err) => err.index === optionIndex);
+    return error ? error.message : null;
+  };
+
   console.log("optionErrors:", optionErrors);
   const handleVariantEdit = (values, setFieldValue, option) => {
-    console.log(option);
     setFieldValue("optionName", option.optionName);
     option.options?.map((item, index) => {
       setFieldValue(`options.${index}.value`, item.value);
@@ -260,9 +271,8 @@ const AddProductNew = () => {
     // setOptions(values.options)
     setShowOptionForm(true);
     setShowOptions(false);
+    setShowVariantOptions(false);
   };
-
-  console.log(options);
 
   return (
     <Layout>
@@ -366,18 +376,17 @@ const AddProductNew = () => {
 
                           <div className="card mb-3">
                             <div className="card-body">
-                           
                               <FieldArray name="additional_descriptions">
                                 {({ push, remove }) => (
                                   <div>
                                     <div>
-                                    <label
-                                      htmlFor="additional_descriptions"
-                                      className="form-label mt-4"
-                                      style={{ marginRight: "10px" }}
-                                    >
-                                      Additional Descriptions
-                                    </label>
+                                      <label
+                                        htmlFor="additional_descriptions"
+                                        className="form-label mt-4"
+                                        style={{ marginRight: "10px" }}
+                                      >
+                                        Additional Descriptions
+                                      </label>
                                     </div>
                                     {values.additional_descriptions?.map(
                                       (keyword, index) => (
@@ -446,7 +455,6 @@ const AddProductNew = () => {
                               </FieldArray>
                             </div>
                           </div>
-
 
                           <div className="card mb-3">
                             <div className="card-body">
@@ -728,7 +736,6 @@ const AddProductNew = () => {
                             </div>
                           </div>
 
-                        
                           <div className="card mb-3">
                             <div className="card-body">
                               <div className="row">
@@ -745,7 +752,7 @@ const AddProductNew = () => {
                                     // className="btn btn-sm btn-success mb-2 mt-2"
                                     style={{
                                       color: "blue",
-                                      "text-decoration": "underline",
+                                      textDecoration: "underline",
                                       cursor: "pointer",
                                     }}
                                   >
@@ -772,12 +779,11 @@ const AddProductNew = () => {
                                                     name="optionName"
                                                     aria-describedby="nameHelp"
                                                   ></Field>
-                                                  {optionErrors.name ===
-                                                    "optionName" && (
-                                                    <small className="text-danger">
-                                                      {optionErrors.message}
-                                                    </small>
-                                                  )}
+                                                 {errors.optionName && (
+                                  <small className="text-danger">
+                                    {errors.optionName}
+                                  </small>
+                                )}
                                                 </div>
                                                 <div className="col-md-12 mt-2">
                                                   <label
@@ -822,7 +828,16 @@ const AddProductNew = () => {
                                                                 </span>
                                                               </button>
                                                             </div>
-                                                            {Object.keys(
+                                                            {getErrorMessage(
+                                                              optionIndex
+                                                            ) && (
+                                                              <p className="text-danger">
+                                                                {getErrorMessage(
+                                                                  optionIndex
+                                                                )}
+                                                              </p>
+                                                            )}
+                                                            {/* {Object.keys(
                                                               optionErrors
                                                             ).map((index) => (
                                                               <small
@@ -835,7 +850,7 @@ const AddProductNew = () => {
                                                                   ].message
                                                                 }
                                                               </small>
-                                                            ))}
+                                                            ))} */}
                                                           </>
                                                         );
                                                       }
@@ -860,7 +875,10 @@ const AddProductNew = () => {
                                             type="button"
                                             className="btn btn-sm btn-outline-dark"
                                             onClick={() =>
-                                              handleOptionDelete(values)
+                                              handleOptionDelete(
+                                                values,
+                                                values.optionName
+                                              )
                                             }
                                           >
                                             Delete
@@ -940,139 +958,140 @@ const AddProductNew = () => {
                                 </>
 
                                 <>
-                                  {options?.length > 0 && (
-                                    <div className="card mb-3">
-                                      <div className="card-body">
-                                        <FieldArray name="productVariants">
-                                          {({ push, remove }) => (
-                                            <>
-                                              {variants?.map(
-                                                (option, variantIndex) => (
-                                                  <div className="d-flex justify-content-between mb-2">
-                                                    <div className="d-flex justify-content-between">
-                                                      <div className="d-flex">
-                                                        {images[
-                                                          variantIndex
-                                                        ] && (
-                                                          <div className="ms-2">
-                                                            <img
-                                                              src={URL.createObjectURL(
-                                                                images[
-                                                                  variantIndex
-                                                                ]
-                                                              )}
-                                                              width={50}
-                                                              height={50}
-                                                              alt={`Thumbnail ${variantIndex}`}
+                                  {options?.length > 0 &&
+                                    showVariantOptions && (
+                                      <div className="card mb-3">
+                                        <div className="card-body">
+                                          <FieldArray name="productVariants">
+                                            {({ push, remove }) => (
+                                              <>
+                                                {variants?.map(
+                                                  (option, variantIndex) => (
+                                                    <div className="d-flex justify-content-between mb-2">
+                                                      <div className="d-flex justify-content-between">
+                                                        <div className="d-flex">
+                                                          {images[
+                                                            variantIndex
+                                                          ] && (
+                                                            <div className="ms-2">
+                                                              <img
+                                                                src={URL.createObjectURL(
+                                                                  images[
+                                                                    variantIndex
+                                                                  ]
+                                                                )}
+                                                                width={50}
+                                                                height={50}
+                                                                alt={`Thumbnail ${variantIndex}`}
+                                                              />
+                                                            </div>
+                                                          )}
+                                                          <label
+                                                            htmlFor={`file-upload-${variantIndex}`}
+                                                            className="ms-2"
+                                                            style={{
+                                                              cursor: "pointer",
+                                                            }}
+                                                          >
+                                                            <FontAwesomeIcon
+                                                              icon={faUpload}
                                                             />
-                                                          </div>
-                                                        )}
-                                                        <label
-                                                          htmlFor={`file-upload-${variantIndex}`}
-                                                          className="ms-2"
-                                                          style={{
-                                                            cursor: "pointer",
-                                                          }}
-                                                        >
-                                                          <FontAwesomeIcon
-                                                            icon={faUpload}
+                                                          </label>
+                                                          <input
+                                                            id={`file-upload-${variantIndex}`}
+                                                            type="file"
+                                                            onChange={(e) =>
+                                                              handleFileChange(
+                                                                e,
+                                                                variantIndex
+                                                              )
+                                                            }
+                                                            style={{
+                                                              display: "none",
+                                                            }} // Hide the input element
                                                           />
-                                                        </label>
-                                                        <input
-                                                          id={`file-upload-${variantIndex}`}
-                                                          type="file"
-                                                          onChange={(e) =>
-                                                            handleFileChange(
-                                                              e,
-                                                              variantIndex
-                                                            )
-                                                          }
-                                                          style={{
-                                                            display: "none",
-                                                          }} // Hide the input element
-                                                        />
 
-                                                        {/* Thumbnail preview */}
+                                                          {/* Thumbnail preview */}
+                                                        </div>
+                                                        <div className="ms-4">
+                                                          <Field
+                                                            type="text"
+                                                            name={`productVariants[${variantIndex}].variantName`}
+                                                            value={option}
+                                                            readonly
+                                                            className="form-control"
+                                                            style={{
+                                                              width: "200px",
+                                                            }}
+                                                          />
+                                                          {/* <p>{option}</p> */}
+                                                        </div>
                                                       </div>
-                                                      <div className="ms-4">
-                                                        <Field
-                                                          type="text"
-                                                          name={`productVariants[${variantIndex}].variantName`}
-                                                          value={option}
-                                                          readonly
-                                                          className="form-control"
-                                                          style={{
-                                                            width: "200px",
-                                                          }}
-                                                        />
-                                                        {/* <p>{option}</p> */}
+                                                      <div className="d-flex justify-content-between ms-2">
+                                                        <div>
+                                                          <Field
+                                                            type="number"
+                                                            name={`productVariants[${variantIndex}].variantPrice`}
+                                                            placeholder="Price"
+                                                            required
+                                                            className="form-control"
+                                                            style={{
+                                                              width: "100px",
+                                                            }}
+                                                          />
+
+                                                          <ErrorMessage
+                                                            name={`productVariants.${variantIndex}.variantPrice`}
+                                                            component="div"
+                                                            className="text-danger"
+                                                          />
+                                                        </div>
+                                                        <div>
+                                                          <Field
+                                                            type="number"
+                                                            name={`productVariants[${variantIndex}].variantDiscountedPrice`}
+                                                            placeholder="Discountde Price"
+                                                            required
+                                                            className="form-control"
+                                                            style={{
+                                                              width: "100px",
+                                                            }}
+                                                          />
+
+                                                          <ErrorMessage
+                                                            name={`productVariants.${variantIndex}.variantDiscountedPrice`}
+                                                            component="div"
+                                                            className="text-danger"
+                                                          />
+                                                        </div>
+                                                        <div className="">
+                                                          <Field
+                                                            type="number"
+                                                            name={`productVariants[${variantIndex}].variantStock`}
+                                                            placeholder="Stock"
+                                                            required
+                                                            className="form-control"
+                                                            style={{
+                                                              width: "100px",
+                                                            }}
+                                                          />
+
+                                                          <ErrorMessage
+                                                            name={`productVariants.${variantIndex}.variantStock`}
+                                                            component="div"
+                                                            className="text-danger"
+                                                          />
+                                                        </div>
                                                       </div>
                                                     </div>
-                                                    <div className="d-flex justify-content-between ms-2">
-                                                      <div>
-                                                        <Field
-                                                          type="number"
-                                                          name={`productVariants[${variantIndex}].variantPrice`}
-                                                          placeholder="Price"
-                                                          required
-                                                          className="form-control"
-                                                          style={{
-                                                            width: "100px",
-                                                          }}
-                                                        />
-
-                                                        <ErrorMessage
-                                                          name={`productVariants.${variantIndex}.variantPrice`}
-                                                          component="div"
-                                                          className="text-danger"
-                                                        />
-                                                      </div>
-                                                      <div>
-                                                        <Field
-                                                          type="number"
-                                                          name={`productVariants[${variantIndex}].variantDiscountedPrice`}
-                                                          placeholder="Discountde Price"
-                                                          required
-                                                          className="form-control"
-                                                          style={{
-                                                            width: "100px",
-                                                          }}
-                                                        />
-
-                                                        <ErrorMessage
-                                                          name={`productVariants.${variantIndex}.variantDiscountedPrice`}
-                                                          component="div"
-                                                          className="text-danger"
-                                                        />
-                                                      </div>
-                                                      <div className="">
-                                                        <Field
-                                                          type="number"
-                                                          name={`productVariants[${variantIndex}].variantStock`}
-                                                          placeholder="Stock"
-                                                          required
-                                                          className="form-control"
-                                                          style={{
-                                                            width: "100px",
-                                                          }}
-                                                        />
-
-                                                        <ErrorMessage
-                                                          name={`productVariants.${variantIndex}.variantStock`}
-                                                          component="div"
-                                                          className="text-danger"
-                                                        />
-                                                      </div>
-                                                    </div>
-                                                  </div>
-                                                )
-                                              )}
-                                            </>
-                                          )}
-                                        </FieldArray>
+                                                  )
+                                                )}
+                                              </>
+                                            )}
+                                          </FieldArray>
+                                        </div>
                                       </div>
-                                    </div>
-                                  )}
+                                    )}
                                 </>
                               </div>
                             </div>

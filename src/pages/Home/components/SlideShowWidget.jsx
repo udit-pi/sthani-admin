@@ -18,7 +18,8 @@ const SlideShowWidget = ({
   handleSelectIdChange,
   handleDestinationChange,
   brands,
-  formData
+  formData,
+  fetchedId
 }) => {
   // const imageBaseUrl = "http://localhost:3500/api/uploads/";
 
@@ -215,12 +216,13 @@ const SlideShowWidget = ({
                                     </div>
                                     <div className="col-md-4 mb-2 ms-4">
                                       <label className="form-label">ID:</label>
+                                    
                                       <Select
                                         name={`items.${index}.id`}
                                         options={destinationOptions}
-                                        value={destinationOptions.find(
-                                          (option) =>
-                                            option.value === values.items[index]?.id
+                                        value={destinationOptions.map(
+                                          (option) => fetchedId.find(id =>option.value === id)
+                                            
                                         )}
                                         onChange={(selectedOption) => {
                                           handleSelectIdChange(

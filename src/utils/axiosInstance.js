@@ -20,7 +20,7 @@ const axiosInstance = axios.create({
 });
 
 
-// Add an interceptor for all requests
+
 axiosInstance.interceptors.request.use(config => {
  
 
@@ -29,7 +29,7 @@ axiosInstance.interceptors.request.use(config => {
     const accessToken = user.tokens.access.token;
 
 
-    // Add the access token to the Authorization header
+   
     config.headers.Authorization = `Bearer ${accessToken}`;
 
     return config;

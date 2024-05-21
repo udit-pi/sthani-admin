@@ -75,6 +75,7 @@ export const addProductValidation = Yup.object({
   brand_id: Yup.string().required("Please select a brand"),
   weight: Yup.number().required("Please enter weight").positive(),
   price: Yup.number().required("Please enter price").positive(),
+  
   cost: Yup.number()
     .positive()
     .lessThan(Yup.ref("price"), "Cost must be less than price"),
@@ -87,7 +88,7 @@ export const addProductValidation = Yup.object({
         Yup.object().shape({
           label: Yup.string().required('Please select a label'),
           value: Yup.string().required('Please enter a value'),
-        }))
+        })),
 
   // variants: Yup.array()
   //   .of(
@@ -98,7 +99,7 @@ export const addProductValidation = Yup.object({
   //     })
   //   ).nullable().default([]),
 
-  //   optionName: Yup.string().required('Name is required'),
+    optionName: Yup.string().required('Name is required'),
   // options: Yup.array().of(
   //   Yup.object().shape({
   //     value: Yup.string().required('Option value is required'),
