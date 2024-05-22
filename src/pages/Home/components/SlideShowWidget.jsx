@@ -26,6 +26,27 @@ const SlideShowWidget = ({
   const imageBaseUrl = `${process.env.REACT_APP_MEDIA_URL}`;
   // const imageBaseUrl = `${process.env.REACT_APP_API_URL}/api/uploads/`;
 
+  const addNewItemAtTop = (push, values, setFieldValue) => {
+    // Create a new blank item
+    const newItem = {
+      image: '',
+      description: '',
+      tag: '',
+      brand: '',
+      destination: '',
+      id: '',
+    };
+
+    // Use push to add the new item (to trigger Formik state updates)
+    push(newItem);
+
+    // Reorder items so the new item is at the top
+    const newItemsArray = [newItem].concat(values.items);
+
+    // Set the reordered array back into Formik's state
+    setFieldValue('items', newItemsArray);
+  };
+
   return (
     <DragDropContext
       onDragEnd={(result) => onDragEnd(result, values, setFieldValue)}
@@ -43,10 +64,12 @@ const SlideShowWidget = ({
                         type="button"
                         className="btn  btn-dark mb-4 "
                         // style={{ width: "65px", height: "65px" }}
-                        onClick={() => {
-                          push({});
-                          handleAddItem(values, setFieldValue);
-                        }}
+                        // onClick={() => {
+                        //   // insert(0, {});
+                        //   push({});
+                        //   handleAddItem(values, setFieldValue);
+                        // }}
+                        onClick={() => addNewItemAtTop(push,values,setFieldValue )}
                       >
                         Add Item
                       </button>
@@ -85,6 +108,7 @@ const SlideShowWidget = ({
 
                                   <div className=" ms-4 mt-2">
                                     <button
+                                    typeof="button"
                                       className="btn ms-1"
                                       onClick={() => remove(index)}
                                     >
@@ -105,7 +129,7 @@ const SlideShowWidget = ({
 
                                 </div>
 
-                                <div className="middle-container  " style={{width:"70%"}}  >
+                                <div className="middle-container" style={{width:"70%"}}  >
                                   <div className="row">
                                     <div className="col-md-12 mt-2">
                                       <label className="form-label">
@@ -220,10 +244,10 @@ const SlideShowWidget = ({
                                       <Select
                                         name={`items.${index}.id`}
                                         options={destinationOptions}
-                                        value={destinationOptions.map(
-                                          (option) => fetchedId.find(id =>option.value === id)
+                                        // value={destinationOptions.map(
+                                        //   (option) => fetchedId.find(id =>option.value === id)
                                             
-                                        )}
+                                        // )}
                                         onChange={(selectedOption) => {
                                           handleSelectIdChange(
                                             `items.${index}.id`,

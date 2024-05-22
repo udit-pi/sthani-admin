@@ -18,6 +18,22 @@ const ProductWidget = ({
 
 }) => {
 
+  const addNewItemAtTop = (push, values, setFieldValue) => {
+    // Create a new blank item
+    const newItem = {
+    
+      product: '',
+     
+    };
+
+    
+    push(newItem);
+  
+    const newItemsArray = [newItem].concat(values.items);
+
+    setFieldValue('items', newItemsArray);
+    console.log(values.items)
+  };
 
   return (
     <DragDropContext
@@ -35,11 +51,12 @@ const ProductWidget = ({
                       <button
                         type="button"
                         className="btn  btn-dark mb-4"
-                        // style={{ width: "65px", height: "65px" }}
-                        onClick={() => {
-                          push({});
-                          handleAddItem(values, setFieldValue);
-                        }}
+                        style={{ width: "65px", height: "65px" }}
+                        // onClick={() => {
+                        //   push({});
+                        //   handleAddItem(values, setFieldValue);
+                        // }}
+                         onClick={() => addNewItemAtTop(push,values,setFieldValue )}
                       >
                         Add Item
                       </button>
@@ -75,6 +92,7 @@ const ProductWidget = ({
 
                                   <div className="  mt-2 ms-4">
                                     <button
+                                    type="button"
                                       className="btn  ms-1"
                                       onClick={() => remove(index)}
                                     >
@@ -96,11 +114,11 @@ const ProductWidget = ({
                                       </label>
                                       <Select
                                         options={productOptions}
-                                        value={productOptions.find(
-                                          (option) =>
-                                            option.value ===
-                                            (values.items[index]?.product)
-                                        )}
+                                        // value={productOptions.find(
+                                        //   (option) =>
+                                        //     option.value ===
+                                        //     (values.items[index]?.product)
+                                        // )}
                                         onChange={(selectedOption) => {
                                           handleSelectIdChange(
                                             `items.${index}.product`,

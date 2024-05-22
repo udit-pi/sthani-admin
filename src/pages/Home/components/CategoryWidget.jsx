@@ -22,6 +22,26 @@ const CategoryWidget = ({
 
   const imageBaseUrl = `${process.env.REACT_APP_MEDIA_URL}`;
   // console.log(process.env.REACT_APP_MEDIA_URL)
+
+  const addNewItemAtTop = (push, values, setFieldValue) => {
+    // Create a new blank item
+    const newItem = {
+    
+      category: '',
+      tag: '',
+      image: ''
+     
+    };
+
+   
+    push(newItem);
+
+  
+    const newItemsArray = [newItem].concat(values.items);
+
+   
+    setFieldValue('items', newItemsArray);
+  };
   return (
     <DragDropContext
       onDragEnd={(result) => onDragEnd(result, values, setFieldValue)}
@@ -39,10 +59,11 @@ const CategoryWidget = ({
                         type="button"
                         className="btn  btn-dark"
                         // style={{ width: "65px", height: "65px" }}
-                        onClick={() => {
-                          push({});
-                          handleAddItem(values, setFieldValue);
-                        }}
+                        // onClick={() => {
+                        //   push({});
+                        //   handleAddItem(values, setFieldValue);
+                        // }}
+                        onClick={() => addNewItemAtTop(push,values,setFieldValue )}
                       >
                         Add Item
                       </button>
@@ -82,6 +103,7 @@ const CategoryWidget = ({
 
                                     <div className="col-md-4 ms-4 mt-2">
                                       <button
+                                      type="button"
                                         className="btn ms-1 py-0 bg-transparent"
                                         onClick={() => remove(index)}
                                       >

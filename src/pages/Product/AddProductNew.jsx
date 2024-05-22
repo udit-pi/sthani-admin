@@ -153,13 +153,14 @@ const AddProductNew = () => {
           ...current,
           option.value,
         ]);
+        
       });
     };
 
     generateCombinations(options);
     setOptionsArray(options);
 
-    // console.log(combinedArray);
+     console.log(combinedArray);
     setVariants(combinedArray);
   }, [options]);
 
@@ -178,10 +179,11 @@ const AddProductNew = () => {
 
   const handleOptionDelete = (values, optionName) => {
     setOptions((prev) => prev.filter((opt) => opt.optionName !== optionName));
-
-    // Reset form or any other necessary state changes
+  
     values.optionName = "";
     values.options = [{}, {}, {}];
+    // console.log(values)
+    setVariants([]);
     setShowOptionForm(false);
     setShowOptions(true);
     setShowVariantOptions(true);
@@ -198,9 +200,9 @@ const AddProductNew = () => {
   const validateOptions = (values) => {
     const newErrors = values.options
       .map((opt, index) => {
-        console.log(opt)
-        if (opt.value === "" || opt === "" || Object.keys(opt).length === 0 ) {
-          console.log('inside')
+        console.log(opt);
+        if (opt.value === "" || opt === "" || Object.keys(opt).length === 0) {
+          console.log("inside");
           return {
             name: "options",
             index,
@@ -210,50 +212,97 @@ const AddProductNew = () => {
         return null;
       })
       .filter((error) => error !== null);
-  
+
     return newErrors;
   };
-
   const handleOptiondone = async (values, validateForm) => {
-    // setOptionErrors([]);
-   console.log(values.options)
+    console.log("Submitted values:", values.options);
+  
     const optionValidationErrors = validateOptions(values);
-
+  
     if (optionValidationErrors.length > 0) {
       setOptionErrors(optionValidationErrors);
       return;
     }
-     
-   
-      
-      setOptions((prev) => {
-        const index = prev.findIndex(
-          (opt) => opt.optionName === values.optionName
-        );
-        const newOption = {
-          optionName: values.optionName,
-          options: values.options,
-        };
   
-        if (index !== -1) {
-          const updatedOptions = [...prev];
-          updatedOptions[index] = newOption;
-          return updatedOptions;
-        } else {
-          return [...prev, newOption];
-        }
-      });
+    // Ensure optionName is trimmed to avoid mismatch due to extra spaces
+    values.optionName = values.optionName.trim();
   
-      values.optionName = "";
-      values.options = [];
-      setShowOptionForm(false);
-      setShowOptions(true);
-      setShowVariantOptions(true);
-      setOptionErrors([]);
-    
-    return null
-   
+    setOptions((prev) => {
+      console.log("Previous options:", prev);
+      console.log("Submitted values after trim:", values);
+  
+      const index = prev.findIndex(
+        (opt) => opt.optionName === values.optionName
+      );
+      console.log("Found index:", index);
+  
+      const newOption = {
+        optionName: values.optionName,
+        options: values.options,
+      };
+  
+      if (index !== -1) {
+        // Update existing option
+        return prev.map((opt, idx) => (idx === index ? newOption : opt));
+      } else {
+        // Add new option
+        return [...prev, newOption];
+      }
+    });
+  
+
+    setShowOptionForm(false);
+    setShowOptions(true);
+    setShowVariantOptions(true);
+    setOptionErrors([]);
+    setVariants([]);
+  
+ 
+    values.optionName = "";
+    values.options = [];
   };
+  
+
+
+  // const handleOptiondone = async (values, validateForm) => {
+  //   // setOptionErrors([]);
+  //   console.log(values.options);
+  //   const optionValidationErrors = validateOptions(values);
+
+  //   if (optionValidationErrors.length > 0) {
+  //     setOptionErrors(optionValidationErrors);
+  //     return;
+  //   }
+
+  //   setOptions((prev) => {
+  //     const index = prev.findIndex(
+  //       (opt) => opt.optionName === values.optionName
+  //     );
+  //     const newOption = {
+  //       optionName: values.optionName,
+  //       options: values.options,
+  //     };
+
+  //     if (index !== -1) {
+  //       const updatedOptions = [...prev];
+  //       updatedOptions[index] = newOption;
+  //       return updatedOptions;
+  //     } else {
+  //       return [...prev, newOption];
+  //     }
+  //   });
+  //   setShowOptionForm(false);
+  //   setShowOptions(true);
+  //   setShowVariantOptions(true);
+  //   setOptionErrors([]);
+
+  //   values.optionName = "";
+  //   values.options = [];
+    
+
+  //   // return null;
+  // };
 
   const getErrorMessage = (optionIndex) => {
     console.log(optionErrors);
@@ -261,14 +310,18 @@ const AddProductNew = () => {
     return error ? error.message : null;
   };
 
-  console.log("optionErrors:", optionErrors);
+  // console.log("optionErrors:", optionErrors);
   const handleVariantEdit = (values, setFieldValue, option) => {
+    console.log(option)
     setFieldValue("optionName", option.optionName);
+    // values.optionName = option.optionName
     option.options?.map((item, index) => {
-      setFieldValue(`options.${index}.value`, item.value);
+      setFieldValue(`options[${index}].value`, item.value);
+     
+      // values.options[index]?.value = item.value
     });
 
-    // setOptions(values.options)
+    //  setOptions(values.options)
     setShowOptionForm(true);
     setShowOptions(false);
     setShowVariantOptions(false);
@@ -305,7 +358,7 @@ const AddProductNew = () => {
                 <Formik
                   initialValues={initialValues}
                   validationSchema={addProductValidation}
-                  validateOnChange={true}
+                  validateOnChange={false}
                   validateOnBlur={true}
                   validateOnSubmit={true}
                   onSubmit={(values, errors) => {
@@ -390,55 +443,46 @@ const AddProductNew = () => {
                                     </div>
                                     {values.additional_descriptions?.map(
                                       (keyword, index) => (
-                                        <div
-                                          key={index}
-                                          className="d-flex justify-content-between mb-3"
-                                        >
-                                          <label htmlFor="value">Value:</label>
-                                          <Field
-                                            name={`additional_descriptions.${index}.value`}
-                                            className="form-control"
-                                            style={{
-                                              maxWidth: "300px",
-                                              maxHeight: "30px",
-                                            }}
-                                            required
-                                          />
+                                        <div key={index} className="mb-3">
                                           <div>
                                             <label htmlFor="label">
                                               Label:
                                             </label>
                                             <Field
-                                              as="select"
-                                              id="label"
                                               name={`additional_descriptions.${index}.label`}
-                                              placeholder="Select label"
-                                              required
-                                              //  className="form-select"
-                                            >
-                                              <option value="">
-                                                Select Label
-                                              </option>
-                                              <option value="banner">
-                                                Banner
-                                              </option>
-                                              <option value="hero">
-                                                Hero Image
-                                              </option>
-                                              {/* Add more options as needed */}
-                                            </Field>
+                                              className="form-control"
+                                             
+                                            />
                                             <ErrorMessage
                                               name="label"
                                               component="div"
                                             />
                                           </div>
+                                          <div className="mb-3">
+                                            <label
+                                              htmlFor="name"
+                                              className="form-label"
+                                            >
+                                              Text
+                                            </label>
+                                            <Field
+                                              name={`additional_descriptions.${index}.value`}
+                                              component={QuillEditor}
+                                            />
+                                            {errors.description && (
+                                              <small className="text-danger">
+                                                {errors.value}
+                                              </small>
+                                            )}
+                                          </div>
                                           <button
-                                            className="btn btn-sm btn-danger ms-1"
+                                            className="btn btn-sm btn-danger mt-5"
                                             onClick={() => remove(index)}
                                           >
                                             <span>
                                               <FontAwesomeIcon icon={faTrash} />
                                             </span>
+                                            Remove
                                           </button>
                                         </div>
                                       )
@@ -779,11 +823,11 @@ const AddProductNew = () => {
                                                     name="optionName"
                                                     aria-describedby="nameHelp"
                                                   ></Field>
-                                                 {errors.optionName && (
-                                  <small className="text-danger">
-                                    {errors.optionName}
-                                  </small>
-                                )}
+                                                  {errors.optionName && (
+                                                    <small className="text-danger">
+                                                      {errors.optionName}
+                                                    </small>
+                                                  )}
                                                 </div>
                                                 <div className="col-md-12 mt-2">
                                                   <label

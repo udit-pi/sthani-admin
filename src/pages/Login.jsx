@@ -53,6 +53,8 @@ const Login = () => {
                                         onSubmit={(values) => {
                                             userLogin(values);
                                         }}
+                                        validateOnBlur={true}
+                                        validateOnChange={false}
 
                                     >
                                         {({ errors }) => (

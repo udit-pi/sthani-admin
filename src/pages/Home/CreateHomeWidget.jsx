@@ -138,11 +138,11 @@ const CreateHomeWidget = () => {
 
     setSubmitting(false);
 
-    const res = await dispatch(addWidget(values)).unwrap();
-    if (res) {
-      toast.success("Widget created successfully!");
-      navigate("/homePage");
-    }
+    // const res = await dispatch(addWidget(values)).unwrap();
+    // if (res) {
+    //   toast.success("Widget created successfully!");
+    //   navigate("/homePage");
+    // }
   };
 
   const handleWidgetChange = async (e) => {
@@ -163,7 +163,7 @@ const CreateHomeWidget = () => {
 
   const handleAddItem = (values, setFieldValue) => {
     setShowSaveButton(true);
-    setItems(values.item);
+    setItems(values.items);
     // const newItems = [
     //   ...values.items,
     //   {
@@ -310,6 +310,8 @@ const CreateHomeWidget = () => {
             <Formik
               initialValues={initialValues}
               validationSchema={addWidgetValidation}
+              validateOnBlur={true}
+              validateOnChange={false}
               onSubmit={(values, { setSubmitting }) => {
                 handleSubmit(values, { setSubmitting });
               }}
@@ -395,7 +397,7 @@ const CreateHomeWidget = () => {
                      onChange={(e) => {
                       handleWidgetChange(e); 
                       setFieldValue('widget_type', e.target.value);
-                      setFieldValue('items', []);
+                      setFieldValue('items', [{}]);
                     }}
                     style={{ width: '50%' }}
                     >
