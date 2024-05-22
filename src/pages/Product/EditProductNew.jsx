@@ -632,6 +632,7 @@ const EditProductNew = () => {
                                             ></img>
                                             {/* <p>{image.label}</p> */}
                                             <button
+                                            type="button"
                                               className="btn btn-sm btn-danger mt-2"
                                               onClick={() =>
                                                 handleImageDelete(media.id)

@@ -99,7 +99,7 @@ export const addProductValidation = Yup.object({
   //     })
   //   ).nullable().default([]),
 
-    optionName: Yup.string().required('Name is required'),
+    // optionName: Yup.string().required('Name is required'),
   // options: Yup.array().of(
   //   Yup.object().shape({
   //     value: Yup.string().required('Option value is required'),
