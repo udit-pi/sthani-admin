@@ -57,9 +57,9 @@ const EditProductNew = () => {
   const [deletedImages, setDeletedImages] = useState([]);
   const [fetchedProductVariants, setFetchedProductVariants] = useState([]);
   const [showNewVariantForm, setShowNewVariantForm] = useState(false);
-  const [showOldVariantForm, setShowOldVariantForm] = useState(true);
+  const [showOldVariantForm, setShowOldVariantForm] = useState(false);
   const [oldOptions, setOldOptions] = useState([]);
-  const [showAddOptionButton, setShowAddOptionButton] = useState(false);
+  const [showAddOptionButton, setShowAddOptionButton] = useState(true);
   const [open, setOpen] = useState(false);
   const [deleteId, setdeleteId] = useState("");
   const [valuesArray, setValuesArray] = useState([]);
@@ -186,6 +186,9 @@ const EditProductNew = () => {
       files: [],
       options: [],
     };
+    if(res.product.productVariants.length >0) {
+      setShowOldVariantForm(true);
+    }
     setInitialValues(initialValues);
     setSelectedCat(res.product.categories);
     setFetchedProductVariants(res.product.productVariants);
@@ -522,91 +525,77 @@ const EditProductNew = () => {
                             </div>
 
                             <div className="card mb-3">
-                              <div className="card-body">
-                                <FieldArray name="additional_descriptions">
-                                  {({ push, remove }) => (
+                            <div className="card-body">
+                              <FieldArray name="additional_descriptions">
+                                {({ push, remove }) => (
+                                  <div>
                                     <div>
-                                      <div>
-                                        <label
-                                          htmlFor="additional_descriptions"
-                                          className="form-label mt-4"
-                                          style={{ marginRight: "10px" }}
-                                        >
-                                          Additional Descriptions
-                                        </label>
-                                      </div>
-                                      {values.additional_descriptions?.map(
-                                        (keyword, index) => (
-                                          <div
-                                            key={index}
-                                            className="d-flex justify-content-between mb-3"
-                                          >
-                                            <label htmlFor="value">
-                                              Value:
+                                      <label
+                                        htmlFor="additional_descriptions"
+                                        className="form-label mt-4"
+                                        style={{ marginRight: "10px" }}
+                                      >
+                                        Additional Descriptions
+                                      </label>
+                                    </div>
+                                    {values.additional_descriptions?.map(
+                                      (keyword, index) => (
+                                        <div key={index} className="mb-3">
+                                          <div>
+                                            <label htmlFor="label">
+                                              Label:
+                                            </label>
+                                            <Field
+                                              name={`additional_descriptions.${index}.label`}
+                                              className="form-control"
+                                             
+                                            />
+                                            <ErrorMessage
+                                              name="label"
+                                              component="div"
+                                            />
+                                          </div>
+                                          <div className="mb-3">
+                                            <label
+                                              htmlFor="name"
+                                              className="form-label"
+                                            >
+                                              Text
                                             </label>
                                             <Field
                                               name={`additional_descriptions.${index}.value`}
-                                              className="form-control"
-                                              style={{
-                                                maxWidth: "300px",
-                                                maxHeight: "30px",
-                                              }}
-                                              required
+                                              component={QuillEditor}
                                             />
-                                            <div>
-                                              <label htmlFor="label">
-                                                Label:
-                                              </label>
-                                              <Field
-                                                as="select"
-                                                id="label"
-                                                name={`additional_descriptions.${index}.label`}
-                                                placeholder="Select label"
-                                                required
-                                                //  className="form-select"
-                                              >
-                                                <option value="">
-                                                  Select Label
-                                                </option>
-                                                <option value="banner">
-                                                  Banner
-                                                </option>
-                                                <option value="hero">
-                                                  Hero Image
-                                                </option>
-                                                {/* Add more options as needed */}
-                                              </Field>
-                                              <ErrorMessage
-                                                name="label"
-                                                component="div"
-                                              />
-                                            </div>
-                                            <button
-                                              className="btn btn-sm btn-danger ms-1"
-                                              onClick={() => remove(index)}
-                                            >
-                                              <span>
-                                                <FontAwesomeIcon
-                                                  icon={faTrash}
-                                                />
-                                              </span>
-                                            </button>
+                                            {errors.description && (
+                                              <small className="text-danger">
+                                                {errors.value}
+                                              </small>
+                                            )}
                                           </div>
-                                        )
-                                      )}
-                                      <button
-                                        type="button"
-                                        className="btn btn-sm btn-dark mt-2"
-                                        onClick={() => push("")}
-                                      >
-                                        Add descriptions
-                                      </button>
-                                    </div>
-                                  )}
-                                </FieldArray>
-                              </div>
+                                          <button
+                                            className="btn btn-sm btn-danger mt-5"
+                                            onClick={() => remove(index)}
+                                          >
+                                            <span>
+                                              <FontAwesomeIcon icon={faTrash} />
+                                            </span>
+                                            Remove
+                                          </button>
+                                        </div>
+                                      )
+                                    )}
+                                    <button
+                                      type="button"
+                                      className="btn btn-sm btn-dark mt-2"
+                                      onClick={() => push("")}
+                                    >
+                                      Add descriptions
+                                    </button>
+                                  </div>
+                                )}
+                              </FieldArray>
                             </div>
-
+                          </div>
                             <div className="card mb-3">
                               <div className="card-body">
                                 <div className="mb-3">
@@ -1170,6 +1159,7 @@ const EditProductNew = () => {
                                   )}
 
                                   <>
+                         
                                     {showOldVariantForm && (
                                       <div className="card mb-3">
                                         <div className="card-body">

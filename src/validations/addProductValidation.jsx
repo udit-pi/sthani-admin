@@ -65,15 +65,15 @@ export const addProductValidation = Yup.object({
   // productVariant: Yup.array().nullable().transform(transformProductVariant).of(productVariantSchema),
   
   name: Yup.string().required("Please enter product name"),
-  sku: Yup.string().required('Please enter this field'),
-  // short_description: Yup.string().required("Please enter short description"),
-  description: Yup.string().nullable(),
-  published: Yup.string(),
-  category: Yup.array()
-    .min(1, "At least one option is required")
-    .required("This field is required"),
-  brand_id: Yup.string().required("Please select a brand"),
-  weight: Yup.number().required("Please enter weight").positive(),
+  // sku: Yup.string().required('Please enter this field'),
+  // // short_description: Yup.string().required("Please enter short description"),
+  // description: Yup.string().nullable(),
+  // published: Yup.string(),
+  // category: Yup.array()
+  //   .min(1, "At least one option is required")
+  //   .required("This field is required"),
+  // brand_id: Yup.string().required("Please select a brand"),
+  // weight: Yup.number().required("Please enter weight").positive(),
   price: Yup.number().required("Please enter price").positive(),
   
   cost: Yup.number()
@@ -83,12 +83,12 @@ export const addProductValidation = Yup.object({
     .positive()
     .lessThan(Yup.ref("price"), "Discounted price must be less than price"),
 
-    additional_descriptions: Yup.array()
-      .of(
-        Yup.object().shape({
-          label: Yup.string().required('Please select a label'),
-          value: Yup.string().required('Please enter a value'),
-        })),
+    // additional_descriptions: Yup.array()
+    //   .of(
+    //     Yup.object().shape({
+    //       label: Yup.string().required('Please select a label'),
+    //       value: Yup.string().required('Please enter a value'),
+    //     })),
 
   // variants: Yup.array()
   //   .of(

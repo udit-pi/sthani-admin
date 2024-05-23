@@ -19,6 +19,26 @@ const FeaturedCategories = ({
   featuredCategoryProducts,
   categories,
 }) => {
+
+  const addNewItemAtTop = (push, values, setFieldValue) => {
+    // Create a new blank item
+    const newItem = {
+    
+      category: '',
+      products: [],
+      tag: '',
+      description: ''
+    };
+
+    
+    push(newItem);
+  
+    const newItemsArray = [newItem].concat(values.items);
+
+    setFieldValue('items', newItemsArray);
+    console.log(values.items)
+  };
+
   return (
     <DragDropContext
       onDragEnd={(result) => onDragEnd(result, values, setFieldValue)}
@@ -36,10 +56,11 @@ const FeaturedCategories = ({
                         type="button"
                         className="btn  btn-dark mb-4"
                         // style={{ width: "65px", height: "65px" }}
-                        onClick={() => {
-                          push({});
-                          handleAddItem(values, setFieldValue);
-                        }}
+                        // onClick={() => {
+                        //   push({});
+                        //   handleAddItem(values, setFieldValue);
+                        // }}
+                        onClick={() => addNewItemAtTop(push,values,setFieldValue )}
                       >
                         Add Item
                       </button>
@@ -76,6 +97,7 @@ const FeaturedCategories = ({
 
                               <div className="  mt-2 ms-4">
                                   <button
+                                  type="button"
                                     className="btn  ms-1"
                                     onClick={() => remove(index)}
                                   >

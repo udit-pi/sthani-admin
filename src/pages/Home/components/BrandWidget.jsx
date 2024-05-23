@@ -17,6 +17,23 @@ const BrandWidget = ({
 
 }) => {
 
+  const addNewItemAtTop = (push, values, setFieldValue) => {
+    // Create a new blank item
+    const newItem = {
+    
+      brand: '',
+     
+    };
+
+    
+    push(newItem);
+
+   
+    const newItemsArray = [newItem].concat(values.items);
+
+  
+    setFieldValue('items', newItemsArray);
+  };
     
   return (
     <DragDropContext
@@ -35,10 +52,11 @@ const BrandWidget = ({
                         type="button"
                         className="btn  btn-dark mb-4"
                         // style={{ width: "65px", height: "65px" }}
-                        onClick={() => {
-                          push({});
-                          handleAddItem(values, setFieldValue);
-                        }}
+                        // onClick={() => {
+                        //   push({});
+                        //   handleAddItem(values, setFieldValue);
+                        // }}
+                        onClick={() => addNewItemAtTop(push,values,setFieldValue )}
                       >
                         Add Item
                       </button>
