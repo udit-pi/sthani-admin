@@ -15,7 +15,7 @@ import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import { fetchAllProducts } from "../../features/product/productSlice";
 import { Grow } from "@mui/material";
-import { fetchBrandById, getBrand } from "../../features/brand/brandSlice";
+import { fetchAllBrands, fetchBrandById, getBrand } from "../../features/brand/brandSlice";
 
 const mediaFolder = process.env.REACT_APP_MEDIA_URL ;
 
@@ -33,7 +33,7 @@ const Product = () => {
   // console.log(allCategories)
   const fetchProducts = async () => {
     const res = await dispatch(fetchAllProducts()).unwrap();
-    // console.log(res)
+    console.log(res)
     // const id = res.brand_id
     // const brand = await dispatch(fetchBrandById({id })).unwrap()
     //  setBrand(brand);
@@ -76,7 +76,41 @@ const Product = () => {
   // filteredCategories.forEach((cat, index) => {
   //   cat.serial = index + 1;
   // });
+const [brands,setbrands]=useState([])
+const [category,setcategory]=useState([])
 
+  const fetchBrand = async () => {
+    const res = await dispatch(fetchAllBrands()).unwrap();
+    //  console.log(res)
+    setbrands(res);
+   
+  };
+  const fetchCategory = async () => {
+    const res = await dispatch(fetchAllCategories()).unwrap();
+     console.log(res)
+     setcategory(res);
+   
+  };
+
+  useEffect(() => {
+    fetchBrand();
+    fetchCategory()
+  }, [dispatch]);
+  const getBrandName = (brandId) => {
+
+    const brand = brands.find((b) => b.id == brandId);
+
+    return brand ? brand.name : 'Unknown';
+  };
+
+ 
+  const getCategoryNames = (categoryIds) => {
+    const names = categoryIds.map(id => {
+      const categories = category.find(cat => cat.id === id);
+      return categories ? categories.name : 'Unknown';
+    });
+    return names.join(', ');
+  };
   const columns = [
     // {
     //   name: "Id",
@@ -114,9 +148,15 @@ const Product = () => {
     // },
     {
       name: "Brand",
-      selector: (row) =>  row.brand_id,
+      selector: (row) =>getBrandName(row.brand_id) ,
       sortable: true,
       grow:2,
+    },
+    {
+      name: 'Category',
+      selector: (row) => getCategoryNames(row.categories),
+      sortable: true,
+      grow: 2,
     },
     {
       name: "Price",

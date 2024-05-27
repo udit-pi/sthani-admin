@@ -263,14 +263,14 @@ const EditProductNew = () => {
     console.log(values);
     console.log(mediaItems);
     //  console.log(errors)
-    // const res = await dispatch(updateProduct({ id, values })).unwrap();
-    // if (res.status === 200) {
-    //   toast.success("Product updated successfully!");
-    //   navigate("/product");
-    // }
-    // if (res.status === 400) {
-    //   toast.error(res.message);
-    // }
+    const res = await dispatch(updateProduct({ id, values })).unwrap();
+    if (res.status === 200) {
+      toast.success("Product updated successfully!");
+      navigate("/product");
+    }
+    if (res.status === 400) {
+      toast.error(res.message);
+    }
   };
 
   useEffect(() => {
