@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Formik, Form, Field, FieldArray, ErrorMessage } from "formik";
+import {
+  Formik,
+  Form,
+  Field,
+  FieldArray,
+  ErrorMessage,
+  useFormik,
+} from "formik";
 import { Link, useNavigate } from "react-router-dom";
 import Layout from "../../components/layouts/Layout";
 import QuillEditor from "../../components/Editor";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash, faUpload } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faTrash, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import MultiSelectDropdown from "../../components/MultiSelectDropDown";
 import MultipleKeywordInput from "../../components/MultipleKeywordInput";
@@ -18,46 +25,61 @@ import { fetchAllBrands } from "../../features/brand/brandSlice";
 import { fetchAllProperties } from "../../features/properties/propertySlice";
 import { addProduct } from "../../features/product/productSlice";
 import { FaArrowLeft } from "react-icons/fa";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import ObjectId from 'bson-objectid';
 
-const AddProduct = () => {
-    const dispatch = useDispatch();
-     const navigate = useNavigate()
+const AddProductNew = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [categories, setCategories] = useState([]);
   const [catOption, setCatOption] = useState([]);
   const [brandOption, setBrandOption] = useState([]);
   const [selectedVariants, setSelectedVariants] = useState([]);
-  const [showVariant, setShowVariant] = useState(false);
-  const [addedVariants, setAddedVariants] = useState([]);
-  const [variantOptions, setVariantOptions] = useState([]);
-  const [filePreviews, setFilePreviews] = useState([]);
-  const [showVariantField, setShowVariantField] = useState(false);
-  const [variantErrors, setVariantErrors] = useState(true);
-  const [propertyOption, setPropertyOption] = useState([]);
-  const [showVariantPills, setShowVariantPills] = useState(false);
-  const [showDone, setShowDone] = useState(false);
-  const [images, setImages] = useState([]);
 
+  const [propertyOption, setPropertyOption] = useState({});
+
+  const [images, setImages] = useState([]);
+  const [options, setOptions] = useState([]);
+  const [showOptionForm, setShowOptionForm] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
+  const [showVariants, setShowVariants] = useState(false);
+  const [variants, setVariants] = useState([]);
+  const [optionErrors, setOptionErrors] = useState([]);
+  const [optionsArray, setOptionsArray] = useState([]);
+  const [showVariantOptions, setShowVariantOptions] = useState(false);
+  const [mediaItems, setMediaItems] = useState([]);
+  const [showAddOptionButton, setShowAddOptionButton] = useState(false);
+  const [showVariant,setShowVariant] = useState(false);
+  const [forceUpdate, setForceUpdate] = useState(false);
+
+
+  const generateVariantId = () => {
+    return ObjectId().toString();
+  };
   // const brandOptions = []
   const catOptions = [];
 
+  const formik = useFormik({});
   const initialValues = {
     name: "",
-    description: "",
+    // description: "",
     // field: "",
-    variants: [],
-    productVariant: [],
+    // variants: [],
+    productVariants: [],
     // options: [
     //   { name: "Size", values: [] },
     //   { name: "Color", values: [] },
     // ],
     files: [],
     // variantImages: []
-    
+
     // variants: [
     //   { name: "", options: [] },
 
     // ],
+    options: [{ value: "" }, { value: "" }, { value: "" }],
+    additional_descriptions: [],
   };
 
   const fetchCategory = async () => {
@@ -98,293 +120,273 @@ const AddProduct = () => {
   };
 
   const handleSubmit = async (values, errors) => {
-    const mergedArray = values.productVariant.map((variant, index) => ({
-      ...variant,
-      image: images[index] ,
-      variantName: selectedVariants[index]
-      // variantName: selectedVariants[index]// Assuming images is an array of image objects or URLs
-    }));
+    // console.log(errors);
+
+    // console.log(images);
+    // console.log(variants);
+
+    // const mergedArray = values.productVariants?.map((variant, index) => ({
+    //   ...variant,
+
+    //   image: mediaItems[index],
+    //   variantName: variants[index],
+    //   // variantOption: options[index].optionName
+    //   // variantName: selectedVariants[index]// Assuming images is an array of image objects or URLs
+    // }));
     // values.variantImages = images
-    values.productVariant = mergedArray
 
-    if(typeof values?.meta_keywords === 'string' ) {
-      const metaKeyword =  values?.meta_keywords?.split(', ');
-      values.meta_keywords = metaKeyword
-    }
+    // values.productVariants = mergedArray;
+    values.options = optionsArray;
+    values.mediaItems = mediaItems
 
-    // if(values.allow_out_of_stock_purchase === "true") {
-    //   values.allow_out_of_stock_purchase = true
-    // } else {
-    //   values.allow_out_of_stock_purchase = false
-    // }
-   
-    // console.log(mergedArray)
-   
-     console.log(errors);
-    // console.log(selectedVariants);
-    // console.log(images)
-     console.log(values)
+    console.log(values);
+
     //  console.log(errors)
-    const res = await dispatch(addProduct({values})).unwrap();
-    if(res) {
-      toast.success('Product created successfully!')
-      navigate('/product')
+     const res = await dispatch(addProduct({ values })).unwrap();
+    if (res.status === 201) {
+       console.log(res.product);
+      toast.success("Product created successfully!");
+      navigate(`/product`);
+    }
+    if (res.status === 400) {
+      toast.error(res.message);
     }
   };
 
-  const handleVariantSubmission = (values, errors) => {
-    //  console.log(errors);
-    
-    setShowDone(true);
-    if (errors.variants) {
-      setVariantErrors(true);
-    } else {
-      setVariantErrors(false);
-    }
-    console.log(values.variants);
-    console.log(addedVariants);
-    // selectedVariants.map((variant,index) =>   )
-    const filteredVariants = values.variants.filter((variant) => {
-      // Check if variant name exists in addedVariants
-      // if(variant.name === 'Custom') {
-      //   return !addedVariants.some(addedVariant => addedVariant.name === variant.customName);
-      // }
-      // return !addedVariants.some(addedVariant => addedVariant.name === variant.name);
-
-      // if (variant) {
-      //   // Check if the variant with the same name already exists in addedVariants
-
-      //   const variantExists = addedVariants.some(property => property.name === variant.name || (variant.name === "Custom" && variant.customName === property.name));
-      //   console.log(variantExists)
-      //   if (!variantExists) {
-      //     console.log(variant);
-      //     if(variant.name === 'Custom') {
-      //       let updatedOptions = [...variant.options];
-      //       setAddedVariants([...addedVariants, { name: variant.customName, options: updatedOptions }]);
-      //     } else {
-      //       setAddedVariants([...addedVariants, { name: variant.name, options: variant.options }]);
-      //     }
-
-      //   } else {
-      //     console.log("Variant already exists:", variant.name);
-      //     // Handle the case where the variant already exists, such as showing an error message
-      //   }
-      // }
-
-      if (variant) {
-        // Check if the variant with the same name already exists in addedVariants
-        const existingVariantIndex = addedVariants.findIndex(
-          (property) =>
-            property.name === variant.name ||
-            (variant.name === "Custom" && variant.customName === property.name)
-        );
-        if (existingVariantIndex === -1) {
-          // Variant does not exist, add it to addedVariants
-          let newVariant;
-          if (variant.name === "Custom") {
-            newVariant = {
-              name: variant.customName,
-              options: [...variant.options],
-            };
-          } else {
-            newVariant = { name: variant.name, options: [...variant.options] };
-          }
-          setAddedVariants([...addedVariants, newVariant]);
-        } else {
-          // Variant already exists, update its options
-          const updatedVariants = addedVariants.map((variantItem, index) => {
-            if (index === existingVariantIndex) {
-              const mergedOptions = [
-                ...new Set([...variantItem.options, ...variant.options]),
-              ];
-              return { ...variantItem, options: mergedOptions };
-            }
-            return variantItem;
-          });
-          setAddedVariants(updatedVariants);
-        }
-      } else {
-        console.log("Variant is invalid:", variant);
-        // Handle the case where the variant is invalid, such as showing an error message
-      }
-    });
-    // console.log(filteredVariants)
-    // setAddedVariants([...addedVariants, ...filteredVariants]);
-    // setAddedVariants(prevAddedVariants => [...prevAddedVariants, ...filteredVariants]);
-    // setAddedVariants(updatedVariants)
-    // console.log(addedVariants)
-    //   setAddedVariants([...addedVariants, ...filteredVariants]);
-    //  console.log(addedVariants)
-
-    // setShowVariantPills(true)
-    // console.log(addedVariants)
-
-    // const variantNames = [];
-    //   console.log(selectedVariants);
-    //   const options = addedVariants?.map((variant) => variant.options);
-
-    //   const generateVariantNames = (currentIndex, currentName) => {
-    //     if (currentIndex === addedVariants.length) {
-    //       variantNames.push(currentName.trim());
-    //     } else {
-    //       options[currentIndex].forEach((option) => {
-    //         const newName = currentName + option + " ";
-    //         generateVariantNames(currentIndex + 1, newName);
-    //       });
-    //     }
-    //   };
-    //   generateVariantNames(0, "");
-    //   //  console.log(values.variant)
-    //   const addedVariantOptions = [];
-    //   addedVariants?.map((variant) => {
-    //     variant.options?.map((option) => {
-    //       // console.log(option)
-    //       addedVariantOptions.push(option);
-    //     });
-    //   });
-
-    //   setVariantOptions(addedVariantOptions);
-    //   setSelectedVariants(variantNames);
-
-    setShowVariant(true);
-  };
-
-  // useEffect to perform actions dependent on addedVariants
   useEffect(() => {
-    const variantNames = [];
-    // console.log(addedVariants);
-    const options = addedVariants?.map((variant) => variant.options);
-
-    const generateVariantNames = (currentIndex, currentName) => {
-      if (currentIndex === addedVariants.length) {
-        variantNames.push(currentName.trim());
-      } else {
-        options[currentIndex].forEach((option) => {
-          const newName = currentName + option + " ";
-          generateVariantNames(currentIndex + 1, newName);
-        });
+    const combinedArray = [];
+    const generateCombinations = (optionsArray, index = 0, current = []) => {
+      if (index === optionsArray.length) {
+        combinedArray.push(current.join("-"));
+        return;
       }
-    };
-    generateVariantNames(0, "");
-    //  console.log(values.variant)
-    const addedVariantOptions = [];
-    addedVariants?.map((variant) => {
-      variant.options?.map((option) => {
-        // console.log(option)
-        addedVariantOptions.push(option);
-      });
-    });
 
-    setVariantOptions(addedVariantOptions);
-    setSelectedVariants(variantNames);
-  }, [addedVariants]);
-
-  const renderVariantsByGroup = (groupName) => {
-    return selectedVariants
-      .filter((variant) => variant.name === groupName)
-      .map((variant, index) => (
-        <li key={index}>
-          <strong>{variant.customName || variant.name}</strong>:{" "}
-          {variant.options.join(", ")}
-        </li>
-      ));
-  };
-
-  // console.log(showVariant);
-  //  console.log(selectedVariants);
-
-  const generateVariantName = (selectedOptions) => {
-    return selectedOptions?.map((option) => option.values?.join(" ")).join(" ");
-  };
-
-  const handleReset = () => {
-    setShowVariant(false);
-    // console.log()
-  };
-
-  // console.log(addedVariants);
-
-  const removeOption = (option) => {
-    const deleteVariants = [];
-    const filteredVariants = selectedVariants?.filter(
-      (variant) => !variant.includes(option)
-    );
-
-    const filteredOptions = variantOptions?.filter(
-      (variantOption) => !variantOption.includes(option)
-    );
-    // console.log(filteredOptions);
-    setSelectedVariants(filteredVariants);
-    // setAddedVariants(filteredAddedVariants)
-    setVariantOptions(filteredOptions);
-  };
-
-  const handleSelectChange = (e, index) => {
-    // e.preventDefault();
-
-    // console.log(e.target.value);
-    // console.log(propertyOption)
-    setShowDone(true);
-    const variant = propertyOption?.find(
-      (property) => property.name === e.target.value
-    );
-
-    if (variant) {
-      // Check if the variant with the same name already exists in addedVariants
-      const variantExists = addedVariants.some(
-        (property) =>
-          property.name === variant.name ||
-          (property.name === "Custom" && property.customName === variant.name)
-      );
-
-      if (!variantExists) {
-        // console.log(variant);
-        setAddedVariants([
-          ...addedVariants,
-          { name: variant.name, options: variant.options },
+      options[index].options?.forEach((option) => {
+        generateCombinations(optionsArray, index + 1, [
+          ...current,
+          option.value,
         ]);
-      } else {
-        console.log("Variant already exists:", variant.name);
-        // Handle the case where the variant already exists, such as showing an error message
-      }
-    }
+      });
+    };
 
-    // console.log(addedVariants);
-    //  setShowVariant(true);
-  };
-               
-  const handleVariantDelete = (values, index) => {
-    // console.log(index)
-    setAddedVariants((prevVariants) =>
-      prevVariants.filter((_, i) => i !== index)
-    );
-    // setAddedVariants(values.variants)
-  };
+    generateCombinations(options);
+    setOptionsArray(options);
 
-  const handleFileChange = (e, index) => {
-    const selectedFile = e.target.files[0];
-    
-    // Update the images state with the selected file for the specific row
-    const updatedImages = [...images];
-    updatedImages[index] = selectedFile;
-    setImages(updatedImages);
-  };
+    console.log(combinedArray);
+    setVariants(combinedArray);
+  }, [options]);
+
+  // const handleFileChange = (e, index) => {
+  //   const selectedFile = e.target.files[0];
+
+  //   // Update the images state with the selected file for the specific row
+  //   const updatedImages = [...mediaItems];
+  //   updatedImages[index] = selectedFile;
+  //   setMediaItems(updatedImages);
+  // };
 
   const goBack = () => {
     window.history.back();
   };
 
+  const handleOptionDelete = (values, optionName) => {
+    setOptions((prev) => prev.filter((opt) => opt.optionName !== optionName));
+
+    values.optionName = "";
+    values.options = [{}, {}, {}];
+    // console.log(values)
+    setVariants([]);
+    setShowOptionForm(false);
+    setShowOptions(true);
+    setShowVariantOptions(true);
+    setOptionErrors([]);
+  };
+
+  useEffect(() => {
+    if (optionErrors.length === 0) {
+      setShowOptions(true);
+      setShowVariantOptions(true);
+    }
+  }, [optionErrors]);
+
+  const validateOptions = (values) => {
+    const newErrors = values.options
+      .map((opt, index) => {
+        console.log(opt);
+        if (opt.value === "" || opt === "" || Object.keys(opt).length === 0) {
+          console.log("inside");
+          return {
+            name: "options",
+            index,
+            message: "This field is required",
+          };
+        }
+        return null;
+      })
+      .filter((error) => error !== null);
+
+    return newErrors;
+  };
+  const handleOptiondone = async (values, validateForm) => {
+    console.log("Submitted values:", values.options);
+
+    const optionValidationErrors = validateOptions(values);
+
+    if (optionValidationErrors.length > 0) {
+      setOptionErrors(optionValidationErrors);
+      return;
+    }
+
+    // Ensure optionName is trimmed to avoid mismatch due to extra spaces
+    values.optionName = values.optionName.trim();
+
+    setOptions((prev) => {
+      console.log("Previous options:", prev);
+      console.log("Submitted values after trim:", values);
+
+      const index = prev.findIndex(
+        (opt) => opt.optionName === values.optionName
+      );
+      console.log("Found index:", index);
+
+      const newOption = {
+        optionName: values.optionName,
+        options: values.options,
+      };
+
+      if (index !== -1) {
+        // Update existing option
+        return prev.map((opt, idx) => (idx === index ? newOption : opt));
+      } else {
+        // Add new option
+        return [...prev, newOption];
+      }
+    });
+
+    setShowOptionForm(false);
+    setShowOptions(true);
+    setShowVariantOptions(true);
+    setOptionErrors([]);
+    setVariants([]);
+
+    values.optionName = "";
+    values.options = [];
+  };
+
+  const getErrorMessage = (optionIndex) => {
+    console.log(optionErrors);
+    const error = optionErrors.find((err) => err.index === optionIndex);
+    return error ? error.message : null;
+  };
+
+  // console.log("optionErrors:", optionErrors);
+  const handleVariantEdit = (values, setFieldValue, option) => {
+    console.log(option);
+    setFieldValue("optionName", option.optionName);
+    // values.optionName = option.optionName
+    option.options?.map((item, index) => {
+      setFieldValue(`options[${index}].value`, item.value);
+
+      // values.options[index]?.value = item.value
+    });
+
+    //  setOptions(values.options)
+    setShowOptionForm(true);
+    setShowOptions(false);
+    setShowVariantOptions(false);
+  };
+
+  const onDragEnd = (result, values, setFieldValue) => {
+    if (!result.destination) return;
+
+    const reorderedOptions = Array.from(options);
+    const [movedOption] = reorderedOptions.splice(result.source.index, 1);
+    reorderedOptions.splice(result.destination.index, 0, movedOption);
+
+    console.log("Original options:", options);
+    console.log("Reordered options:", reorderedOptions);
+    setOptions(reorderedOptions);
+    values.productVariants = [];
+    setFieldValue("productVariants", []);
+    // setFieldValue('options', reorderedOptions);
+    setTimeout(() => {
+      console.log("ProductVariants after reset:", values.productVariants);
+    }, 0);
+    setVariants([]);
+    setForceUpdate((prev) => !prev);
+  };
+
+  const handleImageDragEnd = (result, values, setFieldValue) => {
+    if (!result.destination) return;
+
+    const reorderedImages = Array.from(mediaItems);
+    const [movedImage] = reorderedImages.splice(result.source.index, 1);
+    reorderedImages.splice(result.destination.index, 0, movedImage);
+
+    setMediaItems(reorderedImages);
+  };
+  const handleMediaRemoveImage = (fileName) => {
+    const updatedMediaItems = mediaItems.filter(
+      (item) => item.file_name !== fileName
+    );
+    setMediaItems(updatedMediaItems);
+  };
+
+  const handleMediaFileChange = (e) => {
+    const newFiles = Array.from(e.target.files).map((file) => ({
+      file_name: file.name,
+      file_size: file.size,
+      file_type: file.type,
+      file: file,
+      variant_id: "",
+      preview: URL.createObjectURL(file),
+     
+    }));
+    setMediaItems([...mediaItems, ...newFiles]);
+   
+  };
+
+  const handleFileChange = (e, index) => {
+    const selectedFile = e.target.files[0];
+
+    // Create a new media item with the selected file
+    const newMediaItem = {
+      file_name: selectedFile.name,
+      file_size: selectedFile.size,
+      file_type: selectedFile.type,
+      file: selectedFile,
+      variant_id: index,
+      preview: URL.createObjectURL(selectedFile),
+    };
+
+    // Update the mediaItems state by adding the new media item or replacing the existing one for the variant
+    const updatedMediaItems = [...mediaItems];
+    updatedMediaItems[index] = newMediaItem;
+
+    setMediaItems(updatedMediaItems);
+  };
+
+  const handleRemoveImage = (index) => {
+    const updatedMediaItems = [...mediaItems];
+    updatedMediaItems.splice(index, 1);
+    setMediaItems(updatedMediaItems);
+  };
+
   return (
     <Layout>
       <div className="col-12 stretch-card container-fluid">
-      
-          
-      <div style={{ marginBottom: '30px', display: "flex", alignItems: "center", gap: "20px", color: '#D93D6E' }}>
+        <div
+          style={{
+            marginBottom: "30px",
+            display: "flex",
+            alignItems: "center",
+            gap: "20px",
+            color: "#D93D6E",
+          }}
+        >
           <FaArrowLeft size={20} cursor="pointer" onClick={goBack} />
           <h2 className="heading">Add Product</h2>
         </div>
-      
-      
 
         <div
           className="page-wrapper"
@@ -401,9 +403,9 @@ const AddProduct = () => {
                 <Formik
                   initialValues={initialValues}
                   validationSchema={addProductValidation}
-                  // validateOnChange={true}
-                  // validateOnBlur={true}
-                  // validateOnSubmit={true}
+                  validateOnChange={false}
+                  validateOnBlur={true}
+                  validateOnSubmit={true}
                   onSubmit={(values, errors) => {
                     // console.log(errors);
                     handleSubmit(values, errors);
@@ -415,6 +417,7 @@ const AddProduct = () => {
                     setFieldValue,
                     isValid,
                     isSubmitting,
+                    validateForm,
                   }) => (
                     <Form>
                       <div className="row">
@@ -423,7 +426,7 @@ const AddProduct = () => {
                             <div className="card-body">
                               <div className="mb-3">
                                 <label htmlFor="name" className="form-label">
-                                  Name
+                                  Name <span className="text-danger">*</span>
                                 </label>
                                 <Field
                                   type="name"
@@ -438,7 +441,7 @@ const AddProduct = () => {
                                   </small>
                                 )}
                               </div>
-                            
+
                               <div className="mb-3">
                                 <label htmlFor="name" className="form-label">
                                   Short Description
@@ -468,62 +471,61 @@ const AddProduct = () => {
                               </div>
                             </div>
                           </div>
+
                           <div className="card mb-3">
                             <div className="card-body">
-                              <div className="mb-3">
-                                <label
-                                  htmlFor="meta_title"
-                                  className="form-label"
-                                >
-                                  Meta Title
-                                </label>
-                                <Field
-                                  type="name"
-                                  className="form-control"
-                                  id="meta_title"
-                                  name="meta_title"
-                                  aria-describedby="nameHelp"
-                                ></Field>
-                                {errors.meta_title && (
-                                  <small className="text-danger">
-                                    {errors.meta_title}
-                                  </small>
-                                )}
-                              </div>
-                              <div className="mb-3">
-                                <label
-                                  htmlFor="meta_description"
-                                  className="form-label"
-                                >
-                                  Meta Description
-                                </label>
-                                <Field
-                                  name="meta_description"
-                                  component={QuillEditor}
-                                />
-                              </div>
-                              {/* <FieldArray name="meta_keywords">
+                              <FieldArray name="additional_descriptions">
                                 {({ push, remove }) => (
                                   <div>
-                                    <label
-                                      htmlFor="meta_keywords"
-                                      className="form-label"
-                                      style={{ marginRight: "10px" }}
-                                    >
-                                      Meta Keywords
-                                    </label>
-                                    {values.meta_keywords?.map(
+                                    <div>
+                                      <label
+                                        htmlFor="additional_descriptions"
+                                        className="form-label mt-4"
+                                        style={{ marginRight: "10px" }}
+                                      >
+                                        Additional Descriptions
+                                      </label>
+                                    </div>
+                                    {values.additional_descriptions?.map(
                                       (keyword, index) => (
-                                        <div key={index} className="d-flex">
-                                          <Field
-                                            name={`meta_keywords.${index}`}
-                                            className="form-control"
-                                          />
+                                        <div key={index} className="mb-3">
+                                          <div>
+                                            <label htmlFor="label">
+                                              Label:
+                                            </label>
+                                            <Field
+                                              name={`additional_descriptions.${index}.label`}
+                                              className="form-control"
+                                            />
+                                            <ErrorMessage
+                                              name="label"
+                                              component="div"
+                                            />
+                                          </div>
+                                          <div className="mb-3">
+                                            <label
+                                              htmlFor="name"
+                                              className="form-label"
+                                            >
+                                              Text
+                                            </label>
+                                            <Field
+                                              name={`additional_descriptions.${index}.value`}
+                                              component={QuillEditor}
+                                            />
+                                            {errors.description && (
+                                              <small className="text-danger">
+                                                {errors.value}
+                                              </small>
+                                            )}
+                                          </div>
                                           <button
-                                            type="button"
-                                            className="btn btn-sm btn-danger"
+                                            className="btn btn-sm btn-danger mt-5"
                                             onClick={() => remove(index)}
                                           >
+                                            <span>
+                                              <FontAwesomeIcon icon={faTrash} />
+                                            </span>
                                             Remove
                                           </button>
                                         </div>
@@ -531,890 +533,127 @@ const AddProduct = () => {
                                     )}
                                     <button
                                       type="button"
-                                      className="btn btn-sm btn-success"
+                                      className="btn btn-sm btn-dark mt-2"
                                       onClick={() => push("")}
                                     >
-                                      Add Keywords
-                                    </button>
-                                  </div>
-                                )}
-                              </FieldArray> */}
-                              <div>
-                                <label
-                                  htmlFor="meta_keywords"
-                                  className="form-label"
-                                >
-                                  Meta Keywords
-                                </label>
-                                <Field
-                                  name="meta_keywords"
-                                  type="text"
-                                  placeholder="Enter keywords separated by commas"
-                                  className="form-control"
-                                />
-                                <ErrorMessage
-                                  name="meta_keywords"
-                                  component="div"
-                                  className="text-danger"
-                                />
-                              </div>
-                              <div className="mt-2">
-                                {values?.meta_keywords && typeof values.meta_keywords === 'string' &&
-                                  values?.meta_keywords?.split(', ').map((keyword, index) => (
-                                      <span
-                                        key={index}
-                                        className="badge bg-secondary me-1"
-                                      >
-                                        {keyword.trim()}
-                                      </span>
-                                    ))}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="card mb-3">
-                            <div className="card-body">
-                              <label
-                                htmlFor="meta_keywords"
-                                className="form-label"
-                              >
-                                SKU
-                              </label>
-                              <Field
-                                name="sku"
-                                type="text"
-                                placeholder=""
-                                className="form-control"
-                              />
-                              {errors.sku && (
-                                <small className="text-danger">
-                                  {errors.sku}
-                                </small>
-                              )}
-                              <FieldArray name="additional_properties">
-                                {({ push, remove }) => (
-                                  <div>
-                                    <label
-                                      htmlFor="additional_properties"
-                                      className="form-label mt-4"
-                                      style={{ marginRight: "10px" }}
-                                    >
-                                      Additional Properties
-                                    </label>
-                                    {values.additional_properties?.map(
-                                      (keyword, index) => (
-                                        <div
-                                          key={index}
-                                          className="d-flex justify-content-between"
-                                        >
-                                          <label htmlFor="value">Value:</label>
-                                          <Field
-                                            name={`additional_properties.${index}.value`}
-                                            className="form-control"
-                                            style={{
-                                              maxWidth: "300px",
-                                              maxHeight: "30px",
-                                            }}
-                                          />
-                                          <div>
-                                            <label htmlFor="label">
-                                              Label:
-                                            </label>
-                                            <Field
-                                              as="select"
-                                              id="label"
-                                              name={`additional_properties.${index}.label`}
-                                              placeholder="Select label"
-                                              //  className="form-select"
-                                            >
-                                              <option value="">
-                                                Select Label
-                                              </option>
-                                              <option value="banner">
-                                                Banner
-                                              </option>
-                                              <option value="hero">
-                                                Hero Image
-                                              </option>
-                                              {/* Add more options as needed */}
-                                            </Field>
-                                            <ErrorMessage
-                                              name="label"
-                                              component="div"
-                                            />
-                                          </div>
-                                          <button
-                                            className="btn btn-sm btn-danger ms-1"
-                                            onClick={() => remove(index)}
-                                          >
-                                            <span>
-                                              <FontAwesomeIcon icon={faTrash} />
-                                            </span>
-                                          </button>
-                                        </div>
-                                      )
-                                    )}
-                                    <button
-                                      type="button"
-                                      className="btn btn-sm btn-success"
-                                      onClick={() => push("")}
-                                    >
-                                      Add Properties
+                                      Add descriptions
                                     </button>
                                   </div>
                                 )}
                               </FieldArray>
                             </div>
                           </div>
-                          <div className="card mb-3">
-                            <div className="card-body">
-                              <div className="row">
-                                <div className="col-md-6">
-                                  <label
-                                    htmlFor="weight"
-                                    className="form-label"
-                                  >
-                                    Weight
-                                  </label>
-                                  <Field
-                                    type="number"
-                                    className="form-control"
-                                    id="weight"
-                                    name="weight"
-                                    aria-describedby="nameHelp"
-                                  ></Field>
-                                  {errors.weight && (
-                                    <small className="text-danger">
-                                      {errors.weight}
-                                    </small>
-                                  )}
-                                </div>
-                                <div className="col-md-6">
-                                  <label
-                                    htmlFor="length"
-                                    className="form-label"
-                                  >
-                                    Length
-                                  </label>
-                                  <Field
-                                    type="number"
-                                    className="form-control"
-                                    id="length"
-                                    name="length"
-                                    aria-describedby="nameHelp"
-                                  ></Field>
-                                  {errors.length && (
-                                    <small className="text-danger">
-                                      {errors.length}
-                                    </small>
-                                  )}
-                                </div>
-                              </div>
-                              <div className="row mt-3">
-                                <div className="col-md-6">
-                                  <label htmlFor="width" className="form-label">
-                                    Width
-                                  </label>
-                                  <Field
-                                    type="number"
-                                    className="form-control"
-                                    id="width"
-                                    name="width"
-                                    aria-describedby="nameHelp"
-                                  ></Field>
-                                  {errors.width && (
-                                    <small className="text-danger">
-                                      {errors.width}
-                                    </small>
-                                  )}
-                                </div>
-                                <div className="col-md-6">
-                                  <label
-                                    htmlFor="height"
-                                    className="form-label"
-                                  >
-                                    Height
-                                  </label>
-                                  <Field
-                                    type="number"
-                                    className="form-control"
-                                    id="height"
-                                    name="height"
-                                    aria-describedby="nameHelp"
-                                  ></Field>
-                                  {errors.height && (
-                                    <small className="text-danger">
-                                      {errors.height}
-                                    </small>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="card mb-3">
-                            <div className="card-body">
-                              <div className="row">
-                                <div className="col-md-6">
-                                  <label
-                                    htmlFor="quantity_default"
-                                    className="form-label"
-                                  >
-                                    Default Quantity
-                                  </label>
-                                  <Field
-                                    type="number"
-                                    className="form-control"
-                                    id="quantity_default"
-                                    name="quantity_default"
-                                    aria-describedby="nameHelp"
-                                  ></Field>
-                                  {errors.quantity_default && (
-                                    <small className="text-danger">
-                                      {errors.quantity_default}
-                                    </small>
-                                  )}
-                                </div>
-                                <div className="col-md-6">
-                                  <label
-                                    htmlFor="quantity_min"
-                                    className="form-label"
-                                  >
-                                    Minimum Quantity
-                                  </label>
-                                  <Field
-                                    type="number"
-                                    className="form-control"
-                                    id="quantity_min"
-                                    name="quantity_min"
-                                    aria-describedby="nameHelp"
-                                  ></Field>
-                                  {errors.quantity_min && (
-                                    <small className="text-danger">
-                                      {errors.quantity_min}
-                                    </small>
-                                  )}
-                                </div>
-                              </div>
-                              <div className="row mt-3">
-                                <div className="col-md-6">
-                                  <label
-                                    htmlFor="quantity_max"
-                                    className="form-label"
-                                  >
-                                    Maximum Quantity
-                                  </label>
-                                  <Field
-                                    type="number"
-                                    className="form-control"
-                                    id="quantity_max"
-                                    name="quantity_max"
-                                    aria-describedby="nameHelp"
-                                  ></Field>
-                                  {errors.quantity_max && (
-                                    <small className="text-danger">
-                                      {errors.quantity_max}
-                                    </small>
-                                  )}
-                                </div>
-                                <div className="col-md-6">
-                                  <label htmlFor="stock" className="form-label">
-                                    Stock
-                                  </label>
-                                  <Field
-                                    type="number"
-                                    className="form-control"
-                                    id="stock"
-                                    name="stock"
-                                    aria-describedby="nameHelp"
-                                  ></Field>
-                                  {errors.stock && (
-                                    <small className="text-danger">
-                                      {errors.stock}
-                                    </small>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="card mb-3">
-                            <div className="card-body">
-                              <div className="row">
-                                <div className="col-md-6">
-                                  <label htmlFor="price" className="form-label">
-                                    Price
-                                  </label>
-                                  <Field
-                                    type="number"
-                                    className="form-control"
-                                    id="price"
-                                    name="price"
-                                    aria-describedby="nameHelp"
-                                  ></Field>
-                                  {errors.price && (
-                                    <small className="text-danger">
-                                      {errors.price}
-                                    </small>
-                                  )}
-                                </div>
-                                <div className="col-md-6">
-                                  <label
-                                    htmlFor="discounted_price"
-                                    className="form-label"
-                                  >
-                                    Discounted Price
-                                  </label>
-                                  <Field
-                                    type="number"
-                                    className="form-control"
-                                    id="discounted_price"
-                                    name="discounted_price"
-                                    aria-describedby="nameHelp"
-                                  ></Field>
-                                  {errors.discounted_price && (
-                                    <small className="text-danger">
-                                      {errors.discounted_price}
-                                    </small>
-                                  )}
-                                </div>
-                              </div>
-                              <div className="row mt-3">
-                                <div className="col-md-6">
-                                  <label htmlFor="cost" className="form-label">
-                                    Cost
-                                  </label>
-                                  <Field
-                                    type="number"
-                                    className="form-control"
-                                    id="cost"
-                                    name="cost"
-                                    aria-describedby="nameHelp"
-                                  ></Field>
-                                  {errors.cost && (
-                                    <small className="text-danger">
-                                      {errors.cost}
-                                    </small>
-                                  )}
-                                </div>
-                                <div className="col-md-6">
-                                  <label
-                                    htmlFor="price_includes_tax"
-                                    className="form-label"
-                                  >
-                                    Price Includes Tax:
-                                  </label>
-                                  <Field
-                                    as="select"
-                                    id="price_includes_tax"
-                                    name="price_includes_tax"
-                                    // placeholder="Select label"
-                                    className="form-select"
-                                  >
-                                    <option value="">Select </option>
-                                    <option value="true">Yes</option>
-                                    <option value="false">No</option>
-                                    {/* Add more options as needed */}
-                                  </Field>
-                                  <ErrorMessage
-                                    name="price_includes_tax"
-                                    component="div"
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="card mb-3">
-                            <div className="card-body">
-                              <div className="row">
-                                <h6>Product Variant</h6>
 
-                                <FieldArray name="variants">
-                                  {({ push, remove }) => (
-                                    <>
-                                      {!showVariant && (
-                                        <>
-                                          {values.variants.map(
-                                            (variant, index) => {
-                                              return (
-                                                <>
-                                                  {showVariantField && (
-                                                    <div
-                                                      key={index}
-                                                      className="mb-2"
-                                                    >
-                                                      <div className="d-flex">
-                                                        <Field
-                                                          as="select"
-                                                          name={`variants[${index}].name`}
-                                                          placeholder="Variant Name"
-                                                          className="form-select"
-                                                          onChange={(e) => {
-                                                            setFieldValue(
-                                                              `variants[${index}].name`,
-                                                              e.target.value
-                                                            );
-                                                            handleSelectChange(
-                                                              e,
-                                                              index
-                                                            );
-                                                          }}
-                                                        >
-                                                          <option value="">
-                                                            Select Variant
-                                                          </option>
-                                                          {/* <option value="Color">
-                                                            Color
-                                                          </option>
-                                                          <option value="Size">
-                                                            Size
-                                                          </option> */}
-                                                          {propertyOption.map(
-                                                            (property) => {
-                                                              return (
-                                                                <option
-                                                                  value={
-                                                                    property.name
-                                                                  }
-                                                                >
-                                                                  {
-                                                                    property.name
-                                                                  }
-                                                                </option>
-                                                              );
-                                                            }
-                                                          )}
-                                                          <option value="Custom">
-                                                            Custom
-                                                          </option>
-                                                          {/* Allow adding custom variants */}
-                                                        </Field>
-                                                        {/* {`errors.variants[index].name` && (
-                                                  <small className="text-danger">
-                                                    {`errors.variants[index].name`}
-                                                  </small>
-                                                )} */}
-
-                                                        {variant.name ===
-                                                          "Custom" && (
-                                                          <Field
-                                                            type="text"
-                                                            name={`variants[${index}].customName`}
-                                                            placeholder="Custom Variant Name"
-                                                            className="form-control ms-2"
-                                                          />
-                                                        )}
-                                                        <button
-                                                          type="button"
-                                                          onClick={() => {
-                                                            remove(index);
-                                                            handleVariantDelete(
-                                                              values,
-                                                              index
-                                                            );
-                                                          }}
-                                                          className="btn btn-sm btn-danger mt-2 ms-2"
-                                                        >
-                                                          <span>
-                                                            <FontAwesomeIcon
-                                                              icon={faTrash}
-                                                            />
-                                                          </span>
-                                                        </button>
-                                                      </div>
-                                                      <ErrorMessage
-                                                        name={`variants.${index}.name`}
-                                                        component="div"
-                                                        className="text-danger"
-                                                      />
-                                                      {/* {errors.variants.name && (
-                                                        <small className="text-danger">
-                                                          {errors.variants.name}
-                                                        </small>
-                                                      )} */}
-
-                                                      {variant.name && (
-                                                        <div className="mt-2 mb-2">
-                                                          {variant.name ===
-                                                            "Custom" && (
-                                                            <FieldArray
-                                                              name={`variants[${index}].options`}
-                                                            >
-                                                              {({
-                                                                push: pushOption,
-                                                                remove:
-                                                                  removeOption,
-                                                              }) => (
-                                                                <>
-                                                                  {variant.options.map(
-                                                                    (
-                                                                      option,
-                                                                      optionIndex
-                                                                    ) => (
-                                                                      <>
-                                                                        <div
-                                                                          key={
-                                                                            optionIndex
-                                                                          }
-                                                                          className="d-flex justify-content-start mt-2"
-                                                                        >
-                                                                          <Field
-                                                                            name={`variants[${index}].options[${optionIndex}]`}
-                                                                            placeholder="Option"
-                                                                            className="form-control"
-                                                                            style={{
-                                                                              width:
-                                                                                "300px",
-                                                                            }}
-                                                                          />
-
-                                                                          <button
-                                                                            type="button"
-                                                                            onClick={() => {
-                                                                              removeOption(
-                                                                                optionIndex
-                                                                              );
-                                                                            }}
-                                                                            className="btn btn-sm btn-danger ms-2"
-                                                                          >
-                                                                            <span>
-                                                                              <FontAwesomeIcon
-                                                                                icon={
-                                                                                  faTrash
-                                                                                }
-                                                                              />
-                                                                            </span>
-                                                                          </button>
-                                                                        </div>
-                                                                        <ErrorMessage
-                                                                          name={`variants.${index}.options.${optionIndex}`}
-                                                                          component="div"
-                                                                          className="text-danger"
-                                                                        />
-                                                                      </>
-                                                                    )
-                                                                  )}
-
-                                                                  <button
-                                                                    type="button"
-                                                                    onClick={() => {
-                                                                      pushOption(
-                                                                        ""
-                                                                      );
-                                                                      console.log();
-                                                                    }}
-                                                                    className="btn btn-sm btn-success mt-2"
-                                                                  >
-                                                                    Add Option
-                                                                  </button>
-                                                                </>
-                                                              )}
-                                                            </FieldArray>
-                                                          )}
-                                                        </div>
-                                                      )}
-                                                    </div>
-                                                  )}
-                                                </>
-                                              );
-                                            }
-                                          )}
-
-                                          <button
-                                            type="button"
-                                            onClick={() => {
-                                              // console.log(errors);
-                                              setShowVariantField(true);
-                                              push({ name: "", options: [] });
-                                            }}
-                                            className="btn btn-sm btn-success mb-2 mt-2"
-                                            style={{ maxWidth: "100px" }}
-                                          >
-                                            Add Variant
-                                          </button>
-                                          {!errors.variants && showDone && (
-                                            <button
-                                              type="button"
-                                              onClick={() =>
-                                                handleVariantSubmission(
-                                                  values,
-                                                  errors
-                                                )
-                                              }
-                                              disabled={errors.variants}
-                                              className="btn btn-sm btn-primary"
-                                            >
-                                              Done
-                                            </button>
-                                          )}
-                                        </>
-                                      )}
-                                    </>
-                                  )}
-                                </FieldArray>
-                                {showVariant && (
-                                  <div>
-                                    <FieldArray name="addedVariants">
-                                      {({
-                                        push,
-                                        remove: removeSelectedVariant,
-                                      }) => (
-                                        <>
-                                          {addedVariants?.map(
-                                            (selectedVariant, varIndex) => (
-                                              <div
-                                                className="border mb-2"
-                                                key={varIndex}
-                                              >
-                                                <label
-                                                  htmlFor="published"
-                                                  className="form-label"
-                                                >
-                                                  {selectedVariant.name ===
-                                                  "Custom"
-                                                    ? selectedVariant.customName
-                                                    : selectedVariant.name}
-                                                </label>
-                                                <div className="d-flex">
-                                                  {selectedVariant.options?.map(
-                                                    (option) => (
-                                                      <div
-                                                        className="badge rounded-pill text-bg-secondary ms-2"
-                                                        style={{
-                                                          cursor: "pointer",
-                                                        }}
-                                                        onClick={() =>
-                                                          removeOption(option)
-                                                        }
-                                                      >
-                                                        {option}
-                                                      </div>
-                                                    )
-                                                  )}
-                                                </div>
-                                                {/* <button
-                                                  type="button"
-                                                  onClick={() =>
-                                                    removeSelectedVariant(
-                                                      varIndex
-                                                    )
-                                                  }
-                                                >
-                                                  Remove Variant
-                                                </button> */}
-                                              </div>
-                                            )
-                                          )}
-                                        </>
-                                      )}
-                                    </FieldArray>
-                                  </div>
-                                )}
-
-                                {showVariant && (
-                                  <FieldArray name="productVariant">
-                                    <div className="row table-responsive">
-                                      <table className="table">
-                                        <thead>
-                                          <tr>
-                                            {/* <th scope="col">#</th> */}
-                                            <th
-                                              scope="col"
-                                              style={{ width: "200px" }}
-                                            >
-                                              Image
-                                            </th>
-                                            <th
-                                              scope="col"
-                                              style={{ width: "200px" }}
-                                            >
-                                              Variant
-                                            </th>
-                                            <th
-                                              scope="col"
-                                              style={{ width: "100px" }}
-                                            >
-                                              SKU
-                                            </th>
-                                            <th
-                                              scope="col"
-                                              style={{ width: "100px" }}
-                                            >
-                                              Price
-                                            </th>
-                                            <th
-                                              scope="col"
-                                              style={{ width: "100px" }}
-                                            >
-                                              Stock
-                                            </th>
-                                            <th
-                                              scope="col"
-                                              style={{ width: "100px" }}
-                                            >
-                                              Discounted Price
-                                            </th>
-                                          </tr>
-                                        </thead>
-                                        <tbody>
-                                          {selectedVariants?.map(
-                                            (variant, productIndex) => {
-                                              return (
-                                                <tr key={productIndex}>
-                                                  <td className="d-flex">
-                                                    <label
-                                                      htmlFor={`file-upload-${productIndex}`}
-                                                      style={{"cursor": "pointer"}}
-                                                    >
-                                                      <FontAwesomeIcon
-                                                        icon={faUpload}
-                                                      />
-                                                      
-                                                    </label>
-                                                    <input
-                                                      id={`file-upload-${productIndex}`}
-                                                      type="file"
-                                                      onChange={(e) =>
-                                                        handleFileChange(
-                                                          e,
-                                                          productIndex
-                                                        )
-                                                      }
-                                                      style={{
-                                                        display: "none",
-                                                      }} // Hide the input element
-                                                    />
-
-                                                    {/* Thumbnail preview */}
-                                                    {images[productIndex] && (
-                                                      <div className="ms-2">
-                                                        <img
-                                                          src={URL.createObjectURL(
-                                                            images[productIndex]
-                                                          )}
-                                                          width={50}
-                                                          height={50}
-                                                          alt={`Thumbnail ${productIndex}`}
-                                                        />
-                                                      </div>
-                                                    )}
-                                                  </td>
-                                                  <td>
-                                                    <Field
-                                                      type="text"
-                                                      value={variant}
-                                                      name={`productVariant[${productIndex}].variantName`}
-                                                    />
-                                                    </td>
-
-                                                  <td>
-                                                    <Field
-                                                      type="text"
-                                                      name={`productVariant[${productIndex}].variantSKU`}
-                                                    />
-                                                    {/* {errors.productVariant &&
-                                                      errors.productVariant[
-                                                        productIndex
-                                                      ] &&
-                                                      errors.productVariant[
-                                                        productIndex
-                                                      ].variantSKU && (
-                                                        <small className="text-danger">
-                                                          {
-                                                            errors
-                                                              .productVariant[
-                                                              productIndex
-                                                            ].variantSKU
-                                                          }
-                                                        </small>
-                                                      )} */}
-
-                                                    <ErrorMessage
-                                                      name={`productVariant.${productIndex}.variantSKU`}
-                                                      component="div"
-                                                      className="text-danger"
-                                                    />
-                                                  </td>
-                                                  <td>
-                                                    <Field
-                                                      type="number"
-                                                      name={`productVariant[${productIndex}].variantPrice`}
-                                                    />
-
-                                                    <ErrorMessage
-                                                      name={`productVariant.${productIndex}.variantPrice`}
-                                                      component="div"
-                                                      className="text-danger"
-                                                    />
-                                                  </td>
-                                                  <td>
-                                                    <Field
-                                                      type="number"
-                                                      name={`productVariant[${productIndex}].variantStock`}
-                                                    />
-
-                                                    <ErrorMessage
-                                                      name={`productVariant.${productIndex}.variantStock`}
-                                                      component="div"
-                                                      className="text-danger"
-                                                    />
-                                                  </td>
-                                                  <td>
-                                                    <Field
-                                                      type="number"
-                                                      name={`productVariant[${productIndex}].variantDiscountedPrice`}
-                                                    />
-
-                                                    <ErrorMessage
-                                                      name={`productVariant.${productIndex}.variantDiscountedPrice`}
-                                                      component="div"
-                                                      className="text-danger"
-                                                    />
-                                                  </td>
-                                                </tr>
-                                              );
-                                            }
-                                          )}
-                                        </tbody>
-                                      </table>
-
-                                      <button
-                                        className="btn btn-sm btn-warning"
-                                        onClick={() => {
-                                          handleReset();
-                                          console.log(errors);
-                                          console.log(values);
-                                        }}
-                                      >
-                                        Edit Variants
-                                      </button>
-                                    </div>
-                                  </FieldArray>
-                                )}
-                              </div>
-                            </div>
-                          </div>
                           <div className="card mb-3">
                             <div className="card-body">
                               <div className="mb-3">
                                 <label htmlFor="name" className="form-label">
                                   Media
                                 </label>
+                                <DragDropContext
+                                  onDragEnd={(result) =>
+                                    handleImageDragEnd(
+                                      result,
+                                      values,
+                                      setFieldValue
+                                    )
+                                  }
+                                >
+                                  <Droppable
+                                    droppableId="gallery"
+                                    direction="horizontal"
+                                  >
+                                    {(provided) => (
+                                      <div
+                                        // className="gallery"
+                                        {...provided.droppableProps}
+                                        ref={provided.innerRef}
+                                        // style={{
+                                        //   display: "flex",
+                                        //   overflowX: "auto",
+                                        // }}
+                                      >
+                                        <div className="row mt-4 mb-2">
+                                          {mediaItems?.map((media, key) => {
+                                            return (
+                                              <div className="col-md-3 grid-item">
+                                                <Draggable
+                                                  key={key}
+                                                  draggableId={`Item ${
+                                                    key + 1
+                                                  }`}
+                                                  // draggableId= {option.value}
+                                                  index={key}
+                                                >
+                                                  {(provided, snapshot) => (
+                                                    <div
+                                                      ref={provided.innerRef}
+                                                      {...provided.draggableProps}
+                                                      {...provided.dragHandleProps}
+                                                    >
+                                                      <div
+                                                        key={key}
+                                                        className="col-md-3 grid-item mt-2"
+                                                      >
+                                                        <img
+                                                          src={
+                                                            media.preview
+                                                              ? media.preview
+                                                              : ""
+                                                          }
+                                                          width={80}
+                                                          height={80}
+                                                          alt={`Thumbnail ${key}`}
+                                                        />
+
+                                                        <button
+                                                          type="button"
+                                                          className="btn btn-sm btn-danger mt-2"
+                                                          onClick={() =>
+                                                            handleMediaRemoveImage(
+                                                              media.file_name
+                                                            )
+                                                          }
+                                                        >
+                                                          Remove
+                                                        </button>
+                                                      </div>
+                                                    </div>
+                                                  )}
+                                                </Draggable>
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+                                        {provided.placeholder}
+                                      </div>
+                                    )}
+                                  </Droppable>
+                                </DragDropContext>
                                 <div>
+                                  {/* <input
+                                      type="file"
+                                      multiple
+                                      onChange={(event) => {
+                                        const newFiles = Array.from(
+                                          event.target.files
+                                        );
+                                        setFieldValue("files", [
+                                          ...values.files,
+                                          ...newFiles,
+                                        ]);
+                                      }}
+                                    /> */}
                                   <input
                                     type="file"
+                                    name="files"
                                     multiple
-                                    onChange={(event) => {
-                                      const newFiles = Array.from(
-                                        event.target.files
-                                      );
-                                      setFieldValue("files", [
-                                        ...values.files,
-                                        ...newFiles,
-                                      ]);
-                                    }}
+                                    onChange={handleMediaFileChange}
                                   />
                                   <FieldArray name="files">
                                     {({ push, remove }) => (
                                       <div className="row mt-4">
-                                        {values.files.map((file, index) => (
+                                        {values.files?.map((file, index) => (
                                           <div
                                             key={index}
                                             className="col-md-4 mb-4"
@@ -1460,6 +699,667 @@ const AddProduct = () => {
                               </div>
                             </div>
                           </div>
+
+                          <div className="card mb-3">
+                            <div className="card-body">
+                              <div className="row">
+                                <h6>
+                                  <b>Pricing</b>
+                                </h6>
+
+                                <div className="col-md-6 mt-3">
+                                  <label htmlFor="price" className="form-label">
+                                    Price <span className="text-danger">*</span>
+                                  </label>
+                                  <Field
+                                    type="number"
+                                    className="form-control"
+                                    id="price"
+                                    name="price"
+                                    aria-describedby="nameHelp"
+                                  ></Field>
+                                  {errors.price && (
+                                    <small className="text-danger">
+                                      {errors.price}
+                                    </small>
+                                  )}
+                                </div>
+                                <div className="col-md-6 mt-3">
+                                  <label
+                                    htmlFor="discounted_price"
+                                    className="form-label"
+                                  >
+                                    Discounted Price
+                                  </label>
+                                  <Field
+                                    type="number"
+                                    className="form-control"
+                                    id="discounted_price"
+                                    name="discounted_price"
+                                    aria-describedby="nameHelp"
+                                  ></Field>
+                                  {errors.discounted_price && (
+                                    <small className="text-danger">
+                                      {errors.discounted_price}
+                                    </small>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="row mt-3">
+                                <div className="col-md-6">
+                                  <label htmlFor="cost" className="form-label">
+                                    Cost
+                                  </label>
+                                  <Field
+                                    type="number"
+                                    className="form-control"
+                                    id="cost"
+                                    name="cost"
+                                    aria-describedby="nameHelp"
+                                  ></Field>
+                                  {errors.cost && (
+                                    <small className="text-danger">
+                                      {errors.cost}
+                                    </small>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="card mb-3">
+                            <div className="card-body">
+                              <h6>
+                                <b>Inventory & Shipping</b>
+                              </h6>
+                              <div className="row mt-4">
+                                <div className="col-md-4">
+                                  <label htmlFor="sku" className="form-label">
+                                    SKU <span className="text-danger">*</span>
+                                  </label>
+                                  <Field
+                                    type="text"
+                                    className="form-control"
+                                    id="sku"
+                                    name="sku"
+                                    aria-describedby="nameHelp"
+                                  ></Field>
+                                  {errors.sku && (
+                                    <small className="text-danger">
+                                      {errors.sku}
+                                    </small>
+                                  )}
+                                </div>
+                                <div className="col-md-4">
+                                  <label
+                                    htmlFor="quantity_min"
+                                    className="form-label"
+                                  >
+                                    Min quantity per order
+                                  </label>
+                                  <Field
+                                    type="number"
+                                    className="form-control"
+                                    id="quantity_min"
+                                    name="quantity_min"
+                                    aria-describedby="nameHelp"
+                                  ></Field>
+                                  {errors.quantity_min && (
+                                    <small className="text-danger">
+                                      {errors.length}
+                                    </small>
+                                  )}
+                                </div>
+                                <div className="col-md-4">
+                                  <label htmlFor="stock" className="form-label">
+                                    Stock
+                                  </label>
+                                  <Field
+                                    type="number"
+                                    className="form-control"
+                                    id="stock"
+                                    name="stock"
+                                    aria-describedby="nameHelp"
+                                  ></Field>
+                                  {errors.stock && (
+                                    <small className="text-danger">
+                                      {errors.stock}
+                                    </small>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="row mt-3">
+                                <div className="col-md-3">
+                                  <label
+                                    htmlFor="length"
+                                    className="form-label"
+                                  >
+                                    Length
+                                  </label>
+                                  <Field
+                                    type="number"
+                                    className="form-control"
+                                    id="length"
+                                    name="length"
+                                    aria-describedby="nameHelp"
+                                  ></Field>
+                                  {errors.length && (
+                                    <small className="text-danger">
+                                      {errors.length}
+                                    </small>
+                                  )}
+                                </div>
+                                <div className="col-md-3">
+                                  <label htmlFor="width" className="form-label">
+                                    Width
+                                  </label>
+                                  <Field
+                                    type="number"
+                                    className="form-control"
+                                    id="width"
+                                    name="width"
+                                    aria-describedby="nameHelp"
+                                  ></Field>
+                                  {errors.width && (
+                                    <small className="text-danger">
+                                      {errors.width}
+                                    </small>
+                                  )}
+                                </div>
+                                <div className="col-md-3">
+                                  <label
+                                    htmlFor="height"
+                                    className="form-label"
+                                  >
+                                    Height
+                                  </label>
+                                  <Field
+                                    type="number"
+                                    className="form-control"
+                                    id="height"
+                                    name="height"
+                                    aria-describedby="nameHelp"
+                                  ></Field>
+                                  {errors.height && (
+                                    <small className="text-danger">
+                                      {errors.height}
+                                    </small>
+                                  )}
+                                </div>
+                                <div className="col-md-3">
+                                  <label
+                                    htmlFor="weight"
+                                    className="form-label"
+                                  >
+                                    Weight
+                                  </label>
+                                  <Field
+                                    type="number"
+                                    className="form-control"
+                                    id="weight"
+                                    name="weight"
+                                    aria-describedby="nameHelp"
+                                  ></Field>
+                                  {errors.weight && (
+                                    <small className="text-danger">
+                                      {errors.weight}
+                                    </small>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          {showVariant && (
+                             <div className="card mb-3">
+                             <div className="card-body">
+                               <div className="row">
+                                 <h6>
+                                   <b>Variants</b>
+                                 </h6>
+ 
+                                 <>
+                                 {showAddOptionButton && (
+                                   <a
+                                     onClick={() => {
+                                       // console.log(errors);
+                                       setShowOptionForm(true);
+                                     }}
+                                     // className="btn btn-sm btn-success mb-2 mt-2"
+                                     style={{
+                                       color: "blue",
+                                       textDecoration: "underline",
+                                       cursor: "pointer",
+                                     }}
+                                   >
+                                     Add options like size and color
+                                   </a>
+                                 )}
+                                   {showOptionForm && (
+                                     <>
+                                       <div className="mb-2">
+                                         <FieldArray name="options">
+                                           {({ push, remove }) => (
+                                             <div className="card mb-3 border-dark">
+                                               <div className="card-body">
+                                                 <div className="col-md-12">
+                                                   <label
+                                                     htmlFor="name"
+                                                     className="form-label"
+                                                   >
+                                                     Name
+                                                   </label>
+                                                   <Field
+                                                     type="text"
+                                                     className="form-control"
+                                                     id="optionName"
+                                                     name="optionName"
+                                                     aria-describedby="nameHelp"
+                                                   ></Field>
+                                                   {errors.optionName && (
+                                                     <small className="text-danger">
+                                                       {errors.optionName}
+                                                     </small>
+                                                   )}
+                                                 </div>
+                                                 <div className="col-md-12 mt-2">
+                                                   <label
+                                                     htmlFor="options"
+                                                     className="form-label"
+                                                   >
+                                                     Option Values
+                                                   </label>
+ 
+                                                   <div>
+                                                     {values.options?.map(
+                                                       (option, optionIndex) => {
+                                                         return (
+                                                           <>
+                                                             <div
+                                                               key={optionIndex}
+                                                               className="d-flex justify-content-start mb-2"
+                                                             >
+                                                               <Field
+                                                                 type="text"
+                                                                 required={true}
+                                                                 className="form-control"
+                                                                 id={`options[${optionIndex}].value`}
+                                                                 name={`options[${optionIndex}].value`}
+                                                                 aria-describedby="nameHelp"
+                                                               ></Field>
+                                                               <button
+                                                                 type="button"
+                                                                 onClick={() => {
+                                                                   remove(
+                                                                     optionIndex
+                                                                   );
+                                                                 }}
+                                                                 className="btn btn-sm btn-danger ms-2"
+                                                               >
+                                                                 <span>
+                                                                   <FontAwesomeIcon
+                                                                     icon={
+                                                                       faTrash
+                                                                     }
+                                                                   />
+                                                                 </span>
+                                                               </button>
+                                                             </div>
+                                                             {getErrorMessage(
+                                                               optionIndex
+                                                             ) && (
+                                                               <p className="text-danger">
+                                                                 {getErrorMessage(
+                                                                   optionIndex
+                                                                 )}
+                                                               </p>
+                                                             )}
+                                                             {/* {Object.keys(
+                                                               optionErrors
+                                                             ).map((index) => (
+                                                               <small
+                                                                 key={index}
+                                                                 className="text-danger"
+                                                               >
+                                                                 {
+                                                                   optionErrors[
+                                                                     index
+                                                                   ].message
+                                                                 }
+                                                               </small>
+                                                             ))} */}
+                                                           </>
+                                                         );
+                                                       }
+                                                     )}
+                                                     <button
+                                                       type="button"
+                                                       onClick={() => {
+                                                         push("");
+                                                       }}
+                                                       className="btn btn-sm btn-dark mt-2"
+                                                     >
+                                                       + Add Values
+                                                     </button>
+                                                   </div>
+                                                 </div>
+                                               </div>
+                                             </div>
+                                           )}
+                                         </FieldArray>
+                                         <div className="d-flex justify-content-end mt-2">
+                                           <button
+                                             type="button"
+                                             className="btn btn-sm btn-outline-dark"
+                                             onClick={() =>
+                                               handleOptionDelete(
+                                                 values,
+                                                 values.optionName
+                                               )
+                                             }
+                                           >
+                                             Delete
+                                           </button>
+                                           <button
+                                             type="button"
+                                             onClick={() =>
+                                               handleOptiondone(
+                                                 values,
+                                                 validateForm
+                                               )
+                                             }
+                                             className="btn btn-sm btn-dark ms-2"
+                                           >
+                                             Done
+                                           </button>
+                                         </div>
+                                       </div>
+                                     </>
+                                   )}
+ 
+                                   {showOptions && (
+                                     <div className="mt-4">
+                                       <DragDropContext
+                                         onDragEnd={(result) =>
+                                           onDragEnd(
+                                             result,
+                                             values,
+                                             setFieldValue
+                                           )
+                                         }
+                                       >
+                                         <Droppable droppableId="items">
+                                           {(provided) => (
+                                             <div
+                                               {...provided.droppableProps}
+                                               ref={provided.innerRef}
+                                             >
+                                               <FieldArray name="variantOption">
+                                                 {({ push, remove }) => (
+                                                   <>
+                                                     {options?.map(
+                                                       (option, optionIndex) => (
+                                                         <Draggable
+                                                           key={optionIndex}
+                                                           draggableId={`Item ${
+                                                             optionIndex + 1
+                                                           }`}
+                                                           // draggableId= {option.value}
+                                                           index={optionIndex}
+                                                         >
+                                                           {(
+                                                             provided,
+                                                             snapshot
+                                                           ) => (
+                                                             <div
+                                                               ref={
+                                                                 provided.innerRef
+                                                               }
+                                                               {...provided.draggableProps}
+                                                               {...provided.dragHandleProps}
+                                                             >
+                                                               <div className="card mb-3 border-dark">
+                                                                 <div
+                                                                   className="card-body"
+                                                                   style={{
+                                                                     "background-color":
+                                                                       "silver",
+                                                                   }}
+                                                                 >
+                                                                   <div className="d-flex justify-content-between">
+                                                                     <div>
+                                                                       <FontAwesomeIcon
+                                                                         icon={
+                                                                           faBars
+                                                                         }
+                                                                       />
+                                                                     </div>
+                                                                     <div>
+                                                                       <h6>
+                                                                         {
+                                                                           option.optionName
+                                                                         }
+                                                                       </h6>
+                                                                       {option.options?.map(
+                                                                         (
+                                                                           item
+                                                                         ) => (
+                                                                           <span>
+                                                                             {
+                                                                               item.value
+                                                                             }
+                                                                             ,
+                                                                           </span>
+                                                                         )
+                                                                       )}
+                                                                     </div>
+                                                                     <button
+                                                                       className="btn btn-sm btn-dark"
+                                                                       onClick={() =>
+                                                                         handleVariantEdit(
+                                                                           values,
+                                                                           setFieldValue,
+                                                                           option
+                                                                         )
+                                                                       }
+                                                                     >
+                                                                       Edit
+                                                                     </button>
+                                                                   </div>
+                                                                 </div>
+                                                               </div>
+                                                             </div>
+                                                           )}
+                                                         </Draggable>
+                                                       )
+                                                     )}
+                                                     {provided.placeholder}
+                                                   </>
+                                                 )}
+                                               </FieldArray>
+                                             </div>
+                                           )}
+                                         </Droppable>
+                                       </DragDropContext>
+                                     </div>
+                                   )}
+                                 </>
+ 
+                                 <>
+                                   {options?.length > 0 &&
+                                     showVariantOptions && (
+                                       <div className="card mb-3">
+                                         <div className="card-body">
+                                           <FieldArray name="productVariants">
+                                             {({ push, remove }) => (
+                                               <>
+                                                 {variants?.map(
+                                                   (option, variantIndex) => {
+                                                     const mediaItem =
+                                                             mediaItems.find(
+                                                               (item) =>
+                                                                 item.variant_id ===
+                                                               variantIndex
+                                                             ) || {};
+                                                     return (
+                                                       <div className="d-flex justify-content-between mb-2">
+                                                         <div className="d-flex justify-content-between">
+                                                           <div className="d-flex">
+                                                           {mediaItem.file_name ? (
+                                                                   <>
+                                                                     <div className="ms-2">
+                                                                       <img
+                                                                         src={
+                                                                           mediaItem.preview
+                                                                             ? mediaItem.preview
+                                                                             : ""
+                                                                         }
+                                                                         width={
+                                                                           50
+                                                                         }
+                                                                         height={
+                                                                           50
+                                                                         }
+                                                                         alt={`Thumbnail ${variantIndex}`}
+                                                                       />
+                                                                     </div>
+                                                                     <button
+                                                                       className="btn  ms-1"
+                                                                       onClick={() =>
+                                                                         handleRemoveImage(
+                                                                           variantIndex
+                                                                         )
+                                                                       }
+                                                                     >
+                                                                       <span>
+                                                                         <FontAwesomeIcon
+                                                                           icon={
+                                                                             faTrash
+                                                                           }
+                                                                         />
+                                                                       </span>
+                                                                     </button>
+                                                                   </>
+                                                                 ) : (
+                                                                   <>
+                                                                     <label
+                                                                       htmlFor={`file-upload-${variantIndex}`}
+                                                                       className="btn btn-primary ms-2"
+                                                                       style={{
+                                                                         cursor:
+                                                                           "pointer",
+                                                                       }}
+                                                                     >
+                                                                       <FontAwesomeIcon
+                                                                         icon={
+                                                                           faUpload
+                                                                         }
+                                                                       />
+                                                                       <input
+                                                                         id={`file-upload-${variantIndex}`}
+                                                                         type="file"
+                                                                         onChange={(
+                                                                           e
+                                                                         ) =>
+                                                                           handleFileChange(
+                                                                             e,
+                                                                             variantIndex
+                                                                           )
+                                                                         }
+                                                                         style={{
+                                                                           display:
+                                                                             "none",
+                                                                         }}
+                                                                       />
+                                                                     </label>
+                                                                   </>
+                                                                 )}
+                                                           </div>
+                                                           <div className="ms-4">
+                                                             <Field
+                                                               type="text"
+                                                               name={`productVariants[${variantIndex}].variantName`}
+                                                               value={option}
+                                                               readonly
+                                                               className="form-control"
+                                                               style={{
+                                                                 width: "200px",
+                                                               }}
+                                                             />
+                                                             {/* <p>{option}</p> */}
+                                                           </div>
+                                                         </div>
+                                                         <div className="d-flex justify-content-between ms-2">
+                                                           <div>
+                                                             <Field
+                                                               type="number"
+                                                               name={`productVariants[${variantIndex}].variantPrice`}
+                                                               placeholder="Price"
+                                                               required
+                                                               className="form-control"
+                                                               style={{
+                                                                 width: "100px",
+                                                               }}
+                                                             />
+ 
+                                                             <ErrorMessage
+                                                               name={`productVariants.${variantIndex}.variantPrice`}
+                                                               component="div"
+                                                               className="text-danger"
+                                                             />
+                                                           </div>
+                                                           <div>
+                                                             <Field
+                                                               type="number"
+                                                               name={`productVariants[${variantIndex}].variantDiscountedPrice`}
+                                                               placeholder="Discountde Price"
+                                                               required
+                                                               className="form-control"
+                                                               style={{
+                                                                 width: "100px",
+                                                               }}
+                                                             />
+ 
+                                                             <ErrorMessage
+                                                               name={`productVariants.${variantIndex}.variantDiscountedPrice`}
+                                                               component="div"
+                                                               className="text-danger"
+                                                             />
+                                                           </div>
+                                                           <div className="">
+                                                             <Field
+                                                               type="number"
+                                                               name={`productVariants[${variantIndex}].variantStock`}
+                                                               placeholder="Stock"
+                                                               required
+                                                               className="form-control"
+                                                               style={{
+                                                                 width: "100px",
+                                                               }}
+                                                             />
+ 
+                                                             <ErrorMessage
+                                                               name={`productVariants.${variantIndex}.variantStock`}
+                                                               component="div"
+                                                               className="text-danger"
+                                                             />
+                                                           </div>
+                                                         </div>
+                                                       </div>
+                                                     );
+                                                   }
+                                                 )}
+                                               </>
+                                             )}
+                                           </FieldArray>
+                                         </div>
+                                       </div>
+                                     )}
+                                 </>
+                               </div>
+                             </div>
+                           </div>
+                          )}
+                         
                         </div>
                         <div className="col-md-4">
                           <div className="card mb-3">
@@ -1478,9 +1378,8 @@ const AddProduct = () => {
                                   // placeholder="Select label"
                                   className="form-select"
                                 >
-                                  <option value="">Status</option>
-                                  <option value="true">Yes</option>
-                                  <option value="false">No</option>
+                                  <option value="draft">Draft</option>
+                                  <option value="published">Published</option>
                                   {/* Add more options as needed */}
                                 </Field>
                                 {errors.published && (
@@ -1548,43 +1447,29 @@ const AddProduct = () => {
                               </div>
                             </div>
                           </div>
-                          <div className="card mb-3">
-                            <div className="card-body">
-                              <div>
-                                <label
-                                  htmlFor="allow_out_of_stock_purchase"
-                                  className="form-label"
-                                >
-                                  Allow Out Of Stock Purchase:
-                                </label>
-                                <Field
-                                  as="select"
-                                  id="allow_out_of_stock_purchase"
-                                  name="allow_out_of_stock_purchase"
-                                  // placeholder="Select label"
-                                  className="form-select"
-                                  onChange={() => console.log(errors)}
-                                >
-                                  <option value="">Select </option>
-                                  <option value="true">Yes</option>
-                                  <option value="false">No</option>
-                                  {/* Add more options as needed */}
-                                </Field>
-                                <ErrorMessage
-                                  name="allow_out_of_stock_purchase"
-                                  component="div"
-                                />
-                              </div>
-                            </div>
-                          </div>
                         </div>
-                        <div className="col-md-4">
+                        <div className="col-md-4 ">
                           <button
-                            className="btn btn-primary btn-md  mb-4 rounded-2"
                             type="submit"
-                            // disabled={isSubmitting}
+                            className="btn btn-sm mt-2"
+                            style={{
+                              backgroundColor: "#D93D6E",
+                              color: "white",
+                              width: "40%",
+                            }}
                           >
-                            Create Product
+                            Save
+                          </button>
+                          <button
+                            type="submit"
+                            className="btn btn-sm mt-2 ms-3 btn-dark"
+                            style={{
+                              // backgroundColor: "#D93D6E",
+                              // color: "white",
+                              width: "40%",
+                            }}
+                          >
+                            Save & Close
                           </button>
                         </div>
                       </div>
@@ -1600,4 +1485,4 @@ const AddProduct = () => {
   );
 };
 
-export default AddProduct;
+export default AddProductNew;

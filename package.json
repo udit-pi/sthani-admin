@@ -21,6 +21,7 @@
     "apexcharts": "^3.49.0",
     "axios": "^1.6.8",
     "bootstrap": "^5.3.3",
+    "bson-objectid": "^2.0.4",
     "dompurify": "^3.1.4",
     "formik": "^2.4.5",
     "immutable": "^5.0.0-beta.5",

@@ -1,101 +1,137 @@
 import React, { useEffect, useState } from "react";
-import { Formik, Form, Field, FieldArray, ErrorMessage } from "formik";
+import {
+  Formik,
+  Form,
+  Field,
+  FieldArray,
+  ErrorMessage,
+  useFormik,
+} from "formik";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Layout from "../../components/layouts/Layout";
 import QuillEditor from "../../components/Editor";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash, faUpload } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faTrash, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import MultiSelectDropdown from "../../components/MultiSelectDropDown";
 import MultipleKeywordInput from "../../components/MultipleKeywordInput";
 import VariantSelect from "../../components/VariantSelect";
 import CustomField from "../../components/VariantSelect";
 import SelectOrTextInput from "../../components/VariantSelect";
-
+import { addProductValidation } from "../../validations/addProductValidation";
 import { fetchAllCategories } from "../../features/category/categorySlice";
 import { useDispatch } from "react-redux";
 import { fetchAllBrands } from "../../features/brand/brandSlice";
 import { fetchAllProperties } from "../../features/properties/propertySlice";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import {
   addProduct,
   fetchProductById,
   updateProduct,
 } from "../../features/product/productSlice";
-import DataTable from "react-data-table-component";
-
-import AddVariantModalComponent from "../../components/AddVariantModal";
-import { editProductValidation } from "../../validations/editProductValidation";
-import MultiSelect2 from "../../components/MultiSelect2";
-import DraftEditor from "../../components/DraftEditor";
-import TinyMCEEditor from "../../components/TinyMceEditor";
 import { FaArrowLeft } from "react-icons/fa";
+import Box from "@mui/material/Box";
+import Modal from "@mui/material/Modal";
+import Button from "@mui/material/Button";
+import { Typography } from "@mui/material";
 
-const EditProduct = () => {
+const EditProductNew = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams();
-
-  const [product, setProduct] = useState({});
-  const [brand, setBrand] = useState({});
-  const [fetchedProductVariant, setFetchedProductVariant] = useState([]);
-  const [productMedia, setProductMedia] = useState([]);
-
   const [categories, setCategories] = useState([]);
   const [catOption, setCatOption] = useState([]);
   const [brandOption, setBrandOption] = useState([]);
-  const [selectedVariants, setSelectedVariants] = useState([]);
-  const [showVariant, setShowVariant] = useState(false);
-  const [addedVariants, setAddedVariants] = useState([]);
-  const [variantOptions, setVariantOptions] = useState([]);
-
-  const [showVariantField, setShowVariantField] = useState(false);
-
-  const [propertyOption, setPropertyOption] = useState([]);
-
-  const [showDone, setShowDone] = useState(false);
-  const [showEdit, setShowEdit] = useState(false);
-  const [images, setImages] = useState([]);
-  const [oldVariantImages, setOldVariantImages] = useState([]);
-  const [newVariantImages, setNewVariantImages] = useState([]);
   const [selectedCat, setSelectedCat] = useState([]);
-  const [fetchedVariants, setFetchedVariants] = useState([]);
+  const [product, setProduct] = useState({});
+  const [brand, setBrand] = useState({});
+  const [productMedia, setProductMedia] = useState([]);
+  const [images, setImages] = useState([]);
+  const [options, setOptions] = useState([]);
+  const [showOptionForm, setShowOptionForm] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
+  const [showVariants, setShowVariants] = useState(false);
   const [variants, setVariants] = useState([]);
-  const [showImage, setShowImage] = useState(true);
+  const [optionErrors, setOptionErrors] = useState({});
+  const [optionsArray, setOptionsArray] = useState([]);
+  const [formData, setFormData] = useState([]);
   const [deletedImages, setDeletedImages] = useState([]);
-  const [dataLoaded,setDataLoaded] = useState(false)
-  const [formData,setFormData] = useState({})
-  const [initialValues,setInitialValues] = useState({})
-  const [updatedProductVariant,setUpdatedProductVariant] = useState([]);
+  const [fetchedProductVariants, setFetchedProductVariants] = useState([]);
+  const [showNewVariantForm, setShowNewVariantForm] = useState(false);
+  const [showOldVariantForm, setShowOldVariantForm] = useState(false);
+  const [oldOptions, setOldOptions] = useState([]);
+  const [showAddOptionButton, setShowAddOptionButton] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [deleteId, setdeleteId] = useState("");
+  const [valuesArray, setValuesArray] = useState([]);
+  const [showVariantOptions, setShowVariantOptions] = useState(false);
+  const [oldVariantImages, setOldVariantImages] = useState([]);
+  const [forceUpdate, setForceUpdate] = useState(false);
+  const [variantImages, setVariantImages] = useState([]);
+  const [mediaItems, setMediaItems] = useState([]);
+  const [reorderedMediaItems, setReorderedMediaItems] = useState([]);
 
-  // custom error
-  const [productVariants1, setProductVariants1] = useState([
-    { variantSKU: "" },
-  ]);
-  const [variantErrors, setVariantErrors] = useState({});
+  const [initialValues, setInitialValues] = useState({
+    name: "",
+    description: "",
+    description_short: "",
+    sku: "",
+    weight: "",
+    length: "",
+    width: "",
+    quantity_min: "",
+    stock: "",
+    price: "",
+    discounted_price: "",
+    cost: "",
+    published: false,
+    brand_id: "",
+    category: [],
+    productVariants: [],
+    files: [],
+    options: [],
+  });
 
-  // show hide modal
+  const style = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: 400,
 
-  // const imageBaseUrl = "http://localhost:3500/uploads/";
-  // const imageBaseUrl = "http://165.22.222.184/api/uploads/";
-  
-  // const imageBaseUrl = "https://64.227.162.145/api/uploads/";
-
-  // const imageBaseUrl = `${process.env.REACT_APP_API_URL}/api/uploads/`;
-  const imageBaseUrl = `${process.env.REACT_APP_MEDIA_URL}`;
-  
-
-  const [show, setShow] = useState(false);
-
-  const handleClose = () => setShow(false);
-  const handleShow = () => {
-    // console.log(propertyOption);
-    setShow(true);
+    bgcolor: "background.paper",
+    border: "2px solid white",
+    borderRadius: "10px",
+    boxShadow: 24,
+    pt: 4,
+    px: 4,
+    pb: 5,
   };
 
   // const brandOptions = []
   const catOptions = [];
 
- 
+  const imageBaseUrl = `${process.env.REACT_APP_MEDIA_URL}`;
+  //   const initialValues = {
+  //     name: "",
+  //     // description: "",
+  //     // field: "",
+  //     // variants: [],
+  //     // productVariant: [],
+  //     // options: [
+  //     //   { name: "Size", values: [] },
+  //     //   { name: "Color", values: [] },
+  //     // ],
+  //     files: [],
+  //     // variantImages: []
+
+  //     // variants: [
+  //     //   { name: "", options: [] },
+
+  //     // ],
+  //     options: [{}, {}, {}],
+  //     additional_descriptions: []
+  //   };
 
   const fetchCategory = async () => {
     const res = await dispatch(fetchAllCategories()).unwrap();
@@ -118,643 +154,403 @@ const EditProduct = () => {
     setBrandOption(res);
   };
 
-  const fetchProperty = async () => {
-    const res = await dispatch(fetchAllProperties()).unwrap();
-    // console.log(res);
-    setPropertyOption(res);
-    return res;
-  };
-
   useEffect(() => {
     fetchBrand();
-    fetchProperty();
   }, [dispatch]);
+  // console.log(propertyOption);
 
-  const renderVariants = (fecthedVariant, propOption) => {
-     console.log(fecthedVariant);
-    const variants = propOption
-      ?.map((prop) => {
-        const foundVariant = fecthedVariant.find(
-          (item) => item._id === prop._id
-        );
-
-        return foundVariant;
-      })
-      .flat();
-    console.log(variants);
-    // Create a Set with unique _id values
-    if (variants) {
-      const uniqueVariants = [
-        ...new Set(variants?.map((variant) => variant._id)),
-      ].map((id) => {
-        return variants.find((variant) => variant._id === id);
-      });
-      setVariants(uniqueVariants); // Set uniqueVariants here
-    }
-  };
-
-  const uploadProductVariant = (productVariants) => {
-    let data = [];
-    data = productVariants.map((item) => ({
-      variantName: item.name,
-      variantSKU: item.sku,
-      variantPrice: item.price,
-      variantStock: item.stock,
-    }))
-   
-    setUpdatedProductVariant(data);
-    setInitialValues({productVariant: data})
-    
-  };
+  useEffect(() => {
+    fetchProduct();
+    //   setDataLoaded(true)
+  }, [dispatch]);
 
   const fetchProduct = async () => {
     const res = await dispatch(fetchProductById({ id })).unwrap();
     console.log(res);
     setProduct(res.product);
-    setBrand(res.brand);
-    setFetchedProductVariant(res.productVariant);
-    uploadProductVariant(res.productVariant);
-    // setFetchedProductVariant(prevState => ({
-    //   ...prevState,
-    //   fetchedProductVariant: res.productVariant
-    // }));
-    setProductMedia(res.productMedia);
-    setFetchedVariants(res.variantProperties);
-    setInitialValues({
-      name:res.product.name,
-      description: res.product.description,
-      description_short: res.product.description_short,
-      meta_title: res.product.meta_title,
-      meta_description: res.product.meta_description,
-      meta_keywords: res.product.meta_keywords,
-      sku: res.product.sku,
-      weight: res.product.weight,
-      length: res.product.length,
-      width: res.product.width,
-      quantity_default: res.product.quantity_default,
-      quantity_min: res.product.quantity_min,
-      quantity_max: res.product.quantity_max,
-      stock: res.product.stock,
-      price: res.product.price,
-      discounted_price: res.product.discounted_price,
-      cost: res.product.cost,
-      price_includes_tax:  res.product.price_includes_tax,
-      published: res.product.published,
-      brand_id:  res.product.brand_id,
-      category: res.product.categories,
-      productVariant: res.productVariant
-    })
-   
+    // setBrand(res.brand);
 
-    setSelectedCat(res.product.categories);
-    const prop = await fetchProperty();
-     
+    // setProductMedia(res.product.media);
 
-    console.log(res.variantProperties)
-    if(res.variantProperties.length > 0 && prop.length > 0) {
-      
-      renderVariants(res.variantProperties, prop);
+    const initialValues = {
+      name: res.product.name || "",
+      description: res.product.description || "",
+      description_short: res.product.description_short || "",
+      sku: res.product.sku || "",
+      weight: res.product.weight || "",
+      length: res.product.length || "",
+      width: res.product.width || "",
+      quantity_min: res.product.quantity_min || "",
+      stock: res.product.stock || "",
+      price: res.product.price || "",
+      discounted_price: res.product.discounted_price || "",
+      cost: res.product.cost || "",
+      published: res.product.published || false,
+      brand_id: res.product.brand_id || "",
+      category: res.product.categories || [],
+      productVariants: res.product.product_variants || [],
+      additional_descriptions: res.product.additional_descriptions || [],
+      files: [],
+      options: [],
+    };
+    if (res.product.product_variants.length > 0) {
+      setShowOldVariantForm(true);
     }
-    
-    addMediaToFetchedProduct(res.productVariant, res.productMedia);
-
-    // setFilteredCategories(res);
+    setInitialValues(initialValues);
+    setSelectedCat(res.product.categories);
+    setFetchedProductVariants(res.product.product_variants);
+    setFormData(res);
+    setOldOptions(res.product.options);
+    setShowAddOptionButton(true)
+    setMediaItems(res.product.media);
+    addMediaToFetchedVariant(res.product.product_variants, res.product.media);
+    const media_items = res.product.media.filter(
+      (item) => item.variant_id === ""
+    );
+    // setMediaItems(media_items);
   };
-
-  useEffect(() => {
- 
-      fetchProduct();
-      setDataLoaded(true)
-      
-    
-  }, [dispatch]);
-
-  const addMediaToFetchedProduct = (productVariant, productMedia) => {
-    // console.log(productVariant);
-    // console.log(productMedia);
-    const updatedProductVariant = productVariant?.map((product) => {
-      const matchedMedia = productMedia?.find(
-        (media) => product.id === media.variant_id
-      );
-
-      if (matchedMedia) {
-        return {
-          variantName: product.name,
-          variantSKU: product.sku,
-          variantPrice: product.price,
-          variantStock: product.stock,
-         
-          image: matchedMedia.file_name,
-        };
-      }
-
-      return product;
-    });
-
-    // console.log(updatedProductVariant);
-    setFetchedProductVariant(updatedProductVariant);
-  };
-
-  console.log(fetchedProductVariant)
-
-  // console.log(fetchedproductVariant)
-  // console.log(fetchedVariants)
-
-  // Transform category IDs to category objects
-  const selectedCategories = selectedCat.map((catId) => {
-    const category = catOption.find((cat) => cat.value === catId);
-    // console.log(category);
-    return category ? { value: category.value, label: category.label } : null;
-  }).filter(Boolean);
+  // console.log(fetchedProductVariants)
 
   const capitalize = (str) => {
     return str[0].toUpperCase() + str.slice(1);
   };
 
   const handleSubmit = async (values, errors) => {
-    // console.log(errors);
-    // console.log(values);
-    setProductVariants1(values.productVariant1);
+    // values.deletedImages = deletedImages;
+    // values.oldImageIndex = [];
+    // values.oldVariantImages = oldVariantImages;
+    // console.log(mediaItems);
+    // // reordered media items
 
-    const newErrors = {};
-    // productVariants1?.forEach((variant, index) => {
-    //   if (!variant.variantSKU) {
-    //     newErrors[`productVariant1.${index}.variantSKU`] =
-    //       "Variant SKU is required";
-    //   }
-    //   if (!variant.variantPrice) {
-    //     newErrors[`productVariant1.${index}.variantPrice`] =
-    //       "Variant Price is required";
-    //   }
-    // });
+    // values.reorderedMediaItems = reorderedMediaItems;
 
-    // productVariants1.forEach((variant, index) => {
-    //   if (!variant.variantSKU || !variant.variantPrice) {
-    //     newErrors[index] = { variantSKU: "Variant SKU is required" };
-    //     newErrors[index] = { variantPrice: "Variant Price is required" };
-    //    } else {
-    //     newErrors[index] = {};
+    // oldVariantImages?.map((file, index) => {
+    //   if (file) {
+    //     values.oldImageIndex.push({
+    //       variant_id: values.productVariants[index]._id,
+    //       name: file.name,
+    //       index: index,
+    //       variantName: values.productVariants[index].variantName,
+    //     });
     //   }
     // });
 
-    // console.log(newErrors);
-    // if (Object.keys(newErrors).length > 0) {
-    //   setVariantErrors(newErrors);
+    //  console.log(images);
+    // console.log(variants);
 
-    //   return;
-    // }
-    // console.log(variantErrors);
-
-    values.newVariantImages = newVariantImages;
-    values.deletedImages = deletedImages;
-
-    //   const mergedArray1 = values.productVariant.map((variant, index) => {
-    //     return {
-
-    //             file: oldVariantImages[index],
-    //             name: selectedVariants[index]
-
-    //     };
-    // });
-    values.oldImageIndex = [];
-    values.oldVariantImages = oldVariantImages;
-    oldVariantImages?.map((file, index) => {
-      values.oldImageIndex.push({ name: file.name, index: index });
-    });
-
-    //  console.log(values.oldImageIndex)
-
-    values.productVariant.forEach((item, itemIndex) => {
-      // const index = item.index; // Getting the index from the current item
-
-      const matchingVariant = values.oldImageIndex.find(
-        (old_image) => old_image.index === itemIndex
-      );
-      // console.log(matchingVariant)
-
-      if (matchingVariant) {
-        matchingVariant.variantName = item.variantName;
-      }
-    });
-    // console.log(values.oldImageIndex)
-
-    const mergedArray = values.productVariant1.map((variant, index) => ({
+    const mergedArray = values.productVariantsNew?.map((variant, index) => ({
       ...variant,
 
-      variantName: selectedVariants[index],
-      imageName: newVariantImages[index]?.name, // Assuming images is an array of image objects or URLs
+      image: images[index],
+      variantName: variants[index],
+      // variantOption: options[index].optionName
+      // variantName: selectedVariants[index]// Assuming images is an array of image objects or URLs
     }));
+    values.productVariantsNew = mergedArray;
+    values.options = optionsArray;
+    values.images = images;
 
-    // values.variantImages = newVariantImages
-    values.productVariant1 = mergedArray;
-    // console.log(values.productVariant1.oldVariantImages)
-    // console.log(variants)
-    // console.log(values.variants)
-    values.variants = variants;
-    // console.log(images)
-    // console.log(deletedImages)
-    // console.log(oldVariantImages);
-    // console.log(newVariantImages);
-    // console.log(values)
+    values.category = selectedCat
+      .map((catId) => {
+        const category = catOption.find((cat) => cat.value === catId);
+        // console.log(category);
+        return category
+          ? { value: category.value, label: category.label }
+          : null;
+      })
+      .filter(Boolean);
 
-    // const mergedArray = values.productVariant.map((variant, index) => ({
-    //   ...variant,
-    //   image: images[index],
-    //   variantName: selectedVariants[index],
-    //   // variantName: selectedVariants[index]// Assuming images is an array of image objects or URLs
-    // }));
-    // // values.variantImages = images
-    // values.productVariant = mergedArray;
-
-    if (typeof values?.meta_keywords === "string") {
-      const metaKeyword = values?.meta_keywords?.split(", ");
-      values.meta_keywords = metaKeyword;
-    }
-
-    values.category = selectedCat.map((catId) => {
-      const category = catOption.find((cat) => cat.value === catId);
-      // console.log(category);
-      return category ? { value: category.value, label: category.label } : null;
-    }).filter(Boolean);
-
-    // console.log(mergedArray)
-
-    //  console.log(errors);
-    // console.log(selectedVariants);
-    // console.log(images)
-    //  console.log(values)
+    console.log(values);
+    console.log(mediaItems);
     //  console.log(errors)
-    const res = await dispatch(updateProduct({ id, values })).unwrap();
-    if (res) {
-      toast.success("Product updated successfully!");
-      navigate("/product");
-    }
+    // const res = await dispatch(updateProduct({ id, values })).unwrap();
+    // if (res.status === 200) {
+    //   toast.success("Product updated successfully!");
+    //   navigate("/product");
+    // }
+    // if (res.status === 400) {
+    //   toast.error(res.message);
+    // }
   };
 
-  const handleVariantSubmission = (values, errors) => {
-    setShowDone(true);
-    setShowEdit(true);
-
-    // console.log(values.variants);
-    // console.log(addedVariants);
-
-    if (addedVariants.length > 0) {
-      const updatedVariants = [
-        ...variants,
-        ...addedVariants.filter(
-          (addedVariant) =>
-            !variants.find((variant) => variant.id === addedVariant.id)
-        ),
-      ];
-
-      setVariants(updatedVariants);
-    }
-    if (addedVariants.length === 0) {
-      setAddedVariants([]);
-      console.log("empty variant");
-    }
-
-    const filteredVariants = values.variants?.filter((variant) => {
-      if (variant) {
-        // Check if the variant with the same name already exists in addedVariants
-
-        // if(fetchedProductVariant) {
-        //   const existingVariantIndex = propertyOption.findIndex(
-        //     (property) =>
-        //       property.name === variant.name ||
-        //       (variant.name === "Custom" && variant.customName === property.name)
-
-        //   );
-        // }
-        // console.log(variant);
-        // console.log("inside");
-        const existingVariantIndex = addedVariants.findIndex(
-          (property) =>
-            property.name === variant.name ||
-            (variant.name === "Custom" && variant.customName === property.name)
-        );
-        if (existingVariantIndex === -1) {
-          // Variant does not exist, add it to addedVariants
-          let newVariant;
-          if (variant.name === "Custom") {
-            newVariant = {
-              name: variant.customName,
-              options: [...variant.options],
-            };
-          } else {
-            newVariant = { name: variant.name, options: [...variant.options] };
-          }
-          setAddedVariants([...addedVariants, newVariant]);
-        } else {
-          // Variant already exists, update its options
-          const updatedVariants = addedVariants.map((variantItem, index) => {
-            if (index === existingVariantIndex) {
-              const mergedOptions = [
-                ...new Set([...variantItem.options, ...variant.options]),
-              ];
-              return { ...variantItem, options: mergedOptions };
-            }
-            return variantItem;
-          });
-          setAddedVariants(updatedVariants);
-          // console.log(updatedVariants);
-        }
-      } else {
-        // console.log("Variant is invalid:", variant);
-        // console.log("outside");
-        // Handle the case where the variant is invalid, such as showing an error message
-      }
-      // console.log("last");
-    });
-
-    setShowVariant(true);
-  };
-  // console.log(variants);
-
-  // useEffect to perform actions dependent on addedVariants
   useEffect(() => {
-    // console.log(addedVariants);
-    // let options = addedVariants?.map((variant) => variant.options).flat();
-    // console.log(options);
-
-    // const generateVariantNames = () => {
-    //   const combinations = [];
-
-    //   fetchedProductVariant.forEach((variant) => {
-    //     options.forEach((option, index) => {
-    //       console.log(option);
-    //       combinations.push(`${variant.name} ${option}`);
-    //     });
-    //   });
-
-    //   return combinations;
-    // };
-    // const variantNames = generateVariantNames();
-    // console.log(variantNames);
-
-    const variantNames = [];
-    const options = addedVariants?.map((variant) => variant.options);
-    // console.log(options);
-
-    const generateVariantNames = (currentIndex, currentName) => {
-      if (currentIndex === addedVariants.length) {
-        variantNames.push(currentName.trim());
-      } else {
-        options[currentIndex].forEach((option) => {
-          const newName = currentName + option + " ";
-          generateVariantNames(currentIndex + 1, newName);
-        });
+    console.log(options);
+    console.log(oldOptions);
+    const combinedArray = [];
+    const generateCombinations = (optionsArray, index = 0, current = []) => {
+      if (index === optionsArray.length) {
+        combinedArray.push(current.join("-"));
+        return;
       }
-    };
-    generateVariantNames(0, "");
-    console.log(variantNames);
 
-    let mergedCombinations = [];
-    if(fetchedProductVariant.length > 0) {
-      fetchedProductVariant.forEach((fetched) => {
-        variantNames.forEach((option) => {
-          console.log(option);
-          mergedCombinations.push(`${fetched.name} ${option}`);
-        });
-      });
-      setSelectedVariants(mergedCombinations);
-    } else {
-      setSelectedVariants(variantNames);
-    }
-    
-
-    const addedVariantOptions = [];
-    addedVariants?.map((variant) => {
-      variant.options?.map((option) => {
-        // console.log(option)
-        addedVariantOptions.push(option);
-      });
-    });
-
-    console.log(mergedCombinations);
-    setVariantOptions(addedVariantOptions);
-    
-    // setfetchedProductVariant(variantNames);
-  }, [addedVariants]);
-  // console.log(selectedVariants)
-  // console.log(variantOptions)
-
-  const renderVariantsByGroup = (groupName) => {
-    return selectedVariants
-      .filter((variant) => variant.name === groupName)
-      .map((variant, index) => (
-        <li key={index}>
-          <strong>{variant.customName || variant.name}</strong>:{" "}
-          {variant.options.join(", ")}
-        </li>
-      ));
-  };
-
-  // console.log(showVariant);
-  //  console.log(selectedVariants);
-
-  const generateVariantName = (selectedOptions) => {
-    return selectedOptions?.map((option) => option.values?.join(" ")).join(" ");
-  };
-
-  const handleReset = () => {
-    setShowVariant(false);
-    // setShowDone(false);
-    // console.log()
-  };
-
-  // console.log(addedVariants);
-
-  const removeOption = (option) => {
-    const deleteVariants = [];
-    const filteredVariants = selectedVariants?.filter(
-      (variant) => !variant.includes(option)
-    );
-
-    const filteredOptions = variantOptions?.filter(
-      (variantOption) => !variantOption.includes(option)
-    );
-    // console.log(filteredOptions);
-    setSelectedVariants(filteredVariants);
-    // setAddedVariants(filteredAddedVariants)
-    setVariantOptions(filteredOptions);
-  };
-
-  const handleSelectChange = (e, index) => {
-    // e.preventDefault();
-
-    // console.log(e.target.value);
-    // console.log(propertyOption)
-    setShowDone(true);
-    const variant = propertyOption?.find(
-      (property) => property.name === e.target.value
-    );
-
-    if (variant) {
-      // console.log(variant);
-      // Check if the variant with the same name already exists in addedVariants
-      const variantExists = addedVariants.some(
-        (property) =>
-          property.name === variant.name ||
-          (property.name === "Custom" && property.customName === variant.name)
-      );
-
-      if (!variantExists) {
-        //  console.log(variant);
-        setAddedVariants([
-          ...addedVariants,
-          { name: variant.name, options: variant.options },
+      options[index]?.options?.forEach((option) => {
+        generateCombinations(optionsArray, index + 1, [
+          ...current,
+          option.value,
         ]);
-      } else {
-        // console.log("Variant already exists:", variant.name);
-        // Handle the case where the variant already exists, such as showing an error message
-      }
-    }
+      });
+    };
 
-    //  setShowVariant(true);
-  };
-  //   console.log(addedVariants);
-  const handleVariantDelete = (values, index) => {
-    console.log(index);
-    console.log(addedVariants);
+    generateCombinations(options);
+    setOptionsArray(options);
 
-    // propertyOption?.map()
+    console.log(combinedArray);
+    setVariants(combinedArray);
+  }, [options]);
 
-    // setFetchedProductVariant((prevVariants) =>
-    //   prevVariants.filter((item, i) => item.id !== index)
-    // );
-    // setAddedVariants([]);
-  //  addedVariants.splice(index, 1);
-  setAddedVariants(prevVariants => {
-    const newVariants = [...prevVariants]; // Create a copy of the array
-    newVariants.splice(index, 1); // Remove the element at indexToRemove
-    console.log(newVariants)
-    return newVariants; // Update the state with the modified array
-  });
-    console.log(addedVariants);
-    // console.log(selectedVariants);
-    setSelectedVariants(addedVariants)
-    //  setAddedVariants(values.variants)
-  };
+  //   console.log(variants)
 
+  // const handleOldFileChange = (e, index) => {
+  //   const selectedFile = e.target.files[0];
 
- 
+  //   // Update the images state with the selected file for the specific row
+  //   // const updatedImages = [...oldVariantImages];
 
-  const handleFileChange = (e, index, type) => {
+  //   const updatedImages = [...oldVariantImages];
+  //   updatedImages[index] = selectedFile;
+  //   // setShowImage(false);
+  //   setOldVariantImages(updatedImages);
+  // };
+
+  // const handleFileChange = (e) => {
+  //   const selectedFile = e.target.files[0];
+
+  //   // Calculate new index based on the current length of mediaItems
+  //   const newIndex = mediaItems.length;
+
+  //   // Create a new media item with the selected file
+  //   const newMediaItem = {
+  //     file_name: selectedFile.name,
+  //     file_size: selectedFile.size,
+  //     file_type: selectedFile.type,
+  //     file: selectedFile, // Temporarily store the file object for upload
+  //     preview: URL.createObjectURL(selectedFile), // Create a preview URL for the selected file
+  //   };
+
+  //   // Update the mediaItems state by adding the new media item
+  //   const updatedMediaItems = [...mediaItems, newMediaItem];
+  //   setMediaItems(updatedMediaItems);
+  // };
+
+  const handleFileChange = (e, variantId) => {
     const selectedFile = e.target.files[0];
 
-    // Update the images state with the selected file for the specific row
-    if (type === "oldVariantImages") {
-      const updatedImages = [...oldVariantImages];
-      updatedImages[index] = selectedFile;
-      // setShowImage(false);
-      setOldVariantImages(updatedImages);
+    // Create a new media item with the selected file
+    const newMediaItem = {
+      file_name: selectedFile.name,
+      file_size: selectedFile.size,
+      file_type: selectedFile.type,
+      file: selectedFile,
+      preview: URL.createObjectURL(selectedFile),
+      variant_id: variantId,
+    };
+
+    // Update the mediaItems state by adding the new media item or replacing the existing one for the variant
+    const updatedMediaItems = [...mediaItems];
+    const existingIndex = updatedMediaItems.findIndex(
+      (item) => item.variant_id === variantId
+    );
+    if (existingIndex >= 0) {
+      updatedMediaItems[existingIndex] = newMediaItem;
     } else {
-      const updatedImages = [...newVariantImages];
-      updatedImages[index] = selectedFile;
-      // setShowImage(false);
-      setNewVariantImages(updatedImages);
+      updatedMediaItems.push(newMediaItem);
     }
+
+    setMediaItems(updatedMediaItems);
   };
 
-  const handleImageDelete = (id) => {
-    //  console.log(id);
-    const newImages = productMedia.filter((img) => img.id !== id);
-    setProductMedia(newImages);
-    setDeletedImages((prevDeletedImages) => [...prevDeletedImages, id]);
-    // console.log(newImages);
-  };
-
-  const handleNewVariant = (newVariant) => {
-    // Handle new variant data
-    console.log("New Variant:", newVariant);
-    // Update state or perform other operations
-  };
-
-  //   product variant data table columns
-  const removeVariantRow = (indexToRemove, setFieldValue, values) => {
-    const updatedVariants = [...selectedVariants];
-    updatedVariants.splice(indexToRemove, 1);
-    setSelectedVariants(updatedVariants);
-
-    // console.log(indexToRemove)
-    // console.log(values.productVariant1)
-    // setFieldValue(
-    //   'productVariant1',
-    //   values.productVariant1.filter((_, index) => index !== indexToRemove)
-    // );
-  };
-
-  // const  removeVariantRow = (indexToRemove) => {
-
-  //   setValues(prevValues => ({
-  //     ...prevValues,
-  //     productVariant1: prevValues.productVariant1.filter((_, index) => index !== indexToRemove)
-  //   }));
-  // }
-
-  // const columns = [
-  //   {
-  //     name: "Name",
-  //     selector: (row) => row.name,
-  //     sortable: true,
-  //   },
-  //   {
-  //     name: "Price",
-  //     selector: (row) => row.price,
-  //     sortable: true,
-  //   },
-  //   // {
-  //   //   name: "Short Description",
-  //   //   selector: (row) => row.description_short,
-  //   //   sortable: true,
-  //   // },
-  //   {
-  //     name: "SKU",
-  //     selector: (row) => row.sku,
-  //     sortable: true,
-  //   },
-  //   {
-  //     name: "Stock",
-  //     selector: (row) => row.stock,
-  //     sortable: true,
-  //   },
-  //   // {
-  //   //     name: 'Meta Description',
-  //   //     selector: row => row.meta_description,
-  //   //     sortable: true,
-  //   // },
-  //   {
-  //     name: "Action",
-  //     cell: (row) => (
-  //       <div>
-  //         <button
-  //           type="button"
-  //           className="btn btn-sm btn-danger ms-1"
-  //           // onClick={() => handleVariantDelete(row.id)}
-  //         >
-  //           <span>
-  //             <FontAwesomeIcon icon={faTrash} />
-  //           </span>
-  //         </button>
-  //       </div>
-  //     ),
-  //   },
-  //   // {
-  //   //     name: 'Created',
-  //   //     selector: row => row.createdAt,
-  //   //     sortable: true,
-  //   // },
-  // ];
+  console.log(mediaItems);
+  console.log(fetchedProductVariants);
 
   const goBack = () => {
     window.history.back();
   };
 
+  const handleOptionDelete = (values, optionName) => {
+    console.log(optionName);
+    setOptions((prev) => prev.filter((opt) => opt.optionName !== optionName));
+    console.log(options);
+    // Reset form or any other necessary state changes
+    values.optionName = "";
+    values.options = [{}, {}, {}];
+    setShowOptionForm(false);
+    setShowOptions(true);
+    setShowVariantOptions(true);
+  };
+
+  const handleOptiondone = async (values, validateForm) => {
+    setShowOldVariantForm(false);
+    // setShowNewVariantForm(true);
+
+    setOptions((prev) => {
+      // Check if prev is an array and log its value
+      if (!Array.isArray(prev)) {
+        console.error("prev is not an array:", prev);
+        // Initialize prev as an empty array if it's not already an array
+        prev = [];
+      }
+
+      const index = prev.findIndex(
+        (opt) => opt.optionName === values.optionName
+      );
+      const newOption = {
+        optionName: values.optionName,
+        options: values.options,
+      };
+
+      if (index !== -1) {
+        const updatedOptions = [...prev];
+        updatedOptions[index] = newOption;
+        return updatedOptions;
+      } else {
+        return [...prev, newOption];
+      }
+    });
+
+    values.optionName = "";
+    values.options = [{}, {}, {}];
+    setShowOptionForm(false);
+    setShowOptions(true);
+    setShowVariantOptions(true);
+  };
+
+  const handleVariantEdit = (values, setFieldValue, option) => {
+    // console.log(option);
+    setFieldValue("optionName", option.optionName);
+    option.options?.map((item, index) => {
+      setFieldValue(`options.${index}.value`, item.value);
+    });
+
+    // setOptions(values.options)
+    setShowOptionForm(true);
+    setShowOptions(false);
+    setShowVariantOptions(false);
+  };
+
+  const handleImageDelete = (file_name) => {
+    //  console.log(id);
+    const newImages = mediaItems.filter((img) => img.file_name !== file_name);
+    setMediaItems(newImages);
+    setDeletedImages((prevDeletedImages) => [...prevDeletedImages, file_name]);
+    // console.log(newImages);
+  };
+
+  const addMediaToFetchedVariant = (productVariant, productMedia) => {
+    const updatedProductVariant = productVariant?.map((variant) => {
+      const matchedMedia = productMedia?.find(
+        (media) => variant._id === media.variant_id
+      );
+
+      if (matchedMedia) {
+        return {
+          variantName: variant.variantName,
+          variantDiscountedPrice: variant.variantDiscountedPrice,
+          variantPrice: variant.variantPrice,
+          variantStock: variant.variantStock,
+          variantId: variant._id,
+
+          image: matchedMedia.file_name,
+        };
+      }
+
+      return variant;
+    });
+
+    setFetchedProductVariants(updatedProductVariant);
+  };
+
+  const deleteOldVariant = (values) => {
+    values.optionName = "";
+    values.options = [{}, {}, {}];
+    // setFetchedProductVariants([])
+    setShowAddOptionButton(true);
+    setShowOldVariantForm(false);
+    const newOption = {
+      optionName: values.optionName,
+      options: values.options,
+    };
+
+    setOptions(newOption);
+
+    setOpen(false);
+  };
+
+  const handleOpen = (values) => {
+    //  setdeleteId(optionName);
+    setValuesArray(values);
+    setOpen(true);
+    console.log("open");
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const onDragEnd = (result, values, setFieldValue) => {
+    if (!result.destination) return;
+
+    const reorderedOptions = Array.from(options);
+    const [movedOption] = reorderedOptions.splice(result.source.index, 1);
+    reorderedOptions.splice(result.destination.index, 0, movedOption);
+
+    console.log("Original options:", options);
+    console.log("Reordered options:", reorderedOptions);
+    setOptions(reorderedOptions);
+    values.productVariants = [];
+    setFieldValue("productVariantsNew", []);
+    // setFieldValue('options', reorderedOptions);
+    setTimeout(() => {
+      console.log("ProductVariants after reset:", values.productVariantsNew);
+    }, 0);
+    setVariants([]);
+    setForceUpdate((prev) => !prev);
+  };
+
+  const handleImageDragEnd = (result, values, setFieldValue) => {
+    if (!result.destination) return;
+
+    const reorderedImages = Array.from(mediaItems);
+    const [movedImage] = reorderedImages.splice(result.source.index, 1);
+    reorderedImages.splice(result.destination.index, 0, movedImage);
+
+    setMediaItems(reorderedImages);
+  };
+  const handleRemoveImage = (variantId) => {
+    const updatedMediaItems = mediaItems.filter(
+      (item) => item.variant_id !== variantId
+    );
+    setMediaItems(updatedMediaItems);
+  };
+
+  const handleMediaFileChange = (e) => {
+    const newFiles = Array.from(e.target.files).map((file) => ({
+      file_name: file.name,
+      file_size: file.size,
+      file_type: file.type,
+      file: file,
+      variant_id: "",
+      preview: URL.createObjectURL(file),
+    }));
+    setMediaItems([...mediaItems, ...newFiles]);
+  };
+  const handleMediaRemoveImage = (fileName) => {
+    const updatedMediaItems = mediaItems.filter(
+      (item) => item.file_name !== fileName
+    );
+    setMediaItems(updatedMediaItems);
+  };
+
   return (
     <Layout>
       <div className="col-12 stretch-card container-fluid">
-      <div style={{ marginBottom: '30px', display: "flex", alignItems: "center", gap: "20px", color: '#D93D6E' }}>
+        <div
+          style={{
+            marginBottom: "30px",
+            display: "flex",
+            alignItems: "center",
+            gap: "20px",
+            color: "#D93D6E",
+          }}
+        >
           <FaArrowLeft size={20} cursor="pointer" onClick={goBack} />
           <h2 className="heading">Edit Product</h2>
         </div>
@@ -771,1586 +567,1402 @@ const EditProduct = () => {
           <div>
             <div className="container">
               <div className="row">
-                {dataLoaded ? (
-                   <Formik
-                   initialValues={initialValues}
-                   enableReinitialize={true}
-                   validationSchema={editProductValidation}
-                   validateOnChange={true}
-                   validateOnBlur={true}
-                   validateOnSubmit={true}
-                   onSubmit={(values, errors) => {
-                     // console.log(errors);
-                     handleSubmit(values, errors);
-                   }}
-                 >
-                   {({
-                     values,
-                     errors,
-                     setFieldValue,
-                     isValid,
-                     isSubmitting,
-                   }) => (
-                     <Form>
-                       {/* {console.log(errors)} */}
-                       <div className="row">
-                         <div className="col-md-8">
-                           {/* card for  */}
-                           <div className="card mb-3">
-                             <div className="card-body">
-                               <div className="mb-3">
-                                 <label htmlFor="name" className="form-label">
-                                   Name
-                                 </label>
-                                 <Field
-                                   type="name"
-                                   className="form-control"
-                                   id="name"
-                                   name="name"
-                                   aria-describedby="nameHelp"
-                                 ></Field>
-                                 {errors.name && (
-                                   <small className="text-danger">
-                                     {errors.name}
-                                   </small>
-                                 )}
-                               </div>
-                               <div className="mb-3">
-                                 <label htmlFor="name" className="form-label">
-                                   Description
-                                 </label>
-                                 <Field
-                                   name="description"
-                                   // component={DraftEditor}
-                                   component={QuillEditor}
-                                 />
-                                 {errors.description && (
-                                   <small className="text-danger">
-                                     {errors.description}
-                                   </small>
-                                 )}
-                               </div>
-                               <div className="mb-3">
-                                 <label htmlFor="name" className="form-label">
-                                   Short Description
-                                 </label>
-                                 <Field
-                                   as="textarea"
-                                   name="description_short"
-                                   className="form-control"
-                                   rows="2" // Set the number of rows for the textarea
-                                   cols="50" // Set the number of columns for the textarea
-                                   placeholder="Enter short description"
-                                 />
-                               </div>
-                             </div>
-                           </div>
-                           <div className="card mb-3">
-                             <div className="card-body">
-                               <div className="mb-3">
-                                 <label
-                                   htmlFor="meta_title"
-                                   className="form-label"
-                                 >
-                                   Meta Title
-                                 </label>
-                                 <Field
-                                   type="name"
-                                   className="form-control"
-                                   id="meta_title"
-                                   name="meta_title"
-                                   aria-describedby="nameHelp"
-                                 ></Field>
-                                 {errors.meta_title && (
-                                   <small className="text-danger">
-                                     {errors.meta_title}
-                                   </small>
-                                 )}
-                               </div>
-                               <div className="mb-3">
-                                 <label
-                                   htmlFor="meta_description"
-                                   className="form-label"
-                                 >
-                                   Meta Description
-                                 </label>
-                                 <Field
-                                   name="meta_description"
-                                   component={QuillEditor}
-                                 />
-                               </div>
-                               {/* <FieldArray name="meta_keywords">
-                                 {({ push, remove }) => (
-                                   <div>
-                                     <label
-                                       htmlFor="meta_keywords"
-                                       className="form-label"
-                                       style={{ marginRight: "10px" }}
-                                     >
-                                       Meta Keywords
-                                     </label>
-                                     {values.meta_keywords?.map(
-                                       (keyword, index) => (
-                                         <div key={index} className="d-flex">
-                                           <Field
-                                             name={`meta_keywords.${index}`}
-                                             className="form-control"
-                                           />
-                                           <button
-                                             type="button"
-                                             className="btn btn-sm btn-danger"
-                                             onClick={() => remove(index)}
-                                           >
-                                             Remove
-                                           </button>
-                                         </div>
-                                       )
-                                     )}
-                                     <button
-                                       type="button"
-                                       className="btn btn-sm btn-success"
-                                       onClick={() => push("")}
-                                     >
-                                       Add Keywords
-                                     </button>
-                                   </div>
-                                 )}
-                               </FieldArray> */}
-                               <div>
-                                 <label
-                                   htmlFor="meta_keywords"
-                                   className="form-label"
-                                 >
-                                   Meta Keywords
-                                 </label>
-                                 <Field
-                                   name="meta_keywords"
-                                   type="text"
-                                   placeholder="Enter keywords separated by commas"
-                                   className="form-control"
-                                 />
-                                 <ErrorMessage
-                                   name="meta_keywords"
-                                   component="div"
-                                   className="text-danger"
-                                 />
-                               </div>
-                               <div className="mt-2">
-                                 {values?.meta_keywords &&
-                                   typeof values.meta_keywords === "string" &&
-                                   values?.meta_keywords
-                                     ?.split(", ")
-                                     .map((keyword, index) => (
-                                       <span
-                                         key={index}
-                                         className="badge bg-secondary me-1"
-                                       >
-                                         {keyword.trim()}
-                                       </span>
-                                     ))}
-                               </div>
-                             </div>
-                           </div>
-                           <div className="card mb-3">
-                             <div className="card-body">
-                               <label
-                                 htmlFor="meta_keywords"
-                                 className="form-label"
-                               >
-                                 SKU
-                               </label>
-                               <Field
-                                 name="sku"
-                                 type="text"
-                                 placeholder=""
-                                 className="form-control"
-                               />
-                               {errors.sku && (
-                                 <small className="text-danger">
-                                   {errors.sku}
-                                 </small>
-                               )}
-                               <FieldArray name="additional_properties">
-                                 {({ push, remove }) => (
-                                   <div>
-                                     <label
-                                       htmlFor="additional_properties"
-                                       className="form-label mt-4"
-                                       style={{ marginRight: "10px" }}
-                                     >
-                                       Additional Properties
-                                     </label>
-                                     {values.additional_properties?.map(
-                                       (keyword, index) => (
-                                         <div
-                                           key={index}
-                                           className="d-flex justify-content-between"
-                                         >
-                                           <label htmlFor="value">Value:</label>
-                                           <Field
-                                             name={`additional_properties.${index}.value`}
-                                             className="form-control"
-                                             style={{
-                                               maxWidth: "300px",
-                                               maxHeight: "30px",
-                                             }}
-                                           />
-                                           <div>
-                                             <label htmlFor="label">
-                                               Label:
-                                             </label>
-                                             <Field
-                                               as="select"
-                                               id="label"
-                                               name={`additional_properties.${index}.label`}
-                                               placeholder="Select label"
-                                               //  className="form-select"
-                                             >
-                                               <option value="">
-                                                 Select Label
-                                               </option>
-                                               <option value="banner">
-                                                 Banner
-                                               </option>
-                                               <option value="hero">
-                                                 Hero Image
-                                               </option>
-                                               {/* Add more options as needed */}
-                                             </Field>
-                                             <ErrorMessage
-                                               name="label"
-                                               component="div"
-                                             />
-                                           </div>
-                                           <button
-                                             className="btn btn-sm btn-danger ms-1"
-                                             onClick={() => remove(index)}
-                                           >
-                                             <span>
-                                               <FontAwesomeIcon icon={faTrash} />
-                                             </span>
-                                           </button>
-                                         </div>
-                                       )
-                                     )}
-                                     <button
-                                       type="button"
-                                       className="btn btn-sm btn-success"
-                                       onClick={() => push("")}
-                                     >
-                                       Add Properties
-                                     </button>
-                                   </div>
-                                 )}
-                               </FieldArray>
-                             </div>
-                           </div>
-                           <div className="card mb-3">
-                             <div className="card-body">
-                               <div className="row">
-                                 <div className="col-md-6">
-                                   <label
-                                     htmlFor="weight"
-                                     className="form-label"
-                                   >
-                                     Weight
-                                   </label>
-                                   <Field
-                                     type="number"
-                                     className="form-control"
-                                     id="weight"
-                                     name="weight"
-                                     aria-describedby="nameHelp"
-                                   ></Field>
-                                   {errors.weight && (
-                                     <small className="text-danger">
-                                       {errors.weight}
-                                     </small>
-                                   )}
-                                 </div>
-                                 <div className="col-md-6">
-                                   <label
-                                     htmlFor="length"
-                                     className="form-label"
-                                   >
-                                     Length
-                                   </label>
-                                   <Field
-                                     type="number"
-                                     className="form-control"
-                                     id="length"
-                                     name="length"
-                                     aria-describedby="nameHelp"
-                                   ></Field>
-                                   {errors.length && (
-                                     <small className="text-danger">
-                                       {errors.length}
-                                     </small>
-                                   )}
-                                 </div>
-                               </div>
-                               <div className="row mt-3">
-                                 <div className="col-md-6">
-                                   <label htmlFor="width" className="form-label">
-                                     Width
-                                   </label>
-                                   <Field
-                                     type="number"
-                                     className="form-control"
-                                     id="width"
-                                     name="width"
-                                     aria-describedby="nameHelp"
-                                   ></Field>
-                                   {errors.width && (
-                                     <small className="text-danger">
-                                       {errors.width}
-                                     </small>
-                                   )}
-                                 </div>
-                                 <div className="col-md-6">
-                                   <label
-                                     htmlFor="height"
-                                     className="form-label"
-                                   >
-                                     Height
-                                   </label>
-                                   <Field
-                                     type="number"
-                                     className="form-control"
-                                     id="height"
-                                     name="height"
-                                     aria-describedby="nameHelp"
-                                   ></Field>
-                                   {errors.height && (
-                                     <small className="text-danger">
-                                       {errors.height}
-                                     </small>
-                                   )}
-                                 </div>
-                               </div>
-                             </div>
-                           </div>
-                           <div className="card mb-3">
-                             <div className="card-body">
-                               <div className="row">
-                                 <div className="col-md-6">
-                                   <label
-                                     htmlFor="quantity_default"
-                                     className="form-label"
-                                   >
-                                     Default Quantity
-                                   </label>
-                                   <Field
-                                     type="number"
-                                     className="form-control"
-                                     id="quantity_default"
-                                     name="quantity_default"
-                                     aria-describedby="nameHelp"
-                                   ></Field>
-                                   {errors.quantity_default && (
-                                     <small className="text-danger">
-                                       {errors.quantity_default}
-                                     </small>
-                                   )}
-                                 </div>
-                                 <div className="col-md-6">
-                                   <label
-                                     htmlFor="quantity_min"
-                                     className="form-label"
-                                   >
-                                     Minimum Quantity
-                                   </label>
-                                   <Field
-                                     type="number"
-                                     className="form-control"
-                                     id="quantity_min"
-                                     name="quantity_min"
-                                     aria-describedby="nameHelp"
-                                   ></Field>
-                                   {errors.quantity_min && (
-                                     <small className="text-danger">
-                                       {errors.quantity_min}
-                                     </small>
-                                   )}
-                                 </div>
-                               </div>
-                               <div className="row mt-3">
-                                 <div className="col-md-6">
-                                   <label
-                                     htmlFor="quantity_max"
-                                     className="form-label"
-                                   >
-                                     Maximum Quantity
-                                   </label>
-                                   <Field
-                                     type="number"
-                                     className="form-control"
-                                     id="quantity_max"
-                                     name="quantity_max"
-                                     aria-describedby="nameHelp"
-                                   ></Field>
-                                   {errors.quantity_max && (
-                                     <small className="text-danger">
-                                       {errors.quantity_max}
-                                     </small>
-                                   )}
-                                 </div>
-                                 <div className="col-md-6">
-                                   <label htmlFor="stock" className="form-label">
-                                     Stock
-                                   </label>
-                                   <Field
-                                     type="number"
-                                     className="form-control"
-                                     id="stock"
-                                     name="stock"
-                                     aria-describedby="nameHelp"
-                                   ></Field>
-                                   {errors.stock && (
-                                     <small className="text-danger">
-                                       {errors.stock}
-                                     </small>
-                                   )}
-                                 </div>
-                               </div>
-                             </div>
-                           </div>
-                           <div className="card mb-3">
-                             <div className="card-body">
-                               <div className="row">
-                                 <div className="col-md-6">
-                                   <label htmlFor="price" className="form-label">
-                                     Price
-                                   </label>
-                                   <Field
-                                     type="number"
-                                     className="form-control"
-                                     id="price"
-                                     name="price"
-                                     aria-describedby="nameHelp"
-                                   ></Field>
-                                   {errors.price && (
-                                     <small className="text-danger">
-                                       {errors.price}
-                                     </small>
-                                   )}
-                                 </div>
-                                 <div className="col-md-6">
-                                   <label
-                                     htmlFor="discounted_price"
-                                     className="form-label"
-                                   >
-                                     Discounted Price
-                                   </label>
-                                   <Field
-                                     type="number"
-                                     className="form-control"
-                                     id="discounted_price"
-                                     name="discounted_price"
-                                     aria-describedby="nameHelp"
-                                   ></Field>
-                                   {errors.discounted_price && (
-                                     <small className="text-danger">
-                                       {errors.discounted_price}
-                                     </small>
-                                   )}
-                                 </div>
-                               </div>
-                               <div className="row mt-3">
-                                 <div className="col-md-6">
-                                   <label htmlFor="cost" className="form-label">
-                                     Cost
-                                   </label>
-                                   <Field
-                                     type="number"
-                                     className="form-control"
-                                     id="cost"
-                                     name="cost"
-                                     aria-describedby="nameHelp"
-                                   ></Field>
-                                   {errors.cost && (
-                                     <small className="text-danger">
-                                       {errors.cost}
-                                     </small>
-                                   )}
-                                 </div>
-                                 <div className="col-md-6">
-                                   <label
-                                     htmlFor="price_includes_tax"
-                                     className="form-label"
-                                   >
-                                     Price Includes Tax:
-                                   </label>
-                                   <Field
-                                     as="select"
-                                     id="price_includes_tax"
-                                     name="price_includes_tax"
-                                     // placeholder="Select label"
-                                     className="form-select"
-                                   >
-                                     <option value="">Select </option>
-                                     <option value="yes">Yes</option>
-                                     <option value="no">No</option>
-                                     {/* Add more options as needed */}
-                                   </Field>
-                                   <ErrorMessage
-                                     name="price_includes_tax"
-                                     component="div"
-                                   />
-                                 </div>
-                               </div>
-                             </div>
-                           </div>
-                           <div className="card mb-3">
-                             <div className="card-body">
-                               <div className="row">
-                                 <h6>Product Variant</h6>
-                                 {/* {console.log(fetchedproductVariant)} */}
-                                 <div className="mt-4">
-                                   <FieldArray name="addedVariants">
-                                     {({
-                                       push,
-                                       remove: removeSelectedVariant,
-                                     }) => (
-                                       <>
-                                         {variants?.map(
-                                           (selectedVariant, varIndex) => (
-                                             <div
-                                               className="border mb-2"
-                                               key={varIndex}
-                                             >
-                                               <label
-                                                 htmlFor="published"
-                                                 className="form-label"
-                                               >
-                                                 {selectedVariant.name ===
-                                                 "Custom"
-                                                   ? selectedVariant.customName
-                                                   : selectedVariant.name}
-                                               </label>
-                                               <div className="d-flex">
-                                                 {selectedVariant.options?.map(
-                                                   (option, index) => (
-                                                     <div
-                                                       key={index}
-                                                       className="badge rounded-pill text-bg-secondary ms-2"
-                                                       style={{
-                                                         cursor: "pointer",
-                                                       }}
-                                                       onClick={() =>
-                                                         removeOption(option)
-                                                       }
-                                                     >
-                                                       {option}
-                                                     </div>
-                                                   )
-                                                 )}
-                                               </div>
-                                               {/* <button
-                                                   type="button"
-                                                   onClick={() =>
-                                                     removeSelectedVariant(
-                                                       varIndex
-                                                     )
-                                                   }
-                                                 >
-                                                   Remove Variant
-                                                 </button> */}
-                                             </div>
-                                           )
-                                         )}
-                                       </>
-                                     )}
-                                   </FieldArray>
-                                 </div>
- 
-                                 {fetchedProductVariant.length > 0 &&
-                                   !showVariant && (
-                                     // <div className="table-responsive">
-                                     //   <DataTable
-                                     //     // title="Category"
-                                     //     columns={columns}
-                                     //     data={fetchedproductVariant}
-                                     //     fixedHeader
-                                     //     pagination
-                                     //     highlightOnHover
-                                     //     subHeader
-                                     //     //    subHeaderComponent={
-                                     //     //      <input
-                                     //     //        type="text"
-                                     //     //        className="w-25 form-control"
-                                     //     //        placeholder="Search Category"
-                                     //     //        value={search}
-                                     //     //        onChange={(e) => setSearch(e.target.value)}
-                                     //     //      />
-                                     //     //    }
-                                     //   />
-                                     // </div>
-                                     <FieldArray name="productVariant">
-                                       <div className="row table-responsive">
-                                         <table className="table">
-                                           <thead>
-                                             <tr>
-                                               {/* <th scope="col">#</th> */}
-                                               <th
-                                                 scope="col"
-                                                 style={{ width: "200px" }}
-                                               >
-                                                 Image
-                                               </th>
-                                               <th
-                                                 scope="col"
-                                                 style={{ width: "200px" }}
-                                               >
-                                                 Variant
-                                               </th>
-                                               <th
-                                                 scope="col"
-                                                 style={{ width: "100px" }}
-                                               >
-                                                 SKU
-                                               </th>
-                                               <th
-                                                 scope="col"
-                                                 style={{ width: "100px" }}
-                                               >
-                                                 Price
-                                               </th>
-                                               <th
-                                                 scope="col"
-                                                 style={{ width: "100px" }}
-                                               >
-                                                 Stock
-                                               </th>
-                                               <th
-                                                 scope="col"
-                                                 style={{ width: "100px" }}
-                                               >
-                                                 Discounted Price
-                                               </th>
-                                             </tr>
-                                           </thead>
-                                           <tbody>
-                                             {fetchedProductVariant?.map(
-                                               (variant, productIndex) => {
-                                                 return (
-                                                   <tr key={productIndex}>
-                                                     <td className="d-flex">
-                                                       <label
-                                                         htmlFor={`file-upload-${productIndex}`}
-                                                         style={{
-                                                           cursor: "pointer",
-                                                         }}
-                                                       >
-                                                         <FontAwesomeIcon
-                                                           icon={faUpload}
-                                                         />
-                                                       </label>
-                                                       <input
-                                                         id={`file-upload-${productIndex}`}
-                                                         type="file"
-                                                         onChange={(e) =>
-                                                           handleFileChange(
-                                                             e,
-                                                             productIndex,
-                                                             "oldVariantImages"
-                                                           )
-                                                         }
-                                                         style={{
-                                                           display: "none",
-                                                         }} // Hide the input element
-                                                       />
- 
-                                                       {/* Thumbnail preview */}
-                                                       {oldVariantImages[
-                                                         productIndex
-                                                       ] && (
-                                                         <div className="ms-2">
-                                                           <img
-                                                             src={URL.createObjectURL(
-                                                               oldVariantImages[
-                                                                 productIndex
-                                                               ]
-                                                             )}
-                                                             width={50}
-                                                             height={50}
-                                                             alt={`Thumbnail ${productIndex}`}
-                                                           />
-                                                         </div>
-                                                       )}
-                                                       {variant.image && (
-                                                         <div>
-                                                           <img
-                                                             src={
-                                                               imageBaseUrl +
-                                                               variant.image
-                                                             }
-                                                             width={50}
-                                                             height={50}
-                                                             alt={`Thumbnail ${productIndex}`}
-                                                           />
-                                                         </div>
-                                                       )}
-                                                     </td>
-                                                     <td>
-                                                       <Field
-                                                         type="text"
-                                                         // value={variant.name}
-                                                         name={`productVariant[${productIndex}].variantName`}
-                                                       />
-                                                     </td>
- 
-                                                     <td>
-                                                       <Field
-                                                         type="text"
-                                                         // value={variant.sku}
-                                                         name={`productVariant[${productIndex}].variantSKU`}
-                                                       />
-                                                       {/* {errors.productVariant &&
-                                                     errors.productVariant[
-                                                       productIndex
-                                                     ] &&
-                                                     errors.productVariant[
-                                                       productIndex
-                                                     ].variantSKU && (
-                                                       <small className="text-danger">
-                                                         {
-                                                           errors
-                                                             .productVariant[
-                                                             productIndex
-                                                           ].variantSKU
-                                                         }
-                                                       </small>
-                                                     )} */}
- 
-                                                       <ErrorMessage
-                                                         name={`productVariant.${productIndex}.variantSKU`}
-                                                         component="div"
-                                                         className="text-danger"
-                                                       />
-                                                     </td>
-                                                     <td>
-                                                       <Field
-                                                         type="number"
-                                                         // value= {variant.price}
-                                                         name={`productVariant[${productIndex}].variantPrice`}
-                                                       />
- 
-                                                       <ErrorMessage
-                                                         name={`productVariant.${productIndex}.variantPrice`}
-                                                         component="div"
-                                                         className="text-danger"
-                                                       />
-                                                     </td>
-                                                     <td>
-                                                       <Field
-                                                         type="number"
-                                                         // value={variant.stock}
-                                                         name={`productVariant[${productIndex}].variantStock`}
-                                                       />
- 
-                                                       <ErrorMessage
-                                                         name={`productVariant.${productIndex}.variantStock`}
-                                                         component="div"
-                                                         className="text-danger"
-                                                       />
-                                                     </td>
-                                                     <td>
-                                                       <Field
-                                                         type="number"
-                                                         name={`productVariant[${productIndex}].variantDiscountedPrice`}
-                                                       />
- 
-                                                       <ErrorMessage
-                                                         name={`productVariant.${productIndex}.variantDiscountedPrice`}
-                                                         component="div"
-                                                         className="text-danger"
-                                                       />
-                                                     </td>
-                                                   </tr>
-                                                 );
-                                               }
-                                             )}
-                                           </tbody>
-                                         </table>
- 
-                                         {/* <button
-                                           type="button"
-                                           className="btn btn-sm btn-warning"
-                                           onClick={() => {
-                                             handleReset();
-                                             console.log(errors);
-                                             console.log(values);
-                                           }}
-                                         >
-                                           Edit Variants  
-                                         </button> */}
-                                       </div>
-                                     </FieldArray>
-                                   )}
- 
-                                 {showVariant && (
-                                   <div className="row table-responsive">
-                                     <table className="table">
-                                       <thead>
-                                         <tr>
-                                           {/* <th scope="col">#</th> */}
-                                           <th
-                                             scope="col"
-                                             style={{ width: "200px" }}
-                                           >
-                                             Image
-                                           </th>
-                                           <th
-                                             scope="col"
-                                             style={{ width: "200px" }}
-                                           >
-                                             Variant
-                                           </th>
-                                           <th
-                                             scope="col"
-                                             style={{ width: "100px" }}
-                                           >
-                                             SKU
-                                           </th>
-                                           <th
-                                             scope="col"
-                                             style={{ width: "100px" }}
-                                           >
-                                             Price
-                                           </th>
-                                           <th
-                                             scope="col"
-                                             style={{ width: "100px" }}
-                                           >
-                                             Stock
-                                           </th>
-                                           <th
-                                             scope="col"
-                                             style={{ width: "100px" }}
-                                           >
-                                             Discounted Price
-                                           </th>
-                                           <th>Action</th>
-                                         </tr>
-                                       </thead>
-                                       <tbody>
-                                         <FieldArray
-                                           key={selectedVariants.length}
-                                           name="productVariant1"
-                                         >
-                                           {({ push, remove }) => (
-                                             <>
-                                               {selectedVariants?.map(
-                                                 (variant, productIndex1) => {
-                                                   return (
-                                                     <tr key={productIndex1}>
-                                                       <td className="d-flex">
-                                                         <label
-                                                           htmlFor={`file-upload-${productIndex1}`}
-                                                           style={{
-                                                             cursor: "pointer",
-                                                           }}
-                                                         >
-                                                           <FontAwesomeIcon
-                                                             icon={faUpload}
-                                                           />
-                                                         </label>
-                                                         <input
-                                                           id={`file-upload-${productIndex1}`}
-                                                           type="file"
-                                                           onChange={(e) =>
-                                                             handleFileChange(
-                                                               e,
-                                                               productIndex1,
-                                                               "newVariantImages"
-                                                             )
-                                                           }
-                                                           style={{
-                                                             display: "none",
-                                                           }} // Hide the input element
-                                                         />
-                                                         <input
-                                                           type="hidden"
-                                                           name={`newVariantImagesOrder[${productIndex1}]`}
-                                                           value={productIndex1}
-                                                         />
- 
-                                                         {/* Thumbnail preview */}
-                                                         {newVariantImages[
-                                                           productIndex1
-                                                         ] && (
-                                                           <div className="ms-2">
-                                                             <img
-                                                               src={URL.createObjectURL(
-                                                                 newVariantImages[
-                                                                   productIndex1
-                                                                 ]
-                                                               )}
-                                                               width={50}
-                                                               height={50}
-                                                               alt={`Thumbnail ${productIndex1}`}
-                                                             />
-                                                           </div>
-                                                         )}
-                                                       </td>
-                                                       <td>
-                                                         <Field
-                                                           type="text"
-                                                           value={variant}
-                                                           name={`productVariant1[${productIndex1}].variantName`}
-                                                         />
-                                                       </td>
- 
-                                                       <td>
-                                                         <Field
-                                                           type="text"
-                                                           name={`productVariant1[${productIndex1}].variantSKU`}
-                                                           value=""
-                                                         />
-                                                         {/* {errors.productVariant &&
-                                                       errors.productVariant[
-                                                         productIndex
-                                                       ] &&
-                                                       errors.productVariant[
-                                                         productIndex
-                                                       ].variantSKU && (
-                                                         <small className="text-danger">
-                                                           {
-                                                             errors
-                                                               .productVariant[
-                                                               productIndex
-                                                             ].variantSKU
-                                                           }
-                                                         </small>
-                                                       )} */}
- 
-                                                         <ErrorMessage
-                                                           name={`productVariant1.${productIndex1}.variantSKU`}
-                                                           component="div"
-                                                           className="text-danger"
-                                                         />
-                                                         {errors[productIndex1] &&
-                                                           errors[productIndex1]
-                                                             .variantSKU && (
-                                                             <p className="error">
-                                                               {
-                                                                 errors[productIndex1]
-                                                                   .variantSKU
-                                                               }
-                                                             </p>
-                                                           )}
-                                                         {variantErrors[productIndex1] &&
-                                                           variantErrors[productIndex1]
-                                                             .variantSKU && (
-                                                             <p className="error">
-                                                               {
-                                                                 variantErrors[productIndex1]
-                                                                   .variantSKU
-                                                               }
-                                                             </p>
-                                                           )}
-                                                       </td>
-                                                       <td>
-                                                         <Field
-                                                           type="number"
-                                                           name={`productVariant1[${productIndex1}].variantPrice`}
-                                                         />
- 
-                                                         <ErrorMessage
-                                                           name={`productVariant1.${productIndex1}.variantPrice`}
-                                                           component="div"
-                                                           className="text-danger"
-                                                         />
-                                                         {variantErrors[
-                                                           `productVariant1.${productIndex1}.variantPrice`
-                                                         ] && (
-                                                           <p className="text-danger">
-                                                             {
-                                                               variantErrors[
-                                                                 `productVariant1.${productIndex1}.variantPrice`
-                                                               ]
-                                                             }
-                                                           </p>
-                                                         )}
-                                                       </td>
-                                                       <td>
-                                                         <Field
-                                                           type="number"
-                                                           name={`productVariant1[${productIndex1}].variantStock`}
-                                                         />
- 
-                                                         <ErrorMessage
-                                                           name={`productVariant1.${productIndex1}.variantStock`}
-                                                           component="div"
-                                                           className="text-danger"
-                                                         />
-                                                       </td>
-                                                       <td>
-                                                         <Field
-                                                           type="number"
-                                                           name={`productVariant1[${productIndex1}].variantDiscountedPrice`}
-                                                         />
- 
-                                                         <ErrorMessage
-                                                           name={`productVariant1.${productIndex1}.variantDiscountedPrice`}
-                                                           component="div"
-                                                           className="text-danger"
-                                                         />
-                                                       </td>
-                                                       <td>
-                                                         <button
-                                                           type="button"
-                                                           onClick={() => {
-                                                             remove(
-                                                               productIndex1
-                                                             );
-                                                             removeVariantRow(
-                                                               productIndex1,
-                                                               setFieldValue,
-                                                               values
-                                                             );
-                                                           }}
-                                                           className="btn btn-sm btn-danger mt-2 ms-2"
-                                                         >
-                                                           <span>
-                                                             <FontAwesomeIcon
-                                                               icon={faTrash}
-                                                             />
-                                                           </span>
-                                                         </button>
-                                                       </td>
-                                                     </tr>
-                                                   );
-                                                 }
-                                               )}
-                                             </>
-                                           )}
-                                         </FieldArray>
-                                       </tbody>
-                                     </table>
- 
-                                     {showEdit ? (
-                                       <>
-                                         <button
-                                           type="button"
-                                           className="btn btn-sm btn-warning"
-                                           onClick={() => {
-                                             handleReset();
-                                             console.log(errors);
-                                             console.log(values);
-                                           }}
-                                         >
-                                           Edit Variants
-                                         </button>
-                                       </>
-                                     ) : (
-                                       <span>False</span>
-                                     )}
-                                   </div>
-                                 )}
- 
-                                 <FieldArray name="variants">
-                                   {({ push, remove }) => (
-                                     <>
-                                       {!showVariant && (
-                                         <>
-                                           {values.variants?.map(
-                                             (variant, index) => {
-                                               return (
-                                                 <>
-                                                   {showVariantField && (
-                                                     <div
-                                                       key={index}
-                                                       className="mb-2"
-                                                     >
-                                                       <div className="d-flex">
-                                                         <Field
-                                                           as="select"
-                                                           name={`variants[${index}].name`}
-                                                           placeholder="Variant Name"
-                                                           className="form-select"
-                                                           onChange={(e) => {
-                                                             setFieldValue(
-                                                               `variants[${index}].name`,
-                                                               e.target.value
-                                                             );
-                                                             handleSelectChange(
-                                                               e,
-                                                               index
-                                                             );
-                                                           }}
-                                                         >
-                                                           <option value="">
-                                                             Select Variant
-                                                           </option>
-                                                           {/* <option value="Color">
-                                                             Color
-                                                           </option>
-                                                           <option value="Size">
-                                                             Size
-                                                           </option> */}
-                                                           {propertyOption.map(
-                                                             (property) => {
-                                                               return (
-                                                                 <option
-                                                                   value={
-                                                                     property.name
-                                                                   }
-                                                                 >
-                                                                   {
-                                                                     property.name
-                                                                   }
-                                                                 </option>
-                                                               );
-                                                             }
-                                                           )}
-                                                           <option value="Custom">
-                                                             Custom
-                                                           </option>
-                                                           {/* Allow adding custom variants */}
-                                                         </Field>
-                                                         {/* {`errors.variants[index].name` && (
-                                                   <small className="text-danger">
-                                                     {`errors.variants[index].name`}
-                                                   </small>
-                                                 )} */}
- 
-                                                         {variant.name ===
-                                                           "Custom" && (
-                                                           <Field
-                                                             type="text"
-                                                             name={`variants[${index}].customName`}
-                                                             placeholder="Custom Variant Name"
-                                                             className="form-control ms-2"
-                                                           />
-                                                         )}
-                                                         <button
-                                                           type="button"
-                                                           onClick={() => {
-                                                             remove(index);
-                                                             handleVariantDelete(
-                                                               values,
-                                                               index
-                                                             );
-                                                           }}
-                                                           className="btn btn-sm btn-danger mt-2 ms-2"
-                                                         >
-                                                           <span>
-                                                             <FontAwesomeIcon
-                                                               icon={faTrash}
-                                                             />
-                                                           </span>
-                                                         </button>
-                                                       </div>
-                                                       <ErrorMessage
-                                                         name={`variants.${index}.name`}
-                                                         component="div"
-                                                         className="text-danger"
-                                                       />
-                                                       {/* {errors.variants.name && (
-                                                         <small className="text-danger">
-                                                           {errors.variants.name}
-                                                         </small>
-                                                       )} */}
- 
-                                                       {variant.name && (
-                                                         <div className="mt-2 mb-2">
-                                                           {variant.name ===
-                                                             "Custom" && (
-                                                             <FieldArray
-                                                               name={`variants[${index}].options`}
-                                                             >
-                                                               {({
-                                                                 push: pushOption,
-                                                                 remove:
-                                                                   removeOption,
-                                                               }) => (
-                                                                 <>
-                                                                   {variant.options.map(
-                                                                     (
-                                                                       option,
-                                                                       optionIndex
-                                                                     ) => (
-                                                                       <>
-                                                                         <div
-                                                                           key={
-                                                                             optionIndex
-                                                                           }
-                                                                           className="d-flex justify-content-start mt-2"
-                                                                         >
-                                                                           <Field
-                                                                             name={`variants[${index}].options[${optionIndex}]`}
-                                                                             placeholder="Option"
-                                                                             className="form-control"
-                                                                             style={{
-                                                                               width:
-                                                                                 "300px",
-                                                                             }}
-                                                                           />
- 
-                                                                           <button
-                                                                             type="button"
-                                                                             onClick={() => {
-                                                                               removeOption(
-                                                                                 optionIndex
-                                                                               );
-                                                                             }}
-                                                                             className="btn btn-sm btn-danger ms-2"
-                                                                           >
-                                                                             <span>
-                                                                               <FontAwesomeIcon
-                                                                                 icon={
-                                                                                   faTrash
-                                                                                 }
-                                                                               />
-                                                                             </span>
-                                                                           </button>
-                                                                         </div>
-                                                                         <ErrorMessage
-                                                                           name={`variants.${index}.options.${optionIndex}`}
-                                                                           component="div"
-                                                                           className="text-danger"
-                                                                         />
-                                                                       </>
-                                                                     )
-                                                                   )}
- 
-                                                                   <button
-                                                                     type="button"
-                                                                     onClick={() => {
-                                                                       pushOption(
-                                                                         ""
-                                                                       );
-                                                                       console.log();
-                                                                     }}
-                                                                     className="btn btn-sm btn-success mt-2"
-                                                                   >
-                                                                     Add Option
-                                                                   </button>
-                                                                 </>
-                                                               )}
-                                                             </FieldArray>
-                                                           )}
-                                                         </div>
-                                                       )}
-                                                     </div>
-                                                   )}
-                                                 </>
-                                               );
-                                             }
-                                           )}
- 
-                                           <button
-                                             type="button"
-                                             onClick={() => {
-                                               // console.log(errors);
-                                               setShowVariantField(true);
-                                               push({ name: "", options: [] });
-                                             }}
-                                             className="btn btn-sm btn-success mb-2 mt-2"
-                                             style={{ maxWidth: "100px" }}
-                                           >
-                                             Add Variant
-                                           </button>
-                                           {!errors.variants && showDone && (
-                                             <button
-                                               type="button"
-                                               onClick={() =>
-                                                 handleVariantSubmission(
-                                                   values,
-                                                   errors
-                                                 )
-                                               }
-                                               disabled={errors.variants}
-                                               className="btn btn-sm btn-primary"
-                                             >
-                                               Done
-                                             </button>
-                                           )}
-                                         </>
-                                       )}
-                                     </>
-                                   )}
-                                 </FieldArray>
- 
-                                 {/* <button type="button" className="btn btn-small btn-success" style={{"width":"150px"}} onClick={handleShow}>Manage Variant</button> */}
-                               </div>
-                             </div>
-                           </div>
-                           <div className="card mb-3">
-                             <div className="card-body">
-                               <div className="mb-3">
-                                 <label htmlFor="name" className="form-label">
-                                   Media
-                                 </label>
-                                 <h6>Images:</h6>
-                                 <div className="row mt-4 mb-2">
-                                   {productMedia?.map((media, key) => {
-                                     if (!media.variant_id) {
-                                       return (
-                                         <div
-                                           key={key}
-                                           class="col-md-3 grid-item"
-                                         >
-                                           <img
-                                             src={imageBaseUrl + media.file_name}
-                                             className="img-fluid"
-                                             alt="Image 2"
-                                             width={150}
-                                             height={150}
-                                           ></img>
-                                           {/* <p>{image.label}</p> */}
-                                           <button
-                                             className="btn btn-sm btn-danger mt-2"
-                                             onClick={() =>
-                                               handleImageDelete(media.id)
-                                             }
-                                           >
-                                             Remove
-                                           </button>
-                                         </div>
-                                       );
-                                     }
-                                     return;
-                                   })}
-                                 </div>
-                                 <div>
-                                   <input
-                                     type="file"
-                                     multiple
-                                     onChange={(event) => {
-                                       const newFiles = Array.from(
-                                         event.target.files
-                                       );
-                                       setFieldValue("files", [
-                                         ...values.files,
-                                         ...newFiles,
-                                       ]);
-                                     }}
-                                   />
-                                   <FieldArray name="files">
-                                     {({ push, remove }) => (
-                                       <div className="row mt-4">
-                                         {values.files?.map((file, index) => (
-                                           <div
-                                             key={index}
-                                             className="col-md-4 mb-4"
-                                           >
-                                             {file.type.startsWith("image/") && (
-                                               <img
-                                                 src={URL.createObjectURL(file)}
-                                                 alt={`Preview ${index}`}
-                                                 style={{
-                                                   width: "100px",
-                                                   height: "100px",
-                                                 }}
-                                               />
-                                             )}
-                                             {file.type.startsWith("video/") && (
-                                               <video
-                                                 src={URL.createObjectURL(file)}
-                                                 controls
-                                                 width="100"
-                                                 height="100"
-                                               />
-                                             )}
-                                             <div>
-                                               <p>{file.name}</p>
-                                               <button
-                                                 type="button"
-                                                 onClick={() => remove(index)}
-                                                 className="btn btn-sm btn-danger"
-                                               >
-                                                 <span>
-                                                   <FontAwesomeIcon
-                                                     icon={faTrash}
-                                                   />
-                                                 </span>
-                                               </button>
-                                             </div>
-                                           </div>
-                                         ))}
-                                       </div>
-                                     )}
-                                   </FieldArray>
-                                 </div>
-                               </div>
-                             </div>
-                           </div>
-                         </div>
-                         <div className="col-md-4">
-                           <div className="card mb-3">
-                             <div className="card-body">
-                               <div>
-                                 <label
-                                   htmlFor="published"
-                                   className="form-label"
-                                 >
-                                   Published:
-                                 </label>
-                                 <Field
-                                   as="select"
-                                   id="published"
-                                   name="published"
-                                   // placeholder="Select label"
-                                   className="form-select"
-                                 >
-                                   <option value="">Status</option>
-                                   <option value="true">Yes</option>
-                                   <option value="false">No</option>
-                                   {/* Add more options as needed */}
-                                 </Field>
-                                 {errors.published && (
-                                   <small className="text-danger">
-                                     {errors.published}
-                                   </small>
-                                 )}
- 
-                                 {/* <ErrorMessage
-                                   name="published"
-                                   component="div"
-                                 /> */}
-                               </div>
-                             </div>
-                           </div>
-                           <div className="card mb-3">
-                             <div className="card-body">
-                               <div>
-                                 <label
-                                   htmlFor="category"
-                                   className="form-label"
-                                 >
-                                   Category:
-                                 </label>
-                                 {/* <Field
-                                   name="category"
-                                   component={MultiSelect2}
-                                   options={catOption}
-                                 /> */}
-                                 <MultiSelectDropdown
-                                   name="category"
-                                   options={catOption}
-                                   // value={selectedCategories.filter(
-                                   //   (cat) => cat != null
-                                   // )}
-                                    value= {selectedCat.map((catId) => {
-                                     const category = catOption.find((cat) => cat.value === catId);
-                                     return category ? { value: category.value, label: category.label } : null;
-                                   }).filter(Boolean)}
-                                   onChange={(selectedOption) => {
-                                     // console.log("Selected Option:", selectedOption);
-                                     setFieldValue('category', selectedOption);
-                                     setSelectedCat(selectedOption.map(cat => cat.value))
-                                     // console.log("Form Values:", values);
-                                    
-                                   }}
-                                   // value={selectedCategories}
-                                 />
-                                 {errors.category && (
-                                   <small className="text-danger">
-                                     {errors.category}
-                                   </small>
-                                 )}
-                                 <ErrorMessage name="category" component="div" />
-                               </div>
-                             </div>
-                           </div>
-                           <div className="card mb-3">
-                             <div className="card-body">
-                               <div>
-                                 <label htmlFor="brand" className="form-label">
-                                   Brand:
-                                 </label>
-                                 <Field
-                                   as="select"
-                                   id="brand_id"
-                                   name="brand_id"
-                                   // placeholder="Select label"
-                                   className="form-select"
-                                 >
-                                   <option value="">Select Brand</option>
-                                   {brandOption?.map((brand) => (
-                                     <option value={brand.id} key={brand.id}>
-                                       {capitalize(brand.name)}
-                                     </option>
-                                   ))}
-                                   {/* Add more options as needed */}
-                                 </Field>
-                                 {errors.brand_id && (
-                                   <small className="text-danger">
-                                     {errors.brand_id}
-                                   </small>
-                                 )}
-                                 {/* <ErrorMessage name="brand_id" component="div" /> */}
-                               </div>
-                             </div>
-                           </div>
-                           <div className="card mb-3">
-                             <div className="card-body">
-                               <div>
-                                 <label
-                                   htmlFor="allow_out_of_stock_purchase"
-                                   className="form-label"
-                                 >
-                                   Allow Out Of Stock Purchase:
-                                 </label>
-                                 <Field
-                                   as="select"
-                                   id="allow_out_of_stock_purchase"
-                                   name="allow_out_of_stock_purchase"
-                                   // placeholder="Select label"
-                                   className="form-select"
-                                   onChange={() => console.log(errors)}
-                                 >
-                                   <option value="">Select </option>
-                                   <option value="true">Yes</option>
-                                   <option value="false">No</option>
-                                   {/* Add more options as needed */}
-                                 </Field>
-                                 <ErrorMessage
-                                   name="allow_out_of_stock_purchase"
-                                   component="div"
-                                 />
-                               </div>
-                             </div>
-                           </div>
-                         </div>
-                         <div className="col-md-4">
-                           <button
-                             className="btn btn-primary btn-md  mb-4 rounded-2"
-                             type="submit"
-                             // disabled={isSubmitting}
-                           >
-                             Update Product
-                           </button>
-                         </div>
-                       </div>
-                     </Form>
-                   )}
-                 </Formik>
-                ) : 'Loading.....'}
-               
+                {initialValues ? (
+                  <Formik
+                    enableReinitialize
+                    initialValues={initialValues}
+                    validationSchema={addProductValidation}
+                    //   validateOnChange={true}
+                    //   validateOnBlur={true}
+                    validateOnSubmit={true}
+                    onSubmit={(values, errors) => {
+                      // console.log(errors);
+                      handleSubmit(values, errors);
+                    }}
+                  >
+                    {({
+                      values,
+                      errors,
+                      setFieldValue,
+                      isValid,
+                      isSubmitting,
+                      validateForm,
+                      touched,
+                      handleBlur,
+                    }) => (
+                      <Form>
+                        <div className="row">
+                          <div className="col-md-8">
+                            <div className="card mb-3">
+                              <div className="card-body">
+                                <div className="mb-3">
+                                  <label htmlFor="name" className="form-label">
+                                    Name <span className="text-danger">*</span>
+                                  </label>
+                                  <Field
+                                    type="name"
+                                    className="form-control"
+                                    id="name"
+                                    name="name"
+                                    aria-describedby="nameHelp"
+                                  ></Field>
+                                  {/* {console.log(values)} */}
+                                  {errors.name && (
+                                    <small className="text-danger">
+                                      {errors.name}
+                                    </small>
+                                  )}
+                                </div>
+
+                                <div className="mb-3">
+                                  <label htmlFor="name" className="form-label">
+                                    Short Description
+                                  </label>
+                                  <Field
+                                    as="textarea"
+                                    name="description_short"
+                                    className="form-control"
+                                    rows="2" // Set the number of rows for the textarea
+                                    cols="50" // Set the number of columns for the textarea
+                                    placeholder="Enter short description"
+                                  />
+                                </div>
+                                <div className="mb-3">
+                                  <label htmlFor="name" className="form-label">
+                                    Description
+                                  </label>
+                                  <Field
+                                    name="description"
+                                    component={QuillEditor}
+                                  />
+                                  {errors.description && (
+                                    <small className="text-danger">
+                                      {errors.description}
+                                    </small>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="card mb-3">
+                              <div className="card-body">
+                                <FieldArray name="additional_descriptions">
+                                  {({ push, remove }) => (
+                                    <div>
+                                      <div>
+                                        <label
+                                          htmlFor="additional_descriptions"
+                                          className="form-label mt-4"
+                                          style={{ marginRight: "10px" }}
+                                        >
+                                          Additional Descriptions
+                                        </label>
+                                      </div>
+                                      {values.additional_descriptions?.map(
+                                        (keyword, index) => (
+                                          <div key={index} className="mb-3">
+                                            <div>
+                                              <label htmlFor="label">
+                                                Label:
+                                              </label>
+                                              <Field
+                                                name={`additional_descriptions.${index}.label`}
+                                                className="form-control"
+                                              />
+                                              <ErrorMessage
+                                                name="label"
+                                                component="div"
+                                              />
+                                            </div>
+                                            <div className="mb-3">
+                                              <label
+                                                htmlFor="name"
+                                                className="form-label"
+                                              >
+                                                Text
+                                              </label>
+                                              <Field
+                                                name={`additional_descriptions.${index}.value`}
+                                                component={QuillEditor}
+                                              />
+                                              {errors.description && (
+                                                <small className="text-danger">
+                                                  {errors.value}
+                                                </small>
+                                              )}
+                                            </div>
+                                            <button
+                                              className="btn btn-sm btn-danger mt-5"
+                                              onClick={() => remove(index)}
+                                            >
+                                              <span>
+                                                <FontAwesomeIcon
+                                                  icon={faTrash}
+                                                />
+                                              </span>
+                                              Remove
+                                            </button>
+                                          </div>
+                                        )
+                                      )}
+                                      <button
+                                        type="button"
+                                        className="btn btn-sm btn-dark mt-2"
+                                        onClick={() => push("")}
+                                      >
+                                        Add descriptions
+                                      </button>
+                                    </div>
+                                  )}
+                                </FieldArray>
+                              </div>
+                            </div>
+                            <div className="card mb-3">
+                              <div className="card-body">
+                                <div className="mb-3">
+                                  <label htmlFor="name" className="form-label">
+                                    Media
+                                  </label>
+                                  <DragDropContext
+                                    onDragEnd={(result) =>
+                                      handleImageDragEnd(
+                                        result,
+                                        values,
+                                        setFieldValue
+                                      )
+                                    }
+                                  >
+                                    <Droppable
+                                      droppableId="gallery"
+                                      direction="horizontal"
+                                    >
+                                      {(provided) => (
+                                        <div
+                                          // className="gallery"
+                                          {...provided.droppableProps}
+                                          ref={provided.innerRef}
+                                          // style={{
+                                          //   display: "flex",
+                                          //   overflowX: "auto",
+                                          // }}
+                                        >
+                                          <div className="row mt-4 mb-2">
+                                            {mediaItems?.map((media, key) => {
+                                              return (
+                                                <div className="col-md-3 grid-item">
+                                                  <Draggable
+                                                    key={key}
+                                                    draggableId={`Item ${
+                                                      key + 1
+                                                    }`}
+                                                    // draggableId= {option.value}
+                                                    index={key}
+                                                  >
+                                                    {(provided, snapshot) => (
+                                                      <div
+                                                        ref={provided.innerRef}
+                                                        {...provided.draggableProps}
+                                                        {...provided.dragHandleProps}
+                                                      >
+                                                        <div
+                                                          key={key}
+                                                          className="col-md-3 grid-item mt-2"
+                                                        >
+                                                          <img
+                                                            src={
+                                                              media.preview
+                                                                ? media.preview
+                                                                : imageBaseUrl +
+                                                                  media.file_name
+                                                            }
+                                                            width={80}
+                                                            height={80}
+                                                            alt={`Thumbnail ${key}`}
+                                                          />
+
+                                                          <button
+                                                            type="button"
+                                                            className="btn btn-sm btn-danger mt-2"
+                                                            onClick={() =>
+                                                              handleMediaRemoveImage(
+                                                                media.file_name
+                                                              )
+                                                            }
+                                                          >
+                                                            Remove
+                                                          </button>
+                                                        </div>
+                                                      </div>
+                                                    )}
+                                                  </Draggable>
+                                                </div>
+                                              );
+                                            })}
+                                          </div>
+                                          {provided.placeholder}
+                                        </div>
+                                      )}
+                                    </Droppable>
+                                  </DragDropContext>
+                                  <div>
+                                    {/* <input
+                                      type="file"
+                                      multiple
+                                      onChange={(event) => {
+                                        const newFiles = Array.from(
+                                          event.target.files
+                                        );
+                                        setFieldValue("files", [
+                                          ...values.files,
+                                          ...newFiles,
+                                        ]);
+                                      }}
+                                    /> */}
+                                    <input
+                                      type="file"
+                                      multiple
+                                      onChange={handleMediaFileChange}
+                                    />
+                                    <FieldArray name="files">
+                                      {({ push, remove }) => (
+                                        <div className="row mt-4">
+                                          {values.files?.map((file, index) => (
+                                            <div
+                                              key={index}
+                                              className="col-md-4 mb-4"
+                                            >
+                                              {file.type.startsWith(
+                                                "image/"
+                                              ) && (
+                                                <img
+                                                  src={URL.createObjectURL(
+                                                    file
+                                                  )}
+                                                  alt={`Preview ${index}`}
+                                                  style={{
+                                                    width: "100px",
+                                                    height: "100px",
+                                                  }}
+                                                />
+                                              )}
+                                              {file.type.startsWith(
+                                                "video/"
+                                              ) && (
+                                                <video
+                                                  src={URL.createObjectURL(
+                                                    file
+                                                  )}
+                                                  controls
+                                                  width="100"
+                                                  height="100"
+                                                />
+                                              )}
+                                              <div>
+                                                <p>{file.name}</p>
+                                                <button
+                                                  type="button"
+                                                  onClick={() => remove(index)}
+                                                  className="btn btn-sm btn-danger"
+                                                >
+                                                  <span>
+                                                    <FontAwesomeIcon
+                                                      icon={faTrash}
+                                                    />
+                                                  </span>
+                                                </button>
+                                              </div>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      )}
+                                    </FieldArray>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="card mb-3">
+                              <div className="card-body">
+                                <div className="row">
+                                  <h6>
+                                    <b>Pricing</b>
+                                  </h6>
+
+                                  <div className="col-md-6 mt-3">
+                                    <label
+                                      htmlFor="price"
+                                      className="form-label"
+                                    >
+                                      Price{" "}
+                                      <span className="text-danger">*</span>
+                                    </label>
+                                    <Field
+                                      type="number"
+                                      className="form-control"
+                                      id="price"
+                                      name="price"
+                                      aria-describedby="nameHelp"
+                                    ></Field>
+                                    {errors.price && (
+                                      <small className="text-danger">
+                                        {errors.price}
+                                      </small>
+                                    )}
+                                  </div>
+                                  <div className="col-md-6 mt-3">
+                                    <label
+                                      htmlFor="discounted_price"
+                                      className="form-label"
+                                    >
+                                      Discounted Price
+                                    </label>
+                                    <Field
+                                      type="number"
+                                      className="form-control"
+                                      id="discounted_price"
+                                      name="discounted_price"
+                                      aria-describedby="nameHelp"
+                                    ></Field>
+                                    {errors.discounted_price && (
+                                      <small className="text-danger">
+                                        {errors.discounted_price}
+                                      </small>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="row mt-3">
+                                  <div className="col-md-6">
+                                    <label
+                                      htmlFor="cost"
+                                      className="form-label"
+                                    >
+                                      Cost
+                                    </label>
+                                    <Field
+                                      type="number"
+                                      className="form-control"
+                                      id="cost"
+                                      name="cost"
+                                      aria-describedby="nameHelp"
+                                    ></Field>
+                                    {errors.cost && (
+                                      <small className="text-danger">
+                                        {errors.cost}
+                                      </small>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="card mb-3">
+                              <div className="card-body">
+                                <h6>
+                                  <b>Inventory & Shipping</b>
+                                </h6>
+                                <div className="row mt-4">
+                                  <div className="col-md-4">
+                                    <label htmlFor="sku" className="form-label">
+                                      SKU <span className="text-danger">*</span>
+                                    </label>
+                                    <Field
+                                      type="text"
+                                      className="form-control"
+                                      id="sku"
+                                      name="sku"
+                                      aria-describedby="nameHelp"
+                                    ></Field>
+                                    {errors.sku && (
+                                      <small className="text-danger">
+                                        {errors.sku}
+                                      </small>
+                                    )}
+                                  </div>
+                                  <div className="col-md-4">
+                                    <label
+                                      htmlFor="quantity_min"
+                                      className="form-label"
+                                    >
+                                      Min quantity per order
+                                    </label>
+                                    <Field
+                                      type="number"
+                                      className="form-control"
+                                      id="quantity_min"
+                                      name="quantity_min"
+                                      aria-describedby="nameHelp"
+                                    ></Field>
+                                    {errors.quantity_min && (
+                                      <small className="text-danger">
+                                        {errors.length}
+                                      </small>
+                                    )}
+                                  </div>
+                                  <div className="col-md-4">
+                                    <label
+                                      htmlFor="stock"
+                                      className="form-label"
+                                    >
+                                      Stock
+                                    </label>
+                                    <Field
+                                      type="number"
+                                      className="form-control"
+                                      id="stock"
+                                      name="stock"
+                                      aria-describedby="nameHelp"
+                                    ></Field>
+                                    {errors.stock && (
+                                      <small className="text-danger">
+                                        {errors.stock}
+                                      </small>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="row mt-3">
+                                  <div className="col-md-3">
+                                    <label
+                                      htmlFor="length"
+                                      className="form-label"
+                                    >
+                                      Length
+                                    </label>
+                                    <Field
+                                      type="number"
+                                      className="form-control"
+                                      id="length"
+                                      name="length"
+                                      aria-describedby="nameHelp"
+                                    ></Field>
+                                    {errors.length && (
+                                      <small className="text-danger">
+                                        {errors.length}
+                                      </small>
+                                    )}
+                                  </div>
+                                  <div className="col-md-3">
+                                    <label
+                                      htmlFor="width"
+                                      className="form-label"
+                                    >
+                                      Width
+                                    </label>
+                                    <Field
+                                      type="number"
+                                      className="form-control"
+                                      id="width"
+                                      name="width"
+                                      aria-describedby="nameHelp"
+                                    ></Field>
+                                    {errors.width && (
+                                      <small className="text-danger">
+                                        {errors.width}
+                                      </small>
+                                    )}
+                                  </div>
+                                  <div className="col-md-3">
+                                    <label
+                                      htmlFor="height"
+                                      className="form-label"
+                                    >
+                                      Height
+                                    </label>
+                                    <Field
+                                      type="number"
+                                      className="form-control"
+                                      id="height"
+                                      name="height"
+                                      aria-describedby="nameHelp"
+                                    ></Field>
+                                    {errors.height && (
+                                      <small className="text-danger">
+                                        {errors.height}
+                                      </small>
+                                    )}
+                                  </div>
+                                  <div className="col-md-3">
+                                    <label
+                                      htmlFor="weight"
+                                      className="form-label"
+                                    >
+                                      Weight
+                                    </label>
+                                    <Field
+                                      type="number"
+                                      className="form-control"
+                                      id="weight"
+                                      name="weight"
+                                      aria-describedby="nameHelp"
+                                    ></Field>
+                                    {errors.weight && (
+                                      <small className="text-danger">
+                                        {errors.weight}
+                                      </small>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="card mb-3">
+                              <div className="card-body">
+                                <div className="row">
+                                  <h6>
+                                    <b>Variants</b>
+                                  </h6>
+                                  {showAddOptionButton && (
+                                    <>
+                                      <a
+                                        onClick={() => {
+                                          // console.log(errors);
+                                          setShowOptionForm(true);
+                                        }}
+                                        // className="btn btn-sm btn-success mb-2 mt-2"
+                                        style={{
+                                          color: "blue",
+                                          textDecoration: "underline",
+                                          cursor: "pointer",
+                                        }}
+                                      >
+                                        Add options like size and color
+                                      </a>
+                                      {showOptionForm && (
+                                        <>
+                                          <div className="mb-2">
+                                            <FieldArray name="options">
+                                              {({ push, remove }) => (
+                                                <div className="card mb-3 border-dark">
+                                                  <div className="card-body">
+                                                    <div className="col-md-12">
+                                                      <label
+                                                        htmlFor="name"
+                                                        className="form-label"
+                                                      >
+                                                        Name
+                                                      </label>
+                                                      <Field
+                                                        type="text"
+                                                        className="form-control"
+                                                        id="optionName"
+                                                        name="optionName"
+                                                        aria-describedby="nameHelp"
+                                                      ></Field>
+                                                      {optionErrors.name ===
+                                                        "optionName" && (
+                                                        <small className="text-danger">
+                                                          {optionErrors.message}
+                                                        </small>
+                                                      )}
+                                                    </div>
+                                                    <div className="col-md-12 mt-2">
+                                                      <label
+                                                        htmlFor="options"
+                                                        className="form-label"
+                                                      >
+                                                        Option Values
+                                                      </label>
+
+                                                      <div>
+                                                        {values.options?.map(
+                                                          (
+                                                            option,
+                                                            optionIndex
+                                                          ) => {
+                                                            return (
+                                                              <>
+                                                                <div
+                                                                  key={
+                                                                    optionIndex
+                                                                  }
+                                                                  className="d-flex justify-content-start mb-2"
+                                                                >
+                                                                  <Field
+                                                                    type="text"
+                                                                    required={
+                                                                      true
+                                                                    }
+                                                                    className="form-control"
+                                                                    id={`options[${optionIndex}].value`}
+                                                                    name={`options[${optionIndex}].value`}
+                                                                    aria-describedby="nameHelp"
+                                                                  ></Field>
+                                                                  <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                      remove(
+                                                                        optionIndex
+                                                                      );
+                                                                    }}
+                                                                    className="btn btn-sm btn-danger ms-2"
+                                                                  >
+                                                                    <span>
+                                                                      <FontAwesomeIcon
+                                                                        icon={
+                                                                          faTrash
+                                                                        }
+                                                                      />
+                                                                    </span>
+                                                                  </button>
+                                                                </div>
+                                                                {Object.keys(
+                                                                  optionErrors
+                                                                ).map(
+                                                                  (index) => (
+                                                                    <small
+                                                                      key={
+                                                                        index
+                                                                      }
+                                                                      className="text-danger"
+                                                                    >
+                                                                      {
+                                                                        optionErrors[
+                                                                          index
+                                                                        ]
+                                                                          .message
+                                                                      }
+                                                                    </small>
+                                                                  )
+                                                                )}
+                                                              </>
+                                                            );
+                                                          }
+                                                        )}
+                                                        <button
+                                                          type="button"
+                                                          onClick={() => {
+                                                            push("");
+                                                          }}
+                                                          className="btn btn-sm btn-dark mt-2"
+                                                        >
+                                                          + Add Values
+                                                        </button>
+                                                      </div>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                              )}
+                                            </FieldArray>
+                                            <div className="d-flex justify-content-end mt-2">
+                                              <button
+                                                type="button"
+                                                className="btn btn-sm btn-outline-dark"
+                                                onClick={() =>
+                                                  handleOptionDelete(
+                                                    values,
+                                                    values.optionName
+                                                  )
+                                                }
+                                              >
+                                                Delete
+                                              </button>
+                                              <button
+                                                type="button"
+                                                onClick={() =>
+                                                  handleOptiondone(
+                                                    values,
+                                                    validateForm
+                                                  )
+                                                }
+                                                className="btn btn-sm btn-dark ms-2"
+                                              >
+                                                Done
+                                              </button>
+                                            </div>
+                                          </div>
+                                        </>
+                                      )}
+
+                                      {showOptions && (
+                                        <div className="mt-4">
+                                          <DragDropContext
+                                            onDragEnd={(result) =>
+                                              onDragEnd(
+                                                result,
+                                                values,
+                                                setFieldValue
+                                              )
+                                            }
+                                          >
+                                            <Droppable droppableId="items">
+                                              {(provided) => (
+                                                <div
+                                                  {...provided.droppableProps}
+                                                  ref={provided.innerRef}
+                                                >
+                                                  <FieldArray name="variantOption">
+                                                    {({ push, remove }) => (
+                                                      <>
+                                                        {options?.map(
+                                                          (
+                                                            option,
+                                                            optionIndex
+                                                          ) => (
+                                                            <Draggable
+                                                              key={optionIndex}
+                                                              draggableId={`Item ${
+                                                                optionIndex + 1
+                                                              }`}
+                                                              // draggableId= {option.value}
+                                                              index={
+                                                                optionIndex
+                                                              }
+                                                            >
+                                                              {(
+                                                                provided,
+                                                                snapshot
+                                                              ) => (
+                                                                <div
+                                                                  ref={
+                                                                    provided.innerRef
+                                                                  }
+                                                                  {...provided.draggableProps}
+                                                                  {...provided.dragHandleProps}
+                                                                >
+                                                                  <div className="card mb-3 border-dark">
+                                                                    <div
+                                                                      className="card-body"
+                                                                      style={{
+                                                                        "background-color":
+                                                                          "silver",
+                                                                      }}
+                                                                    >
+                                                                      <div className="d-flex justify-content-between">
+                                                                        <div>
+                                                                          <FontAwesomeIcon
+                                                                            icon={
+                                                                              faBars
+                                                                            }
+                                                                          />
+                                                                        </div>
+                                                                        <div>
+                                                                          <h6>
+                                                                            {
+                                                                              option.optionName
+                                                                            }
+                                                                          </h6>
+                                                                          {option.options?.map(
+                                                                            (
+                                                                              item
+                                                                            ) => (
+                                                                              <span>
+                                                                                {
+                                                                                  item.value
+                                                                                }
+
+                                                                                ,
+                                                                              </span>
+                                                                            )
+                                                                          )}
+                                                                        </div>
+                                                                        <button
+                                                                          className="btn btn-sm btn-dark"
+                                                                          onClick={() =>
+                                                                            handleVariantEdit(
+                                                                              values,
+                                                                              setFieldValue,
+                                                                              option
+                                                                            )
+                                                                          }
+                                                                        >
+                                                                          Edit
+                                                                        </button>
+                                                                      </div>
+                                                                    </div>
+                                                                  </div>
+                                                                </div>
+                                                              )}
+                                                            </Draggable>
+                                                          )
+                                                        )}
+                                                        {provided.placeholder}
+                                                      </>
+                                                    )}
+                                                  </FieldArray>
+                                                </div>
+                                              )}
+                                            </Droppable>
+                                          </DragDropContext>
+                                        </div>
+                                      )}
+                                    </>
+                                  )}
+
+                                  <>
+                                    {showOldVariantForm && (
+                                      <div className="card mb-3">
+                                        <div className="card-body">
+                                          <FieldArray name="productVariants">
+                                            {({ push, remove }) => (
+                                              <>
+                                                <div className="row table-responsive">
+                                                  <table className="table">
+                                                    <thead>
+                                                      <tr>
+                                                        {/* <th scope="col">#</th> */}
+                                                        <th
+                                                          scope="col"
+                                                          style={{
+                                                            width: "200px",
+                                                          }}
+                                                        >
+                                                          Image
+                                                        </th>
+                                                        <th
+                                                          scope="col"
+                                                          style={{
+                                                            width: "200px",
+                                                          }}
+                                                        >
+                                                          Variant
+                                                        </th>
+
+                                                        <th
+                                                          scope="col"
+                                                          style={{
+                                                            width: "100px",
+                                                          }}
+                                                        >
+                                                          Price
+                                                        </th>
+                                                        <th
+                                                          scope="col"
+                                                          style={{
+                                                            width: "100px",
+                                                          }}
+                                                        >
+                                                          Discounted Price
+                                                        </th>
+                                                        <th
+                                                          scope="col"
+                                                          style={{
+                                                            width: "100px",
+                                                          }}
+                                                        >
+                                                          Stock
+                                                        </th>
+                                                      </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                      {fetchedProductVariants?.map(
+                                                        (
+                                                          variant,
+                                                          variantIndex
+                                                        ) => {
+                                                          const mediaItem =
+                                                            mediaItems.find(
+                                                              (item) =>
+                                                                item.variant_id ===
+                                                                variant.variantId
+                                                            ) || {};
+                                                          return (
+                                                            <tr
+                                                              key={variantIndex}
+                                                            >
+                                                              <td className="d-flex">
+                                                                {mediaItem.file_name ? (
+                                                                  <>
+                                                                    <div className="ms-2">
+                                                                      <img
+                                                                        src={
+                                                                          mediaItem.preview
+                                                                            ? mediaItem.preview
+                                                                            : `${imageBaseUrl}${mediaItem.file_name}`
+                                                                        }
+                                                                        width={
+                                                                          50
+                                                                        }
+                                                                        height={
+                                                                          50
+                                                                        }
+                                                                        alt={`Thumbnail ${variantIndex}`}
+                                                                      />
+                                                                    </div>
+                                                                    <button
+                                                                      className="btn  ms-1"
+                                                                      onClick={() =>
+                                                                        handleRemoveImage(
+                                                                          variant.variantId
+                                                                        )
+                                                                      }
+                                                                    >
+                                                                      <span>
+                                                                        <FontAwesomeIcon
+                                                                          icon={
+                                                                            faTrash
+                                                                          }
+                                                                        />
+                                                                      </span>
+                                                                    </button>
+                                                                  </>
+                                                                ) : (
+                                                                  <>
+                                                                    <label
+                                                                      htmlFor={`file-upload-${variant.variantId}`}
+                                                                      className="btn btn-primary ms-2"
+                                                                      style={{
+                                                                        cursor:
+                                                                          "pointer",
+                                                                      }}
+                                                                    >
+                                                                      <FontAwesomeIcon
+                                                                        icon={
+                                                                          faUpload
+                                                                        }
+                                                                      />
+                                                                      <input
+                                                                        id={`file-upload-${variant.variantId}`}
+                                                                        type="file"
+                                                                        onChange={(
+                                                                          e
+                                                                        ) =>
+                                                                          handleFileChange(
+                                                                            e,
+                                                                            variant.variantId
+                                                                          )
+                                                                        }
+                                                                        style={{
+                                                                          display:
+                                                                            "none",
+                                                                        }}
+                                                                      />
+                                                                    </label>
+                                                                  </>
+                                                                )}
+                                                              </td>
+                                                              <td>
+                                                                <Field
+                                                                  type="text"
+                                                                  name={`productVariants[${variantIndex}].variantName`}
+                                                                  //   value={option}
+                                                                  readonly
+                                                                  className="form-control"
+                                                                  style={{
+                                                                    width:
+                                                                      "150px",
+                                                                  }}
+                                                                />
+                                                                {/* <p>{option}</p> */}
+                                                              </td>
+
+                                                              <td>
+                                                                <Field
+                                                                  type="number"
+                                                                  name={`productVariants[${variantIndex}].variantPrice`}
+                                                                  placeholder="Price"
+                                                                  required
+                                                                  className="form-control"
+                                                                  style={{
+                                                                    width:
+                                                                      "75px",
+                                                                  }}
+                                                                />
+
+                                                                <ErrorMessage
+                                                                  name={`productVariants.${variantIndex}.variantPrice`}
+                                                                  component="div"
+                                                                  className="text-danger"
+                                                                />
+                                                              </td>
+                                                              <td>
+                                                                <Field
+                                                                  type="number"
+                                                                  name={`productVariants[${variantIndex}].variantDiscountedPrice`}
+                                                                  placeholder="Discountde Price"
+                                                                  required
+                                                                  className="form-control"
+                                                                  style={{
+                                                                    width:
+                                                                      "75px",
+                                                                  }}
+                                                                />
+
+                                                                <ErrorMessage
+                                                                  name={`productVariants.${variantIndex}.variantDiscountedPrice`}
+                                                                  component="div"
+                                                                  className="text-danger"
+                                                                />
+                                                              </td>
+                                                              <td>
+                                                                <Field
+                                                                  type="number"
+                                                                  name={`productVariants[${variantIndex}].variantStock`}
+                                                                  placeholder="Stock"
+                                                                  required
+                                                                  className="form-control"
+                                                                  style={{
+                                                                    width:
+                                                                      "75px",
+                                                                  }}
+                                                                />
+
+                                                                <ErrorMessage
+                                                                  name={`productVariants.${variantIndex}.variantStock`}
+                                                                  component="div"
+                                                                  className="text-danger"
+                                                                />
+                                                              </td>
+                                                            </tr>
+                                                          );
+                                                        }
+                                                      )}
+                                                    </tbody>
+                                                  </table>
+                                                </div>
+                                                <div>
+                                                  <button
+                                                    type="button"
+                                                    className="btn btn-danger mt-4"
+                                                    onClick={() =>
+                                                      handleOpen(values)
+                                                    }
+                                                  >
+                                                    Delete
+                                                  </button>
+                                                </div>
+                                              </>
+                                            )}
+                                          </FieldArray>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </>
+                                  <>
+                                    {options?.length > 0 &&
+                                      showVariantOptions && (
+                                        <div className="card mb-3">
+                                          <div className="card-body">
+                                            <FieldArray name="productVariantsNew">
+                                              {({ push, remove }) => (
+                                                <>
+                                                  {variants?.map(
+                                                    (option, variantIndex) => (
+                                                      <div className="d-flex justify-content-between mb-2">
+                                                        <div className="d-flex justify-content-between">
+                                                          <div className="d-flex">
+                                                            {images[
+                                                              variantIndex
+                                                            ] && (
+                                                              <div className="ms-2">
+                                                                <img
+                                                                  src={URL.createObjectURL(
+                                                                    images[
+                                                                      variantIndex
+                                                                    ]
+                                                                  )}
+                                                                  width={50}
+                                                                  height={50}
+                                                                  alt={`Thumbnail ${variantIndex}`}
+                                                                />
+                                                              </div>
+                                                            )}
+                                                            <label
+                                                              htmlFor={`file-upload-${variantIndex}`}
+                                                              className="ms-2"
+                                                              style={{
+                                                                cursor:
+                                                                  "pointer",
+                                                              }}
+                                                            >
+                                                              <FontAwesomeIcon
+                                                                icon={faUpload}
+                                                              />
+                                                            </label>
+                                                            <input
+                                                              id={`file-upload-${variantIndex}`}
+                                                              type="file"
+                                                              onChange={(e) =>
+                                                                handleFileChange(
+                                                                  e,
+                                                                  variantIndex
+                                                                )
+                                                              }
+                                                              style={{
+                                                                display: "none",
+                                                              }} // Hide the input element
+                                                            />
+
+                                                            {/* Thumbnail preview */}
+                                                          </div>
+                                                          <div className="ms-4">
+                                                            <Field
+                                                              type="text"
+                                                              name={`productVariantsNew[${variantIndex}].variantName`}
+                                                              value={option}
+                                                              readonly
+                                                              className="form-control"
+                                                              style={{
+                                                                width: "200px",
+                                                              }}
+                                                            />
+                                                            {/* <p>{option}</p> */}
+                                                          </div>
+                                                        </div>
+                                                        <div className="d-flex justify-content-between ms-2">
+                                                          <div>
+                                                            <Field
+                                                              type="number"
+                                                              name={`productVariantsNew[${variantIndex}].variantPrice`}
+                                                              placeholder="Price"
+                                                              required
+                                                              className="form-control"
+                                                              style={{
+                                                                width: "100px",
+                                                              }}
+                                                            />
+
+                                                            <ErrorMessage
+                                                              name={`productVariantsNew.${variantIndex}.variantPrice`}
+                                                              component="div"
+                                                              className="text-danger"
+                                                            />
+                                                          </div>
+                                                          <div>
+                                                            <Field
+                                                              type="number"
+                                                              name={`productVariantsNew[${variantIndex}].variantDiscountedPrice`}
+                                                              placeholder="Discountde Price"
+                                                              required
+                                                              className="form-control"
+                                                              style={{
+                                                                width: "100px",
+                                                              }}
+                                                            />
+
+                                                            <ErrorMessage
+                                                              name={`productVariantsNew.${variantIndex}.variantDiscountedPrice`}
+                                                              component="div"
+                                                              className="text-danger"
+                                                            />
+                                                          </div>
+                                                          <div className="">
+                                                            <Field
+                                                              type="number"
+                                                              name={`productVariantsNew[${variantIndex}].variantStock`}
+                                                              placeholder="Stock"
+                                                              required
+                                                              className="form-control"
+                                                              style={{
+                                                                width: "100px",
+                                                              }}
+                                                            />
+
+                                                            <ErrorMessage
+                                                              name={`productVariantsNew.${variantIndex}.variantStock`}
+                                                              component="div"
+                                                              className="text-danger"
+                                                            />
+                                                          </div>
+                                                        </div>
+                                                      </div>
+                                                    )
+                                                  )}
+                                                </>
+                                              )}
+                                            </FieldArray>
+                                          </div>
+                                        </div>
+                                      )}
+                                  </>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-md-4">
+                            <div className="card mb-3">
+                              <div className="card-body">
+                                <div>
+                                  <label
+                                    htmlFor="published"
+                                    className="form-label"
+                                  >
+                                    Published:
+                                  </label>
+                                  <Field
+                                    as="select"
+                                    id="published"
+                                    name="published"
+                                    // placeholder="Select label"
+                                    className="form-select"
+                                  >
+                                    <option value="draft">Draft</option>
+                                    <option value="published">Published</option>
+                                    {/* Add more options as needed */}
+                                  </Field>
+                                  {errors.published && (
+                                    <small className="text-danger">
+                                      {errors.published}
+                                    </small>
+                                  )}
+
+                                  {/* <ErrorMessage
+                                  name="published"
+                                  component="div"
+                                /> */}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="card mb-3">
+                              <div className="card-body">
+                                <div>
+                                  <label
+                                    htmlFor="category"
+                                    className="form-label"
+                                  >
+                                    Category:
+                                  </label>
+                                  <MultiSelectDropdown
+                                    name="category"
+                                    options={catOption}
+                                    // value={selectedCategories.filter(
+                                    //   (cat) => cat != null
+                                    // )}
+                                    value={selectedCat
+                                      .map((catId) => {
+                                        const category = catOption.find(
+                                          (cat) => cat.value === catId
+                                        );
+                                        return category
+                                          ? {
+                                              value: category.value,
+                                              label: category.label,
+                                            }
+                                          : null;
+                                      })
+                                      .filter(Boolean)}
+                                    onChange={(selectedOption) => {
+                                      // console.log("Selected Option:", selectedOption);
+                                      setFieldValue("category", selectedOption);
+                                      setSelectedCat(
+                                        selectedOption.map((cat) => cat.value)
+                                      );
+                                      // console.log("Form Values:", values);
+                                    }}
+                                    // value={selectedCategories}
+                                  />
+                                  {errors.category && (
+                                    <small className="text-danger">
+                                      {errors.category}
+                                    </small>
+                                  )}
+                                  <ErrorMessage
+                                    name="category"
+                                    component="div"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            <div className="card mb-3">
+                              <div className="card-body">
+                                <div>
+                                  <label htmlFor="brand" className="form-label">
+                                    Brand:
+                                  </label>
+                                  <Field
+                                    as="select"
+                                    id="brand_id"
+                                    name="brand_id"
+                                    // placeholder="Select label"
+                                    className="form-select"
+                                  >
+                                    <option value="">Select Brand</option>
+                                    {brandOption?.map((brand) => (
+                                      <option value={brand.id} key={brand.id}>
+                                        {capitalize(brand.name)}
+                                      </option>
+                                    ))}
+                                    {/* Add more options as needed */}
+                                  </Field>
+                                  {errors.brand_id && (
+                                    <small className="text-danger">
+                                      {errors.brand_id}
+                                    </small>
+                                  )}
+                                  {/* <ErrorMessage name="brand_id" component="div" /> */}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-md-4 ">
+                            <button
+                              type="submit"
+                              className="btn btn-sm mt-2"
+                              style={{
+                                backgroundColor: "#D93D6E",
+                                color: "white",
+                                width: "40%",
+                              }}
+                            >
+                              Save
+                            </button>
+                          </div>
+                        </div>
+                      </Form>
+                    )}
+                  </Formik>
+                ) : (
+                  <div>Loading...</div>
+                )}
               </div>
             </div>
           </div>
         </div>
       </div>
-      {show && (
-        <>
-          <div
-            className="modal-backdrop show"
-            style={{ backgroundColor: "rgba(0, 0, 0, 0.5)", zIndex: "1040" }}
-          ></div>
-          <AddVariantModalComponent
-            handleClose={handleClose}
-            variants={propertyOption}
-            onNewVariant={handleNewVariant}
-          />
-        </>
-      )}
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="child-modal-title"
+        aria-describedby="child-modal-description"
+      >
+        <Box
+          sx={{
+            ...style,
+            width: 400,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <h2 id="child-modal-title">Do you want to delete?</h2>
+          <Typography
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "20px",
+            }}
+          >
+            <button
+              type="button"
+              className="btn btn-sm  mt-4"
+              style={{
+                backgroundColor: "transparent",
+                border: "1px solid #D93D6E",
+                width: "100px",
+              }}
+              onClick={() => deleteOldVariant(valuesArray)}
+            >
+              Yes
+            </button>
+
+            <button
+              type="button"
+              className="btn btn-sm  mt-4"
+              onClick={handleClose}
+              style={{
+                backgroundColor: "transparent",
+                border: "1px solid #D93D6E",
+                width: "100px",
+                marginLeft: "20px",
+              }}
+            >
+              No
+            </button>
+          </Typography>
+        </Box>
+      </Modal>
     </Layout>
   );
 };
 
-export default EditProduct;
+export default EditProductNew;
