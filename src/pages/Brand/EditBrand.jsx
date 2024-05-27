@@ -355,7 +355,7 @@ const[brands,setbrands]=useState({})
                                     className="form-control"
                                     id="slide_show"
                                     name="slide_show"
-                                  
+                                  multiple
                                     onChange={(event) => {
   const newFiles = Array.from(event.currentTarget.files);
   // Create a new object with the updated 'slide_show' property
