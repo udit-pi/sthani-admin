@@ -23,6 +23,7 @@ import { fetchAllCategories } from "../../features/category/categorySlice";
 import { useDispatch } from "react-redux";
 import { fetchAllBrands } from "../../features/brand/brandSlice";
 import { fetchAllProperties } from "../../features/properties/propertySlice";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import {
   addProduct,
   fetchProductById,
@@ -33,6 +34,7 @@ import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import Button from "@mui/material/Button";
 import { Typography } from "@mui/material";
+
 
 const EditProductNew = () => {
   const dispatch = useDispatch();
@@ -59,12 +61,17 @@ const EditProductNew = () => {
   const [showNewVariantForm, setShowNewVariantForm] = useState(false);
   const [showOldVariantForm, setShowOldVariantForm] = useState(false);
   const [oldOptions, setOldOptions] = useState([]);
-  const [showAddOptionButton, setShowAddOptionButton] = useState(true);
+  const [showAddOptionButton, setShowAddOptionButton] = useState(false);
   const [open, setOpen] = useState(false);
   const [deleteId, setdeleteId] = useState("");
   const [valuesArray, setValuesArray] = useState([]);
   const [showVariantOptions, setShowVariantOptions] = useState(false);
   const [oldVariantImages, setOldVariantImages] = useState([]);
+  const [forceUpdate, setForceUpdate] = useState(false);
+  const [variantImages, setVariantImages] = useState([]);
+  const [mediaItems, setMediaItems] = useState([]);
+  const [reorderedMediaItems,setReorderedMediaItems] = useState([]);
+
   const [initialValues, setInitialValues] = useState({
     name: "",
     description: "",
@@ -81,7 +88,7 @@ const EditProductNew = () => {
     published: false,
     brand_id: "",
     category: [],
-    productVariant: [],
+    productVariants: [],
     files: [],
     options: [],
   });
@@ -157,13 +164,14 @@ const EditProductNew = () => {
     fetchProduct();
     //   setDataLoaded(true)
   }, [dispatch]);
+
   const fetchProduct = async () => {
     const res = await dispatch(fetchProductById({ id })).unwrap();
-    // console.log(res);
+    console.log(res);
     setProduct(res.product);
-    setBrand(res.brand);
+    // setBrand(res.brand);
 
-    setProductMedia(res.productMedia);
+    // setProductMedia(res.product.media);
 
     const initialValues = {
       name: res.product.name || "",
@@ -181,21 +189,28 @@ const EditProductNew = () => {
       published: res.product.published || false,
       brand_id: res.product.brand_id || "",
       category: res.product.categories || [],
-      productVariants: res.product.productVariants || [],
+      productVariants: res.product.product_variants || [],
       additional_descriptions: res.product.additional_descriptions || [],
       files: [],
       options: [],
     };
-    if(res.product.productVariants.length >0) {
+    if (res.product.product_variants.length > 0) {
       setShowOldVariantForm(true);
     }
     setInitialValues(initialValues);
     setSelectedCat(res.product.categories);
-    setFetchedProductVariants(res.product.productVariants);
+    setFetchedProductVariants(res.product.product_variants);
     setFormData(res);
     setOldOptions(res.product.options);
-    addMediaToFetchedVariant(res.product.productVariants, res.productMedia);
+  
+     setMediaItems(res.product.media)
+    addMediaToFetchedVariant(res.product.product_variants, res.product.media);
+    const media_items = res.product.media.filter(
+      (item) => item.variant_id === ""
+    );
+    // setMediaItems(media_items);
   };
+  // console.log(fetchedProductVariants)
 
   const capitalize = (str) => {
     return str[0].toUpperCase() + str.slice(1);
@@ -205,10 +220,15 @@ const EditProductNew = () => {
     values.deletedImages = deletedImages;
     values.oldImageIndex = [];
     values.oldVariantImages = oldVariantImages;
+    console.log(mediaItems);
+    // reordered media items
+
+    values.reorderedMediaItems = reorderedMediaItems
 
     oldVariantImages?.map((file, index) => {
       if (file) {
         values.oldImageIndex.push({
+          variant_id: values.productVariants[index]._id,
           name: file.name,
           index: index,
           variantName: values.productVariants[index].variantName,
@@ -242,15 +262,15 @@ const EditProductNew = () => {
       .filter(Boolean);
 
     console.log(values);
-    // //  console.log(errors)
-    const res = await dispatch(updateProduct({ id, values })).unwrap();
-    if (res.status === 200) {
-      toast.success("Product updated successfully!");
-      navigate("/product");
-    }
-    if (res.status === 400) {
-      toast.error(res.message);
-    }
+    //  console.log(errors)
+     const res = await dispatch(updateProduct({ id, values })).unwrap();
+    // if (res.status === 200) {
+    //   toast.success("Product updated successfully!");
+    //   navigate("/product");
+    // }
+    // if (res.status === 400) {
+    //   toast.error(res.message);
+    // }
   };
 
   useEffect(() => {
@@ -292,6 +312,8 @@ const EditProductNew = () => {
     const selectedFile = e.target.files[0];
 
     // Update the images state with the selected file for the specific row
+    // const updatedImages = [...oldVariantImages];
+
     const updatedImages = [...oldVariantImages];
     updatedImages[index] = selectedFile;
     // setShowImage(false);
@@ -363,50 +385,52 @@ const EditProductNew = () => {
     setShowVariantOptions(false);
   };
 
-  const handleImageDelete = (id) => {
+  const handleImageDelete = (file_name) => {
     //  console.log(id);
-    const newImages = productMedia.filter((img) => img.id !== id);
-    setProductMedia(newImages);
-    setDeletedImages((prevDeletedImages) => [...prevDeletedImages, id]);
+    const newImages = mediaItems.filter((img) => img.file_name !== file_name);
+    setMediaItems(newImages);
+    setDeletedImages((prevDeletedImages) => [...prevDeletedImages, file_name]);
     // console.log(newImages);
   };
 
   const addMediaToFetchedVariant = (productVariant, productMedia) => {
     // console.log(productVariant);
     // console.log(productMedia);
-    const updatedProductVariant = productVariant?.map((product) => {
+    const updatedProductVariant = productVariant?.map((variant) => {
       const matchedMedia = productMedia?.find(
-        (media) => product.variantName === media.title
+        (media) => variant._id === media.variant_id
       );
 
       if (matchedMedia) {
         return {
-          variantName: product.name,
-          variantSKU: product.sku,
-          variantPrice: product.price,
-          variantStock: product.stock,
+          variantName: variant.variantName,
+          variantDiscountedPrice: variant.variantDiscountedPrice,
+          variantPrice: variant.variantPrice,
+          variantStock: variant.variantStock,
 
           image: matchedMedia.file_name,
         };
       }
 
-      return product;
+      return variant;
     });
 
-     console.log(updatedProductVariant);
     setFetchedProductVariants(updatedProductVariant);
   };
 
   const deleteOldVariant = (values) => {
     values.optionName = "";
     values.options = [{}, {}, {}];
+    // setFetchedProductVariants([])
     setShowAddOptionButton(true);
     setShowOldVariantForm(false);
     const newOption = {
       optionName: values.optionName,
       options: values.options,
     };
+
     setOptions(newOption);
+
     setOpen(false);
   };
 
@@ -419,6 +443,38 @@ const EditProductNew = () => {
   const handleClose = () => {
     setOpen(false);
   };
+
+  const onDragEnd = (result, values, setFieldValue) => {
+    if (!result.destination) return;
+
+    const reorderedOptions = Array.from(options);
+    const [movedOption] = reorderedOptions.splice(result.source.index, 1);
+    reorderedOptions.splice(result.destination.index, 0, movedOption);
+
+    console.log("Original options:", options);
+    console.log("Reordered options:", reorderedOptions);
+    setOptions(reorderedOptions);
+    values.productVariants = [];
+    setFieldValue("productVariantsNew", []);
+    // setFieldValue('options', reorderedOptions);
+    setTimeout(() => {
+      console.log("ProductVariants after reset:", values.productVariantsNew);
+    }, 0);
+    setVariants([]);
+    setForceUpdate((prev) => !prev);
+  };
+
+  const handleImageDragEnd = (result, values, setFieldValue) => {
+    if (!result.destination) return;
+
+    const reorderedImages = Array.from(mediaItems);
+    const [movedImage] = reorderedImages.splice(result.source.index, 1);
+    reorderedImages.splice(result.destination.index, 0, movedImage);
+
+    setReorderedMediaItems(reorderedImages);
+    setMediaItems(reorderedImages);
+  }
+
   return (
     <Layout>
       <div className="col-12 stretch-card container-fluid">
@@ -525,116 +581,164 @@ const EditProductNew = () => {
                             </div>
 
                             <div className="card mb-3">
-                            <div className="card-body">
-                              <FieldArray name="additional_descriptions">
-                                {({ push, remove }) => (
-                                  <div>
+                              <div className="card-body">
+                                <FieldArray name="additional_descriptions">
+                                  {({ push, remove }) => (
                                     <div>
-                                      <label
-                                        htmlFor="additional_descriptions"
-                                        className="form-label mt-4"
-                                        style={{ marginRight: "10px" }}
-                                      >
-                                        Additional Descriptions
-                                      </label>
-                                    </div>
-                                    {values.additional_descriptions?.map(
-                                      (keyword, index) => (
-                                        <div key={index} className="mb-3">
-                                          <div>
-                                            <label htmlFor="label">
-                                              Label:
-                                            </label>
-                                            <Field
-                                              name={`additional_descriptions.${index}.label`}
-                                              className="form-control"
-                                             
-                                            />
-                                            <ErrorMessage
-                                              name="label"
-                                              component="div"
-                                            />
-                                          </div>
-                                          <div className="mb-3">
-                                            <label
-                                              htmlFor="name"
-                                              className="form-label"
+                                      <div>
+                                        <label
+                                          htmlFor="additional_descriptions"
+                                          className="form-label mt-4"
+                                          style={{ marginRight: "10px" }}
+                                        >
+                                          Additional Descriptions
+                                        </label>
+                                      </div>
+                                      {values.additional_descriptions?.map(
+                                        (keyword, index) => (
+                                          <div key={index} className="mb-3">
+                                            <div>
+                                              <label htmlFor="label">
+                                                Label:
+                                              </label>
+                                              <Field
+                                                name={`additional_descriptions.${index}.label`}
+                                                className="form-control"
+                                              />
+                                              <ErrorMessage
+                                                name="label"
+                                                component="div"
+                                              />
+                                            </div>
+                                            <div className="mb-3">
+                                              <label
+                                                htmlFor="name"
+                                                className="form-label"
+                                              >
+                                                Text
+                                              </label>
+                                              <Field
+                                                name={`additional_descriptions.${index}.value`}
+                                                component={QuillEditor}
+                                              />
+                                              {errors.description && (
+                                                <small className="text-danger">
+                                                  {errors.value}
+                                                </small>
+                                              )}
+                                            </div>
+                                            <button
+                                              className="btn btn-sm btn-danger mt-5"
+                                              onClick={() => remove(index)}
                                             >
-                                              Text
-                                            </label>
-                                            <Field
-                                              name={`additional_descriptions.${index}.value`}
-                                              component={QuillEditor}
-                                            />
-                                            {errors.description && (
-                                              <small className="text-danger">
-                                                {errors.value}
-                                              </small>
-                                            )}
+                                              <span>
+                                                <FontAwesomeIcon
+                                                  icon={faTrash}
+                                                />
+                                              </span>
+                                              Remove
+                                            </button>
                                           </div>
-                                          <button
-                                            className="btn btn-sm btn-danger mt-5"
-                                            onClick={() => remove(index)}
-                                          >
-                                            <span>
-                                              <FontAwesomeIcon icon={faTrash} />
-                                            </span>
-                                            Remove
-                                          </button>
-                                        </div>
-                                      )
-                                    )}
-                                    <button
-                                      type="button"
-                                      className="btn btn-sm btn-dark mt-2"
-                                      onClick={() => push("")}
-                                    >
-                                      Add descriptions
-                                    </button>
-                                  </div>
-                                )}
-                              </FieldArray>
+                                        )
+                                      )}
+                                      <button
+                                        type="button"
+                                        className="btn btn-sm btn-dark mt-2"
+                                        onClick={() => push("")}
+                                      >
+                                        Add descriptions
+                                      </button>
+                                    </div>
+                                  )}
+                                </FieldArray>
+                              </div>
                             </div>
-                          </div>
                             <div className="card mb-3">
                               <div className="card-body">
                                 <div className="mb-3">
                                   <label htmlFor="name" className="form-label">
                                     Media
                                   </label>
-                                  <div className="row mt-4 mb-2">
-                                    {productMedia?.map((media, key) => {
-                                      if (media.title === "Media") {
-                                        return (
-                                          <div
-                                            key={key}
-                                            class="col-md-3 grid-item"
-                                          >
-                                            <img
-                                              src={
-                                                imageBaseUrl + media.file_name
+                                  <DragDropContext onDragEnd={(result) =>
+                                              handleImageDragEnd(
+                                                result,
+                                                values,
+                                                setFieldValue
+                                              )
+                                            }>
+                                    <Droppable
+                                      droppableId="gallery"
+                                      direction="horizontal"
+                                    >
+                                      {(provided) => (
+                                        <div
+                                          // className="gallery"
+                                          {...provided.droppableProps}
+                                          ref={provided.innerRef}
+                                          // style={{
+                                          //   display: "flex",
+                                          //   overflowX: "auto",
+                                          // }}
+                                        >
+                                          <div className="row mt-4 mb-2">
+                                            {mediaItems?.map((media, key) => {
+                                              if(media.variant_id === '') {
+                                                return (
+                                                  <div  className="col-md-3 grid-item">
+                                                  <Draggable
+                                                    key={key}
+                                                    draggableId={`Item ${
+                                                      key + 1
+                                                    }`}
+                                                    // draggableId= {option.value}
+                                                    index={key}
+                                                  >
+                                                    {(provided, snapshot) => (
+                                                      <div
+                                                        ref={provided.innerRef}
+                                                        {...provided.draggableProps}
+                                                        {...provided.dragHandleProps}
+                                                      >
+                                                        <div
+                                                          key={key}
+                                                          // className="col-md-3 grid-item"
+                                                        >
+                                                          <img
+                                                            src={
+                                                              imageBaseUrl +
+                                                              media.file_name
+                                                            }
+                                                            className="img-fluid"
+                                                            alt="Image 2"
+                                                            width={150}
+                                                            height={150}
+                                                          ></img>
+                                                          {/* <p>{image.label}</p> */}
+                                                          <button
+                                                            type="button"
+                                                            className="btn btn-sm btn-danger mt-2"
+                                                            onClick={() =>
+                                                              handleImageDelete(
+                                                                media.file_name
+                                                              )
+                                                            }
+                                                          >
+                                                            Remove
+                                                          </button>
+                                                        </div>
+                                                      </div>
+                                                    )}
+                                                  </Draggable>
+                                                  </div>
+                                                );
                                               }
-                                              className="img-fluid"
-                                              alt="Image 2"
-                                              width={150}
-                                              height={150}
-                                            ></img>
-                                            {/* <p>{image.label}</p> */}
-                                            <button
-                                            type="button"
-                                              className="btn btn-sm btn-danger mt-2"
-                                              onClick={() =>
-                                                handleImageDelete(media.id)
-                                              }
-                                            >
-                                              Remove
-                                            </button>
+                                            
+                                            })}
                                           </div>
-                                        );
-                                      }
-                                      return;
-                                    })}
-                                  </div>
+                                        </div>
+                                      )}
+                                    </Droppable>
+                                  </DragDropContext>
                                   <div>
                                     <input
                                       type="file"
@@ -1100,66 +1204,120 @@ const EditProductNew = () => {
 
                                       {showOptions && (
                                         <div className="mt-4">
-                                          <FieldArray name="variantOption">
-                                            {({ push, remove }) => (
-                                              <>
-                                                {options?.map(
-                                                  (option, optionIndex) => (
-                                                    <div className="card mb-3 border-dark">
-                                                      <div
-                                                        className="card-body"
-                                                        style={{
-                                                          "background-color":
-                                                            "silver",
-                                                        }}
-                                                      >
-                                                        <div className="d-flex justify-content-between">
-                                                          <div>
-                                                            <FontAwesomeIcon
-                                                              icon={faBars}
-                                                            />
-                                                          </div>
-                                                          <div>
-                                                            <h6>
-                                                              {
-                                                                option.optionName
+                                          <DragDropContext
+                                            onDragEnd={(result) =>
+                                              onDragEnd(
+                                                result,
+                                                values,
+                                                setFieldValue
+                                              )
+                                            }
+                                          >
+                                            <Droppable droppableId="items">
+                                              {(provided) => (
+                                                <div
+                                                  {...provided.droppableProps}
+                                                  ref={provided.innerRef}
+                                                >
+                                                  <FieldArray name="variantOption">
+                                                    {({ push, remove }) => (
+                                                      <>
+                                                        {options?.map(
+                                                          (
+                                                            option,
+                                                            optionIndex
+                                                          ) => (
+                                                            <Draggable
+                                                              key={optionIndex}
+                                                              draggableId={`Item ${
+                                                                optionIndex + 1
+                                                              }`}
+                                                              // draggableId= {option.value}
+                                                              index={
+                                                                optionIndex
                                                               }
-                                                            </h6>
-                                                            {option.options?.map(
-                                                              (item) => (
-                                                                <span>
-                                                                  {item.value},
-                                                                </span>
-                                                              )
-                                                            )}
-                                                          </div>
-                                                          <button
-                                                            className="btn btn-sm btn-dark"
-                                                            onClick={() =>
-                                                              handleVariantEdit(
-                                                                values,
-                                                                setFieldValue,
-                                                                option
-                                                              )
-                                                            }
-                                                          >
-                                                            Edit
-                                                          </button>
-                                                        </div>
-                                                      </div>
-                                                    </div>
-                                                  )
-                                                )}
-                                              </>
-                                            )}
-                                          </FieldArray>
+                                                            >
+                                                              {(
+                                                                provided,
+                                                                snapshot
+                                                              ) => (
+                                                                <div
+                                                                  ref={
+                                                                    provided.innerRef
+                                                                  }
+                                                                  {...provided.draggableProps}
+                                                                  {...provided.dragHandleProps}
+                                                                >
+                                                                  <div className="card mb-3 border-dark">
+                                                                    <div
+                                                                      className="card-body"
+                                                                      style={{
+                                                                        "background-color":
+                                                                          "silver",
+                                                                      }}
+                                                                    >
+                                                                      <div className="d-flex justify-content-between">
+                                                                        <div>
+                                                                          <FontAwesomeIcon
+                                                                            icon={
+                                                                              faBars
+                                                                            }
+                                                                          />
+                                                                        </div>
+                                                                        <div>
+                                                                          <h6>
+                                                                            {
+                                                                              option.optionName
+                                                                            }
+                                                                          </h6>
+                                                                          {option.options?.map(
+                                                                            (
+                                                                              item
+                                                                            ) => (
+                                                                              <span>
+                                                                                {
+                                                                                  item.value
+                                                                                }
+
+                                                                                ,
+                                                                              </span>
+                                                                            )
+                                                                          )}
+                                                                        </div>
+                                                                        <button
+                                                                          className="btn btn-sm btn-dark"
+                                                                          onClick={() =>
+                                                                            handleVariantEdit(
+                                                                              values,
+                                                                              setFieldValue,
+                                                                              option
+                                                                            )
+                                                                          }
+                                                                        >
+                                                                          Edit
+                                                                        </button>
+                                                                      </div>
+                                                                    </div>
+                                                                  </div>
+                                                                </div>
+                                                              )}
+                                                            </Draggable>
+                                                          )
+                                                        )}
+                                                        {provided.placeholder}
+                                                      </>
+                                                    )}
+                                                  </FieldArray>
+                                                </div>
+                                              )}
+                                            </Droppable>
+                                          </DragDropContext>
                                         </div>
                                       )}
                                     </>
                                   )}
 
                                   <>
-                         
                                     {showOldVariantForm && (
                                       <div className="card mb-3">
                                         <div className="card-body">
@@ -1187,7 +1345,7 @@ const EditProductNew = () => {
                                                         >
                                                           Variant
                                                         </th>
-                                                      
+
                                                         <th
                                                           scope="col"
                                                           style={{
@@ -1212,7 +1370,6 @@ const EditProductNew = () => {
                                                         >
                                                           Stock
                                                         </th>
-                                                      
                                                       </tr>
                                                     </thead>
                                                     <tbody>
@@ -1225,155 +1382,137 @@ const EditProductNew = () => {
                                                             key={variantIndex}
                                                           >
                                                             <td className="d-flex">
-                                                            
-                                                                    {oldVariantImages[
-                                                                      variantIndex
-                                                                    ] && (
-                                                                      <div className="ms-2">
-                                                                        <img
-                                                                          src={URL.createObjectURL(
-                                                                            oldVariantImages[
-                                                                              variantIndex
-                                                                            ]
-                                                                          )}
-                                                                          width={
-                                                                            50
-                                                                          }
-                                                                          height={
-                                                                            50
-                                                                          }
-                                                                          alt={`Thumbnail ${variantIndex}`}
-                                                                        />
-                                                                      </div>
+                                                              {oldVariantImages[
+                                                                variantIndex
+                                                              ] && (
+                                                                <div className="ms-2">
+                                                                  <img
+                                                                    src={URL.createObjectURL(
+                                                                      oldVariantImages[
+                                                                        variantIndex
+                                                                      ]
                                                                     )}
-                                                                    {variant.image && (
-                                                                      <div>
-                                                                        <img
-                                                                          src={
-                                                                            imageBaseUrl +
-                                                                            variant.image
-                                                                          }
-                                                                          width={
-                                                                            50
-                                                                          }
-                                                                          height={
-                                                                            50
-                                                                          }
-                                                                          alt={`Thumbnail ${variantIndex}`}
-                                                                        />
-                                                                      </div>
-                                                                    )}
-                                                                    <label
-                                                                      htmlFor={`file-upload-${variantIndex}`}
-                                                                      className="ms-2"
-                                                                      style={{
-                                                                        cursor:
-                                                                          "pointer",
-                                                                      }}
-                                                                    >
-                                                                      <FontAwesomeIcon
-                                                                        icon={
-                                                                          faUpload
-                                                                        }
-                                                                      />
-                                                                    </label>
-                                                                    <input
-                                                                      id={`file-upload-${variantIndex}`}
-                                                                      type="file"
-                                                                      onChange={(
-                                                                        e
-                                                                      ) =>
-                                                                        handleOldFileChange(
-                                                                          e,
-                                                                          variantIndex
-                                                                        )
-                                                                      }
-                                                                      style={{
-                                                                        display:
-                                                                          "none",
-                                                                      }} // Hide the input element
-                                                                    />
+                                                                    width={50}
+                                                                    height={50}
+                                                                    alt={`Thumbnail ${variantIndex}`}
+                                                                  />
+                                                                </div>
+                                                              )}
+                                                              {!oldVariantImages[
+                                                                variantIndex
+                                                              ] && (
+                                                                <div>
+                                                                  <img
+                                                                    src={
+                                                                      imageBaseUrl +
+                                                                      variant.image
+                                                                    }
+                                                                    width={50}
+                                                                    height={50}
+                                                                    alt={`Thumbnail ${variantIndex}`}
+                                                                  />
+                                                                </div>
+                                                              )}
+                                                              <label
+                                                                htmlFor={`file-upload-${variantIndex}`}
+                                                                className="ms-2"
+                                                                style={{
+                                                                  cursor:
+                                                                    "pointer",
+                                                                }}
+                                                              >
+                                                                <FontAwesomeIcon
+                                                                  icon={
+                                                                    faUpload
+                                                                  }
+                                                                />
+                                                              </label>
+                                                              <input
+                                                                id={`file-upload-${variantIndex}`}
+                                                                type="file"
+                                                                onChange={(e) =>
+                                                                  handleOldFileChange(
+                                                                    e,
+                                                                    variantIndex
+                                                                  )
+                                                                }
+                                                                style={{
+                                                                  display:
+                                                                    "none",
+                                                                }} // Hide the input element
+                                                              />
 
-                                                                    {/* Thumbnail preview */}
-                                                                 </td>
-                                                                 <td>
-                                                            
-                                                                    <Field
-                                                                      type="text"
-                                                                      name={`productVariants[${variantIndex}].variantName`}
-                                                                      //   value={option}
-                                                                      readonly
-                                                                      className="form-control"
-                                                                      style={{
-                                                                        width:
-                                                                          "150px",
-                                                                      }}
-                                                                    />
-                                                                    {/* <p>{option}</p> */}
-                                                                  </td>
-                                                              
-                                                             
-                                                                   <td>
-                                                                    <Field
-                                                                      type="number"
-                                                                      name={`productVariants[${variantIndex}].variantPrice`}
-                                                                      placeholder="Price"
-                                                                      required
-                                                                      className="form-control"
-                                                                      style={{
-                                                                        width:
-                                                                          "75px",
-                                                                      }}
-                                                                    />
+                                                              {/* Thumbnail preview */}
+                                                            </td>
+                                                            <td>
+                                                              <Field
+                                                                type="text"
+                                                                name={`productVariants[${variantIndex}].variantName`}
+                                                                //   value={option}
+                                                                readonly
+                                                                className="form-control"
+                                                                style={{
+                                                                  width:
+                                                                    "150px",
+                                                                }}
+                                                              />
+                                                              {/* <p>{option}</p> */}
+                                                            </td>
 
-                                                                    <ErrorMessage
-                                                                      name={`productVariants.${variantIndex}.variantPrice`}
-                                                                      component="div"
-                                                                      className="text-danger"
-                                                                    />
-                                                                  </td>
-                                                                  <td>
-                                                                  
-                                                                    <Field
-                                                                      type="number"
-                                                                      name={`productVariants[${variantIndex}].variantDiscountedPrice`}
-                                                                      placeholder="Discountde Price"
-                                                                      required
-                                                                      className="form-control"
-                                                                      style={{
-                                                                        width:
-                                                                          "75px",
-                                                                      }}
-                                                                    />
+                                                            <td>
+                                                              <Field
+                                                                type="number"
+                                                                name={`productVariants[${variantIndex}].variantPrice`}
+                                                                placeholder="Price"
+                                                                required
+                                                                className="form-control"
+                                                                style={{
+                                                                  width: "75px",
+                                                                }}
+                                                              />
 
-                                                                    <ErrorMessage
-                                                                      name={`productVariants.${variantIndex}.variantDiscountedPrice`}
-                                                                      component="div"
-                                                                      className="text-danger"
-                                                                    />
-                                                                    </td>
-                                                                  <td>
-                                                              
-                                                                    <Field
-                                                                      type="number"
-                                                                      name={`productVariants[${variantIndex}].variantStock`}
-                                                                      placeholder="Stock"
-                                                                      required
-                                                                      className="form-control"
-                                                                      style={{
-                                                                        width:
-                                                                          "75px",
-                                                                      }}
-                                                                    />
+                                                              <ErrorMessage
+                                                                name={`productVariants.${variantIndex}.variantPrice`}
+                                                                component="div"
+                                                                className="text-danger"
+                                                              />
+                                                            </td>
+                                                            <td>
+                                                              <Field
+                                                                type="number"
+                                                                name={`productVariants[${variantIndex}].variantDiscountedPrice`}
+                                                                placeholder="Discountde Price"
+                                                                required
+                                                                className="form-control"
+                                                                style={{
+                                                                  width: "75px",
+                                                                }}
+                                                              />
 
-                                                                    <ErrorMessage
-                                                                      name={`productVariants.${variantIndex}.variantStock`}
-                                                                      component="div"
-                                                                      className="text-danger"
-                                                                    />
-                                                                 
-                                                               
-                                                                  </td>
+                                                              <ErrorMessage
+                                                                name={`productVariants.${variantIndex}.variantDiscountedPrice`}
+                                                                component="div"
+                                                                className="text-danger"
+                                                              />
+                                                            </td>
+                                                            <td>
+                                                              <Field
+                                                                type="number"
+                                                                name={`productVariants[${variantIndex}].variantStock`}
+                                                                placeholder="Stock"
+                                                                required
+                                                                className="form-control"
+                                                                style={{
+                                                                  width: "75px",
+                                                                }}
+                                                              />
+
+                                                              <ErrorMessage
+                                                                name={`productVariants.${variantIndex}.variantStock`}
+                                                                component="div"
+                                                                className="text-danger"
+                                                              />
+                                                            </td>
                                                           </tr>
                                                         )
                                                       )}

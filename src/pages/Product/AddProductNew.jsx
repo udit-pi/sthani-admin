@@ -25,6 +25,7 @@ import { fetchAllBrands } from "../../features/brand/brandSlice";
 import { fetchAllProperties } from "../../features/properties/propertySlice";
 import { addProduct } from "../../features/product/productSlice";
 import { FaArrowLeft } from "react-icons/fa";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 const AddProductNew = () => {
   const dispatch = useDispatch();
@@ -47,6 +48,8 @@ const AddProductNew = () => {
   const [optionsArray, setOptionsArray] = useState([]);
   const [showVariantOptions, setShowVariantOptions] = useState(false);
 
+  const [forceUpdate, setForceUpdate] = useState(false);
+
   // const brandOptions = []
   const catOptions = [];
 
@@ -56,7 +59,7 @@ const AddProductNew = () => {
     // description: "",
     // field: "",
     // variants: [],
-    // productVariant: [],
+     productVariants: [],
     // options: [
     //   { name: "Size", values: [] },
     //   { name: "Color", values: [] },
@@ -153,15 +156,15 @@ const AddProductNew = () => {
           ...current,
           option.value,
         ]);
-        
       });
     };
 
     generateCombinations(options);
     setOptionsArray(options);
 
-     console.log(combinedArray);
+    console.log(combinedArray);
     setVariants(combinedArray);
+
   }, [options]);
 
   const handleFileChange = (e, index) => {
@@ -179,7 +182,7 @@ const AddProductNew = () => {
 
   const handleOptionDelete = (values, optionName) => {
     setOptions((prev) => prev.filter((opt) => opt.optionName !== optionName));
-  
+
     values.optionName = "";
     values.options = [{}, {}, {}];
     // console.log(values)
@@ -217,31 +220,31 @@ const AddProductNew = () => {
   };
   const handleOptiondone = async (values, validateForm) => {
     console.log("Submitted values:", values.options);
-  
+
     const optionValidationErrors = validateOptions(values);
-  
+
     if (optionValidationErrors.length > 0) {
       setOptionErrors(optionValidationErrors);
       return;
     }
-  
+
     // Ensure optionName is trimmed to avoid mismatch due to extra spaces
     values.optionName = values.optionName.trim();
-  
+
     setOptions((prev) => {
       console.log("Previous options:", prev);
       console.log("Submitted values after trim:", values);
-  
+
       const index = prev.findIndex(
         (opt) => opt.optionName === values.optionName
       );
       console.log("Found index:", index);
-  
+
       const newOption = {
         optionName: values.optionName,
         options: values.options,
       };
-  
+
       if (index !== -1) {
         // Update existing option
         return prev.map((opt, idx) => (idx === index ? newOption : opt));
@@ -250,20 +253,16 @@ const AddProductNew = () => {
         return [...prev, newOption];
       }
     });
-  
 
     setShowOptionForm(false);
     setShowOptions(true);
     setShowVariantOptions(true);
     setOptionErrors([]);
     setVariants([]);
-  
- 
+
     values.optionName = "";
     values.options = [];
   };
-  
-
 
   // const handleOptiondone = async (values, validateForm) => {
   //   // setOptionErrors([]);
@@ -299,7 +298,6 @@ const AddProductNew = () => {
 
   //   values.optionName = "";
   //   values.options = [];
-    
 
   //   // return null;
   // };
@@ -312,12 +310,12 @@ const AddProductNew = () => {
 
   // console.log("optionErrors:", optionErrors);
   const handleVariantEdit = (values, setFieldValue, option) => {
-    console.log(option)
+    console.log(option);
     setFieldValue("optionName", option.optionName);
     // values.optionName = option.optionName
     option.options?.map((item, index) => {
       setFieldValue(`options[${index}].value`, item.value);
-     
+
       // values.options[index]?.value = item.value
     });
 
@@ -326,6 +324,39 @@ const AddProductNew = () => {
     setShowOptions(false);
     setShowVariantOptions(false);
   };
+
+  // const onDragEnd = (result, values, setFieldValue) => {
+  //   if (!result.destination) return;
+  //   console.log(result);
+
+  //   const options = [...values.options];
+  //   const [removed] = options.splice(result.source.index, 1);
+  //   options.splice(result.destination.index, 0, removed);
+
+   
+  //   values.options = options;
+  //   console.log(values);
+  // };
+  const onDragEnd = (result, values, setFieldValue) => {
+    if (!result.destination) return;
+
+    const reorderedOptions = Array.from(options);
+    const [movedOption] = reorderedOptions.splice(result.source.index, 1);
+    reorderedOptions.splice(result.destination.index, 0, movedOption);
+
+    console.log('Original options:', options);
+    console.log('Reordered options:', reorderedOptions);
+    setOptions(reorderedOptions)
+    values.productVariants = []
+    setFieldValue('productVariants', []);
+    // setFieldValue('options', reorderedOptions);
+    setTimeout(() => {
+      console.log('ProductVariants after reset:', values.productVariants);
+    }, 0);
+    setVariants([])
+    setForceUpdate((prev) => !prev);
+  };
+  
 
   return (
     <Layout>
@@ -451,7 +482,6 @@ const AddProductNew = () => {
                                             <Field
                                               name={`additional_descriptions.${index}.label`}
                                               className="form-control"
-                                             
                                             />
                                             <ErrorMessage
                                               name="label"
@@ -946,57 +976,97 @@ const AddProductNew = () => {
 
                                   {showOptions && (
                                     <div className="mt-4">
-                                      <FieldArray name="variantOption">
-                                        {({ push, remove }) => (
-                                          <>
-                                            {options?.map(
-                                              (option, optionIndex) => (
-                                                <div className="card mb-3 border-dark">
-                                                  <div
-                                                    className="card-body"
-                                                    style={{
-                                                      "background-color":
-                                                        "silver",
-                                                    }}
-                                                  >
-                                                    <div className="d-flex justify-content-between">
-                                                      <div>
-                                                        <FontAwesomeIcon
-                                                          icon={faBars}
-                                                        />
-                                                      </div>
-                                                      <div>
-                                                        <h6>
-                                                          {option.optionName}
-                                                        </h6>
-                                                        {option.options?.map(
-                                                          (item) => (
-                                                            <span>
-                                                              {item.value},
-                                                            </span>
-                                                          )
-                                                        )}
-                                                      </div>
-                                                      <button
-                                                        className="btn btn-sm btn-dark"
-                                                        onClick={() =>
-                                                          handleVariantEdit(
-                                                            values,
-                                                            setFieldValue,
-                                                            option
-                                                          )
-                                                        }
+                                      <DragDropContext
+                                        onDragEnd={(result) =>
+                                          onDragEnd(
+                                            result,
+                                            values,
+                                            setFieldValue
+                                          )
+                                        }
+                                      >
+                                        <Droppable droppableId="items">
+                                          {(provided) => (
+                                            <div
+                                              {...provided.droppableProps}
+                                              ref={provided.innerRef}
+                                            >
+                                              <FieldArray name="variantOption">
+                                                {({ push, remove }) => (
+                                                  <>
+                                                    {options?.map(
+                                                      (option, optionIndex) => (
+                                                        <Draggable
+                                                        key={optionIndex}
+                                                        draggableId={`Item ${optionIndex + 1}`}
+                                                        // draggableId= {option.value}
+                                                        index={optionIndex}
                                                       >
-                                                        Edit
-                                                      </button>
-                                                    </div>
-                                                  </div>
-                                                </div>
-                                              )
-                                            )}
-                                          </>
-                                        )}
-                                      </FieldArray>
+                                                        {(provided, snapshot) => (
+                                                          <div
+                                                            ref={provided.innerRef}
+                                                            {...provided.draggableProps}
+                                                            {...provided.dragHandleProps}
+                                                          >
+                                                        <div className="card mb-3 border-dark">
+                                                          <div
+                                                            className="card-body"
+                                                            style={{
+                                                              "background-color":
+                                                                "silver",
+                                                            }}
+                                                          >
+                                                            <div className="d-flex justify-content-between">
+                                                              <div>
+                                                                <FontAwesomeIcon
+                                                                  icon={faBars}
+                                                                />
+                                                              </div>
+                                                              <div>
+                                                                <h6>
+                                                                  {
+                                                                    option.optionName
+                                                                  }
+                                                                </h6>
+                                                                {option.options?.map(
+                                                                  (item) => (
+                                                                    <span>
+                                                                      {
+                                                                        item.value
+                                                                      }
+                                                                      ,
+                                                                    </span>
+                                                                  )
+                                                                )}
+                                                              </div>
+                                                              <button
+                                                                className="btn btn-sm btn-dark"
+                                                                onClick={() =>
+                                                                  handleVariantEdit(
+                                                                    values,
+                                                                    setFieldValue,
+                                                                    option
+                                                                  )
+                                                                }
+                                                              >
+                                                                Edit
+                                                              </button>
+                                                            </div>
+                                                          </div>
+                                                        </div>
+                                                        </div>
+                                                          )}
+                                                          </Draggable>
+                                                      )
+                                                    )}
+                                                      {provided.placeholder}
+                                                  </>
+                                                )}
+                                              </FieldArray>
+                                            </div>
+                                          )}
+                                        </Droppable>
+                                      </DragDropContext>
                                     </div>
                                   )}
                                 </>
