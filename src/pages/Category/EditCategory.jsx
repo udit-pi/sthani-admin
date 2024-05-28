@@ -21,15 +21,15 @@ const EditCategory = ({ history }) => {
   const [category, setCategory] = useState({})
   const { id } = useParams();
   const [dataLoaded, setDataLoaded] = useState(false)
-const[Allcategory,setAllcategory]=useState([])
+  const [Allcategory, setAllcategory] = useState([])
 
-const[catOption,setcatOption]=useState([])
+  const [catOption, setcatOption] = useState([])
 
-const[defaultValue,setdefaultValue]=useState(null)
+  const [defaultValue, setdefaultValue] = useState(null)
   console.log(dataLoaded)
   const mediaFolder = process.env.REACT_APP_MEDIA_URL;
 
-console.log(id)
+  console.log(id)
   console.log(category.parent_category)
   console.log(Allcategory)
 
@@ -51,13 +51,13 @@ console.log(id)
     description: "",
     icon: "",
     slide_show: [],
-    parent_category:""
+    parent_category: ""
   };
 
-    const imageUrlBanner = `${process.env.REACT_APP_MEDIA_URL}/${category.banner}`;
-    
-    const imageUrlIcon = `${process.env.REACT_APP_MEDIA_URL}/${category.icon}`;
-    const url = `${process.env.REACT_APP_MEDIA_URL}`
+  const imageUrlBanner = `${process.env.REACT_APP_MEDIA_URL}/${category.banner}`;
+
+  const imageUrlIcon = `${process.env.REACT_APP_MEDIA_URL}/${category.icon}`;
+  const url = `${process.env.REACT_APP_MEDIA_URL}`
   //  const imageUrlBanner = 'http://localhost:3500/api/uploads/' + category.banner;
   //  const  imageUrlIcon  = `http://localhost:3500/api/uploads/${category.icon}`;
   //  const  url  = `http://localhost:3500/api/uploads/api/uploads/`;
@@ -67,9 +67,9 @@ console.log(id)
 
 
 
- // const imageUrlBanner = mediaFolder+category.banner;
- // const imageUrlIcon = mediaFolder+category.icon;
- // const url = mediaFolder;
+  // const imageUrlBanner = mediaFolder+category.banner;
+  // const imageUrlIcon = mediaFolder+category.icon;
+  // const url = mediaFolder;
 
 
   const fetchCategory = async () => {
@@ -93,21 +93,21 @@ console.log(id)
         console.log(err)
       });
 
-      const resAll = await dispatch(fetchAllCategories()).unwrap();
+    const resAll = await dispatch(fetchAllCategories()).unwrap();
 
-setAllcategory(resAll)
+    setAllcategory(resAll)
 
   };
 
-console.log( defaultValue)
+  console.log(defaultValue)
   // const imageUrl = 'http://165.22.222.184/api/uploads/' + category.banner;
 
-    useEffect(() => {
+  useEffect(() => {
 
 
-        fetchCategory();
+    fetchCategory();
 
-   }, [dispatch]);
+  }, [dispatch]);
 
 
   useEffect(() => {
@@ -126,26 +126,26 @@ console.log( defaultValue)
 
 
   const catOptions = [];
-useEffect(()=>{
-  const index =Allcategory.findIndex(category => category.id === id);
+  useEffect(() => {
+    const index = Allcategory.findIndex(category => category.id === id);
 
-  
 
-  // Return a new array without the category with the matching ID
-  const newArray= Allcategory.filter((category, i) => i !== index);
-  newArray?.map((cat) => {
-    catOptions.push({ label: cat.name, value: cat.id });
-  });
-  setcatOption(catOptions)
-},[Allcategory])
 
-console.log(catOption)
+    // Return a new array without the category with the matching ID
+    const newArray = Allcategory.filter((category, i) => i !== index);
+    newArray?.map((cat) => {
+      catOptions.push({ label: cat.name, value: cat.id });
+    });
+    setcatOption(catOptions)
+  }, [Allcategory])
+
+  console.log(catOption)
 
   const goBack = () => {
     window.history.back();
   };
 
-console.log(category.parent_category)
+  console.log(category.parent_category)
 
   return (
     <Layout>
@@ -156,7 +156,7 @@ console.log(category.parent_category)
           <h2 className="heading">Edit Category</h2>
         </div>
 
-  <Formik
+        <Formik
           initialValues={category}
           validationSchema={editCategoryValidation}
           enableReinitialize={true}
@@ -170,94 +170,91 @@ console.log(category.parent_category)
 
         >
           {({ values, errors, setFieldValue }) => (
-         
-       
-              <Form>
-                <div className="card">
-                  <div className="card-body">
-                    <div className="mb-3">
-                      <label htmlFor="name" className="form-label">
-                        Category Name
-                      </label>
-                      <Field
-                        type="name"
-                        className="form-control"
-                        id="name"
-                        name="name"
 
-                        aria-describedby="nameHelp"
-                      ></Field>
-                      {errors.name && (
-                        <small className="text-danger">
-                          {errors.name}
-                        </small>
-                      )}
-                    </div>
-                    <div className="mb-4">
-                      <label
-                        htmlFor="description"
-                        className="form-label"
-                      >
-                        Description
-                      </label>
-                      <Field
-                        as="textarea"
-                        type="text"
-                        className="form-control"
-                        id="description"
-                        name="description"
-                      ></Field>
-                      {errors.description && (
-                        <small className="text-danger">
-                          {errors.description}
-                        </small>
-                      )}
-                    </div>
 
-                    <div className="mb-4">
-                      <label
-                        htmlFor="category"
-                        className="form-label"
-                      >
-                        Parent category:
-                      </label>
-                      {/* <MultiSelectDropdown
+            <Form>
+              <div className="card">
+                <div className="card-body">
+                  <div className="mb-3">
+                    <label htmlFor="name" className="form-label">
+                      Category Name
+                    </label>
+                    <Field
+                      type="name"
+                      className="form-control"
+                      id="name"
+                      name="name"
+
+                      aria-describedby="nameHelp"
+                    ></Field>
+                    {errors.name && (
+                      <small className="text-danger">
+                        {errors.name}
+                      </small>
+                    )}
+                  </div>
+                  <div className="mb-4">
+                    <label
+                      htmlFor="description"
+                      className="form-label"
+                    >
+                      Description
+                    </label>
+                    <Field
+                      as="textarea"
+                      type="text"
+                      className="form-control"
+                      id="description"
+                      name="description"
+                    ></Field>
+                    {errors.description && (
+                      <small className="text-danger">
+                        {errors.description}
+                      </small>
+                    )}
+                  </div>
+
+                  <div className="mb-4">
+                    <label
+                      htmlFor="category"
+                      className="form-label"
+                    >
+                      Parent category:
+                    </label>
+                    {/* <MultiSelectDropdown
                         name="Parent category"
                       // options={catOption}
                       /> */}
 
-<Box sx={{ minWidth: 120 }}>
-      <FormControl fullWidth>
-  
-       <Select
-          labelId="demo-simple-select-label"
-          id="parent_category"
-          name="parent_category"
-        defaultOpen={category.parent_category}
-        value={defaultValue}
-      onChange={(event) => {
- setdefaultValue(event.target.value)
-setFieldValue("parent_category",event.target.value)
+                    <Box sx={{ minWidth: 120 }}>
+                      <FormControl fullWidth>
+
+                        <Select
+                          labelId="demo-simple-select-label"
+                          id="parent_category"
+                          name="parent_category"
+                          value={defaultValue}
+                          onChange={(event) => {
+                            const { value } = event.target;
+                            setdefaultValue(value);
+                            setFieldValue("parent_category", value);
+                          }}
+                        >
+                          <MenuItem value="">
+                            None
+                          </MenuItem>
+                          {Allcategory.map((option) => (
+                            option.id !== id && (
+                              <MenuItem key={option.id} value={option.id}>
+                                {option.name}
+                              </MenuItem>
+                            )
+                          ))}
+                        </Select>
 
 
- }}
-    >
-        <MenuItem value="">
-            None
-        </MenuItem>
-          {Allcategory.map((option) => (
-
-
-       option.id!=id&& <MenuItem key={option.id.toString()} value={option.id}>{option.name}</MenuItem>
-        
-      
-          ))}
-
-    
-        </Select>
-   
-      </FormControl>
-    </Box>
+                      </FormControl>
+                    </Box>
 
 
 
@@ -265,28 +262,28 @@ setFieldValue("parent_category",event.target.value)
 
 
 
-                      {errors.category && (
-                        <small className="text-danger">
-                          {errors.category}
-                        </small>
-                      )}
+                    {errors.category && (
+                      <small className="text-danger">
+                        {errors.category}
+                      </small>
+                    )}
 
-                    </div>
-
-
-
-
-                    {
-                      // error && (
-                      //     <div className='alert alert-danger' role='alert'>{error}</div>
-                      // )
-                    }
                   </div>
-                </div>
-                <div className="card">
-                  <div className="card-body">
 
-                  <div style={{display:"flex",gap:"40px"}}>
+
+
+
+                  {
+                    // error && (
+                    //     <div className='alert alert-danger' role='alert'>{error}</div>
+                    // )
+                  }
+                </div>
+              </div>
+              <div className="card">
+                <div className="card-body">
+
+                  <div style={{ display: "flex", gap: "40px" }}>
 
                     <div className="mb-4">
                       <label
@@ -317,22 +314,22 @@ setFieldValue("parent_category",event.target.value)
                       )}
                     </div>
 
-                    { category.banner&&bannerImage && <div className="mb-2">
+                    {category.banner && bannerImage && <div className="mb-2">
 
-                    <img src={bannerImage} height="150px" />
+                      <img src={bannerImage} height="150px" />
 
-                  </div>}
+                    </div>}
 
-                  {values.banner && values.banner instanceof File && <div>
+                    {values.banner && values.banner instanceof File && <div>
 
-                    <img src={URL.createObjectURL(values.banner)} height="150px" />
+                      <img src={URL.createObjectURL(values.banner)} height="150px" />
 
-                  </div>}
+                    </div>}
 
-</div>
-          <div style={{display:"flex",gap:"40px",marginTop:"30px"}}>
+                  </div>
+                  <div style={{ display: "flex", gap: "40px", marginTop: "30px" }}>
 
-     
+
                     <div className="mb-4">
                       <label
                         htmlFor="icon"
@@ -361,149 +358,149 @@ setFieldValue("parent_category",event.target.value)
                       )}
                     </div>
 
-                    {category.icon&&icon && <div className="mb-2">
+                    {category.icon && icon && <div className="mb-2">
 
-                    <img src={icon} height="150px" />
+                      <img src={icon} height="150px" />
 
-                  </div>}
+                    </div>}
 
-                  {values.icon && values.icon instanceof File && <div>
+                    {values.icon && values.icon instanceof File && <div>
 
-                    <img src={URL.createObjectURL(values.icon)} height="150px" />
+                      <img src={URL.createObjectURL(values.icon)} height="150px" />
 
-                  </div>}
-
-                  </div>
-
+                    </div>}
 
                   </div>
+
+
                 </div>
+              </div>
 
-                <div className="card">
-                  <div className="card-body">
-
-
-
-                    <div className="mb-4">
-                      <label
-                        htmlFor="slide_show"
-                        className="form-label"
-                      >
-                        Slideshow images
-                      </label>
-                      <input
-                        type="file"
-                        className="form-control"
-                        id="slide_show"
-                        multiple
-                        name="slide_show"
-                        // onChange={(event) => {
-
-                        //   const selectedFiles = [];
-
-
-                        //   for (let i = 0; i < event.currentTarget.files.length; i++) {
-
-
-                        //     values.slide_show.push(event.currentTarget.files[i])
-
-                        //   }
+              <div className="card">
+                <div className="card-body">
 
 
 
-                        //   console.log(values.slide_show)
+                  <div className="mb-4">
+                    <label
+                      htmlFor="slide_show"
+                      className="form-label"
+                    >
+                      Slideshow images
+                    </label>
+                    <input
+                      type="file"
+                      className="form-control"
+                      id="slide_show"
+                      multiple
+                      name="slide_show"
+                      // onChange={(event) => {
+
+                      //   const selectedFiles = [];
 
 
-                        // }}
-
-                        // onChange={(event) => {
-
-                        //   const newFiles = Array.from(event.currentTarget.files);
-                        //   values.slide_show = values.slide_show ? values.slide_show.concat(newFiles) : newFiles;
-
-                        //   console.log(values.slide_show);
-                        // }}
-
-                        onChange={(event) => {
-  const newFiles = Array.from(event.currentTarget.files);
-  // Create a new object with the updated 'slide_show' property
-  const updatedValues = {
-    ...values, // Spread the existing values
-    slide_show: values.slide_show ? values.slide_show.concat(newFiles) : newFiles,
-  };
-  // Update 'values' using Formik's setValues function
-  setFieldValue('slide_show', updatedValues.slide_show);
-  
-}}
-                      />
-                      {errors.banner && (
-                        <small className="text-danger">
-                          {errors.banner}
-                        </small>
-                      )}
-                    </div>
-
-                   { <div style={{ display: "flex", gap: "20px",flexWrap:"wrap" }}>
+                      //   for (let i = 0; i < event.currentTarget.files.length; i++) {
 
 
-                    { values.slide_show&& values.slide_show.map((image,index) => (
-                      
-                      <div style={{display:"flex",flexDirection:"column",gap:"10px"}}>
-                      
+                      //     values.slide_show.push(event.currentTarget.files[i])
 
-                       
-                       {typeof image === "string"&&<img src={url + image} height="150px" />}
-                    
-                       
+                      //   }
 
 
 
+                      //   console.log(values.slide_show)
 
-                       {typeof image === "string"&&<button
+
+                      // }}
+
+                      // onChange={(event) => {
+
+                      //   const newFiles = Array.from(event.currentTarget.files);
+                      //   values.slide_show = values.slide_show ? values.slide_show.concat(newFiles) : newFiles;
+
+                      //   console.log(values.slide_show);
+                      // }}
+
+                      onChange={(event) => {
+                        const newFiles = Array.from(event.currentTarget.files);
+                        // Create a new object with the updated 'slide_show' property
+                        const updatedValues = {
+                          ...values, // Spread the existing values
+                          slide_show: values.slide_show ? values.slide_show.concat(newFiles) : newFiles,
+                        };
+                        // Update 'values' using Formik's setValues function
+                        setFieldValue('slide_show', updatedValues.slide_show);
+
+                      }}
+                    />
+                    {errors.banner && (
+                      <small className="text-danger">
+                        {errors.banner}
+                      </small>
+                    )}
+                  </div>
+
+                  {<div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
+
+
+                    {values.slide_show && values.slide_show.map((image, index) => (
+
+                      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+
+
+
+                        {typeof image === "string" && <img src={url + image} height="150px" />}
+
+
+
+
+
+
+                        {typeof image === "string" && <button
                           type="button"
                           className="btn btn-sm  mt-2"
                           onClick={() => {
-                        setFieldValue('slide_show', values.slide_show.filter((_, i) => i !== index));
-                        console.log(values.slide_show)
-                      }}
+                            setFieldValue('slide_show', values.slide_show.filter((_, i) => i !== index));
+                            console.log(values.slide_show)
+                          }}
                           style={{ backgroundColor: 'transparent', border: "1px solid #D93D6E" }}
                         >
                           Remove Image
                         </button>}
                       </div>
-                   
+
                     ))}
 
 
 
 
 
-                    { values.slide_show&& values.slide_show.map((image,index) => (
-                      
-                      <div style={{display:"flex",flexDirection:"column",gap:"10px",flexWrap:"wrap"}}>
-                      
+                    {values.slide_show && values.slide_show.map((image, index) => (
 
-                       
-                       {typeof image !== "string"&&<img src={URL.createObjectURL(image)} height="150px" />}
-                    
-                       
+                      <div style={{ display: "flex", flexDirection: "column", gap: "10px", flexWrap: "wrap" }}>
+
+
+
+                        {typeof image !== "string" && <img src={URL.createObjectURL(image)} height="150px" />}
 
 
 
 
-                       {typeof image !== "string"&&<button
+
+
+                        {typeof image !== "string" && <button
                           type="button"
                           className="btn btn-sm  mt-2"
                           onClick={() => {
-                        setFieldValue('slide_show', values.slide_show.filter((_, i) => i !== index));
-                        console.log(values.slide_show)
-                      }}
+                            setFieldValue('slide_show', values.slide_show.filter((_, i) => i !== index));
+                            console.log(values.slide_show)
+                          }}
                           style={{ backgroundColor: 'transparent', border: "1px solid #D93D6E" }}
                         >
                           Remove Image
                         </button>}
                       </div>
-                   
+
                     ))}
 
 
@@ -511,18 +508,18 @@ setFieldValue("parent_category",event.target.value)
 
 
 
-                  </div>
                 </div>
+              </div>
 
-                <button
-                  className="btn  w-100 py-8 fs-4 mb-4 rounded-2"
-                  type="submit"
-                  style={{ backgroundColor: '#D93D6E', color: "white" }}
-                >
-                  {loading ? "Loading..." : "Update Category"}
-                </button>
-              </Form>
-            
+              <button
+                className="btn  w-100 py-8 fs-4 mb-4 rounded-2"
+                type="submit"
+                style={{ backgroundColor: '#D93D6E', color: "white" }}
+              >
+                {loading ? "Loading..." : "Update Category"}
+              </button>
+            </Form>
+
           )}
         </Formik>
 
