@@ -242,7 +242,9 @@ setFieldValue("parent_category",event.target.value)
 
  }}
     >
-        
+        <MenuItem value="">
+            None
+        </MenuItem>
           {Allcategory.map((option) => (
 
 
