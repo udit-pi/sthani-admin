@@ -34,6 +34,7 @@ import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import Button from "@mui/material/Button";
 import { Typography } from "@mui/material";
+const mediaFolder = process.env.REACT_APP_MEDIA_URL;
 
 const EditProductNew = () => {
   const dispatch = useDispatch();
@@ -82,6 +83,7 @@ const EditProductNew = () => {
     quantity_min: "",
     stock: "",
     price: "",
+    media:[],
     discounted_price: "",
     cost: "",
     published: false,
@@ -143,7 +145,7 @@ const EditProductNew = () => {
 
     setCatOption(catOptions);
   };
-
+  const url = mediaFolder;
   useEffect(() => {
     fetchCategory();
   }, [dispatch]);
@@ -190,6 +192,7 @@ const EditProductNew = () => {
       category: res.product.categories || [],
       productVariants: res.product.product_variants || [],
       additional_descriptions: res.product.additional_descriptions || [],
+      media:res.product.media,
       files: [],
       options: [],
     };
@@ -238,17 +241,17 @@ const EditProductNew = () => {
     //  console.log(images);
     // console.log(variants);
 
-    const mergedArray = values.productVariantsNew?.map((variant, index) => ({
-      ...variant,
+    // const mergedArray = values.productVariantsNew?.map((variant, index) => ({
+    //   ...variant,
 
-      image: images[index],
-      variantName: variants[index],
-      // variantOption: options[index].optionName
-      // variantName: selectedVariants[index]// Assuming images is an array of image objects or URLs
-    }));
-    values.productVariantsNew = mergedArray;
-    values.options = optionsArray;
-    values.images = images;
+    //   image: images[index],
+    //   variantName: variants[index],
+    //   // variantOption: options[index].optionName
+    //   // variantName: selectedVariants[index]// Assuming images is an array of image objects or URLs
+    // }));
+    // values.productVariantsNew = mergedArray;
+    // values.options = optionsArray;
+    // values.images = images;
 
     values.category = selectedCat
       .map((catId) => {
@@ -260,10 +263,9 @@ const EditProductNew = () => {
       })
       .filter(Boolean);
 
-    console.log(values);
-    console.log(mediaItems);
-    //  console.log(errors)
+
     const res = await dispatch(updateProduct({ id, values })).unwrap();
+
     if (res.status === 200) {
       toast.success("Product updated successfully!");
       navigate("/product");
@@ -333,30 +335,31 @@ const EditProductNew = () => {
   // };
 
   const handleFileChange = (e, variantId) => {
-    const selectedFile = e.target.files[0];
+    const selectedFile = e.target.files;
 
     // Create a new media item with the selected file
     const newMediaItem = {
       file_name: selectedFile.name,
-      file_size: selectedFile.size,
-      file_type: selectedFile.type,
-      file: selectedFile,
+      // file_size: selectedFile.size,
+      // file_type: selectedFile.type,
+      // file: selectedFile,
       preview: URL.createObjectURL(selectedFile),
       variant_id: variantId,
     };
 
     // Update the mediaItems state by adding the new media item or replacing the existing one for the variant
-    const updatedMediaItems = [...mediaItems];
-    const existingIndex = updatedMediaItems.findIndex(
-      (item) => item.variant_id === variantId
-    );
-    if (existingIndex >= 0) {
-      updatedMediaItems[existingIndex] = newMediaItem;
-    } else {
-      updatedMediaItems.push(newMediaItem);
-    }
+    // const updatedMediaItems = [...mediaItems];
+    // const existingIndex = updatedMediaItems.findIndex(
+    //   (item) => item.variant_id === variantId
+    // );
+    // if (existingIndex >= 0) {
+    //   updatedMediaItems[existingIndex] = newMediaItem;
+    // } else {
+    //   updatedMediaItems.push(newMediaItem);
+    // }
 
-    setMediaItems(updatedMediaItems);
+    // setMediaItems(updatedMediaItems);
+    setMediaItems([...mediaItems, newMediaItem]);
   };
 
   console.log(mediaItems);
@@ -427,13 +430,7 @@ const EditProductNew = () => {
     setShowVariantOptions(false);
   };
 
-  const handleImageDelete = (file_name) => {
-    //  console.log(id);
-    const newImages = mediaItems.filter((img) => img.file_name !== file_name);
-    setMediaItems(newImages);
-    setDeletedImages((prevDeletedImages) => [...prevDeletedImages, file_name]);
-    // console.log(newImages);
-  };
+
 
   const addMediaToFetchedVariant = (productVariant, productMedia) => {
     const updatedProductVariant = productVariant?.map((variant) => {
@@ -505,39 +502,9 @@ const EditProductNew = () => {
     setForceUpdate((prev) => !prev);
   };
 
-  const handleImageDragEnd = (result, values, setFieldValue) => {
-    if (!result.destination) return;
 
-    const reorderedImages = Array.from(mediaItems);
-    const [movedImage] = reorderedImages.splice(result.source.index, 1);
-    reorderedImages.splice(result.destination.index, 0, movedImage);
 
-    setMediaItems(reorderedImages);
-  };
-  const handleRemoveImage = (variantId) => {
-    const updatedMediaItems = mediaItems.filter(
-      (item) => item.variant_id !== variantId
-    );
-    setMediaItems(updatedMediaItems);
-  };
 
-  const handleMediaFileChange = (e) => {
-    const newFiles = Array.from(e.target.files).map((file) => ({
-      file_name: file.name,
-      file_size: file.size,
-      file_type: file.type,
-      file: file,
-      variant_id: "",
-      preview: URL.createObjectURL(file),
-    }));
-    setMediaItems([...mediaItems, ...newFiles]);
-  };
-  const handleMediaRemoveImage = (fileName) => {
-    const updatedMediaItems = mediaItems.filter(
-      (item) => item.file_name !== fileName
-    );
-    setMediaItems(updatedMediaItems);
-  };
 
   return (
     <Layout>
@@ -570,13 +537,14 @@ const EditProductNew = () => {
                 {initialValues ? (
                   <Formik
                     enableReinitialize
-                    initialValues={initialValues}
+                    initialValues={product}
                     validationSchema={addProductValidation}
                     //   validateOnChange={true}
                     //   validateOnBlur={true}
                     validateOnSubmit={true}
                     onSubmit={(values, errors) => {
                       // console.log(errors);
+                  // console.log(values)
                       handleSubmit(values, errors);
                     }}
                   >
@@ -584,11 +552,9 @@ const EditProductNew = () => {
                       values,
                       errors,
                       setFieldValue,
-                      isValid,
-                      isSubmitting,
+                 
                       validateForm,
-                      touched,
-                      handleBlur,
+                
                     }) => (
                       <Form>
                         <div className="row">
@@ -720,163 +686,87 @@ const EditProductNew = () => {
                             <div className="card mb-3">
                               <div className="card-body">
                                 <div className="mb-3">
-                                  <label htmlFor="name" className="form-label">
+                                  <label htmlFor="media" className="form-label">
                                     Media
                                   </label>
-                                  <DragDropContext
-                                    onDragEnd={(result) =>
-                                      handleImageDragEnd(
-                                        result,
-                                        values,
-                                        setFieldValue
-                                      )
-                                    }
-                                  >
-                                    <Droppable
-                                      droppableId="gallery"
-                                      direction="horizontal"
-                                    >
-                                      {(provided) => (
-                                        <div
-                                          // className="gallery"
-                                          {...provided.droppableProps}
-                                          ref={provided.innerRef}
-                                          // style={{
-                                          //   display: "flex",
-                                          //   overflowX: "auto",
-                                          // }}
-                                        >
-                                          <div className="row mt-4 mb-2">
-                                            {mediaItems?.map((media, key) => {
-                                              return (
-                                                <div className="col-md-3 grid-item">
-                                                  <Draggable
-                                                    key={key}
-                                                    draggableId={`Item ${
-                                                      key + 1
-                                                    }`}
-                                                    // draggableId= {option.value}
-                                                    index={key}
-                                                  >
-                                                    {(provided, snapshot) => (
-                                                      <div
-                                                        ref={provided.innerRef}
-                                                        {...provided.draggableProps}
-                                                        {...provided.dragHandleProps}
-                                                      >
-                                                        <div
-                                                          key={key}
-                                                          className="col-md-3 grid-item mt-2"
-                                                        >
-                                                          <img
-                                                            src={
-                                                              media.preview
-                                                                ? media.preview
-                                                                : imageBaseUrl +
-                                                                  media.file_name
-                                                            }
-                                                            width={80}
-                                                            height={80}
-                                                            alt={`Thumbnail ${key}`}
-                                                          />
-
-                                                          <button
-                                                            type="button"
-                                                            className="btn btn-sm btn-danger mt-2"
-                                                            onClick={() =>
-                                                              handleMediaRemoveImage(
-                                                                media.file_name
-                                                              )
-                                                            }
-                                                          >
-                                                            Remove
-                                                          </button>
-                                                        </div>
-                                                      </div>
-                                                    )}
-                                                  </Draggable>
-                                                </div>
-                                              );
-                                            })}
-                                          </div>
-                                          {provided.placeholder}
-                                        </div>
-                                      )}
-                                    </Droppable>
-                                  </DragDropContext>
+                      
                                   <div>
-                                    {/* <input
-                                      type="file"
-                                      multiple
-                                      onChange={(event) => {
-                                        const newFiles = Array.from(
-                                          event.target.files
-                                        );
-                                        setFieldValue("files", [
-                                          ...values.files,
-                                          ...newFiles,
-                                        ]);
-                                      }}
-                                    /> */}
-                                    <input
-                                      type="file"
-                                      multiple
-                                      onChange={handleMediaFileChange}
-                                    />
-                                    <FieldArray name="files">
-                                      {({ push, remove }) => (
-                                        <div className="row mt-4">
-                                          {values.files?.map((file, index) => (
-                                            <div
-                                              key={index}
-                                              className="col-md-4 mb-4"
-                                            >
-                                              {file.type.startsWith(
-                                                "image/"
-                                              ) && (
-                                                <img
-                                                  src={URL.createObjectURL(
-                                                    file
-                                                  )}
-                                                  alt={`Preview ${index}`}
-                                                  style={{
-                                                    width: "100px",
-                                                    height: "100px",
-                                                  }}
-                                                />
-                                              )}
-                                              {file.type.startsWith(
-                                                "video/"
-                                              ) && (
-                                                <video
-                                                  src={URL.createObjectURL(
-                                                    file
-                                                  )}
-                                                  controls
-                                                  width="100"
-                                                  height="100"
-                                                />
-                                              )}
-                                              <div>
-                                                <p>{file.name}</p>
-                                                <button
-                                                  type="button"
-                                                  onClick={() => remove(index)}
-                                                  className="btn btn-sm btn-danger"
-                                                >
-                                                  <span>
-                                                    <FontAwesomeIcon
-                                                      icon={faTrash}
-                                                    />
-                                                  </span>
-                                                </button>
-                                              </div>
-                                            </div>
-                                          ))}
-                                        </div>
-                                      )}
-                                    </FieldArray>
+        
+                                  <input
+                                    type="file"
+                                    className="form-control"
+                                    id="media"
+                                    name="media"
+                                  multiple
+                                    onChange={(event) => {
+  const newFiles = Array.from(event.currentTarget.files);
+ 
+  const updatedValues = {
+    ...values, 
+    media: values.media ? values.media.concat(newFiles) : newFiles,
+  };
+  
+  setFieldValue('media', updatedValues.media);
+  
+}}
+                                  />
+       
                                   </div>
+                                  <div style={{ display: "flex", gap: "20px" ,flexWrap:"wrap"}}>
+
+
+{values.media&&values.media.map((image,index) => (
+  
+  <div style={{display:"flex",flexDirection:"column",gap:"10px"}}>
+  
+
+   
+   {typeof image === "string"&&<img src={url + image} height="150px" />}
+
+   {typeof image === "string"&&<button
+      type="button"
+      className="btn btn-sm  mt-2"
+      onClick={() => {
+    setFieldValue('media', values.media.filter((_, i) => i !== index));
+    console.log(values.media)
+  }}
+      style={{ backgroundColor: 'transparent', border: "1px solid #D93D6E" }}
+    >
+      Remove Image
+    </button>}
+  </div>
+
+))}
+
+
+
+
+{values.media&&values.media.map((image,index) => (
+  
+  <div style={{display:"flex",flexDirection:"column",gap:"20px"}}>
+  
+
+   
+   {typeof image != "string"&&<img src={URL.createObjectURL(image)} height="150px" />}
+
+   {typeof image != "string"&&<button
+      type="button"
+      className="btn btn-sm  mt-2"
+      onClick={() => {
+    setFieldValue('media', values.media.filter((_, i) => i !== index));
+    console.log(values.media)
+  }}
+      style={{ backgroundColor: 'transparent', border: "1px solid #D93D6E" }}
+    >
+      Remove Image
+    </button>}
+  </div>
+
+))}
+
+
+
+</div>
                                 </div>
                               </div>
                             </div>
@@ -1479,11 +1369,11 @@ const EditProductNew = () => {
                                                                     </div>
                                                                     <button
                                                                       className="btn  ms-1"
-                                                                      onClick={() =>
-                                                                        handleRemoveImage(
-                                                                          variant.variantId
-                                                                        )
-                                                                      }
+                                                                      // onClick={() =>
+                                                                      //   handleRemoveImage(
+                                                                      //     variant.variantId
+                                                                      //   )
+                                                                      // }
                                                                     >
                                                                       <span>
                                                                         <FontAwesomeIcon
