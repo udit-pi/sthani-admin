@@ -72,6 +72,7 @@ const AddProductNew = () => {
     //   { name: "Color", values: [] },
     // ],
     files: [],
+    media:[],
     // variantImages: []
 
     // variants: [
@@ -409,6 +410,7 @@ const AddProductNew = () => {
                   onSubmit={(values, errors) => {
                     // console.log(errors);
                     handleSubmit(values, errors);
+                    console.log(values)
                   }}
                 >
                   {({
@@ -547,155 +549,62 @@ const AddProductNew = () => {
                           <div className="card mb-3">
                             <div className="card-body">
                               <div className="mb-3">
-                                <label htmlFor="name" className="form-label">
+                                <label htmlFor="media" className="form-label">
                                   Media
                                 </label>
-                                <DragDropContext
-                                  onDragEnd={(result) =>
-                                    handleImageDragEnd(
-                                      result,
-                                      values,
-                                      setFieldValue
-                                    )
-                                  }
-                                >
-                                  <Droppable
-                                    droppableId="gallery"
-                                    direction="horizontal"
-                                  >
-                                    {(provided) => (
-                                      <div
-                                        // className="gallery"
-                                        {...provided.droppableProps}
-                                        ref={provided.innerRef}
-                                        // style={{
-                                        //   display: "flex",
-                                        //   overflowX: "auto",
-                                        // }}
-                                      >
-                                        <div className="row mt-4 mb-2">
-                                          {mediaItems?.map((media, key) => {
-                                            return (
-                                              <div className="col-md-3 grid-item">
-                                                <Draggable
-                                                  key={key}
-                                                  draggableId={`Item ${
-                                                    key + 1
-                                                  }`}
-                                                  // draggableId= {option.value}
-                                                  index={key}
-                                                >
-                                                  {(provided, snapshot) => (
-                                                    <div
-                                                      ref={provided.innerRef}
-                                                      {...provided.draggableProps}
-                                                      {...provided.dragHandleProps}
-                                                    >
-                                                      <div
-                                                        key={key}
-                                                        className="col-md-3 grid-item mt-2"
-                                                      >
-                                                        <img
-                                                          src={
-                                                            media.preview
-                                                              ? media.preview
-                                                              : ""
-                                                          }
-                                                          width={80}
-                                                          height={80}
-                                                          alt={`Thumbnail ${key}`}
-                                                        />
-
-                                                        <button
-                                                          type="button"
-                                                          className="btn btn-sm btn-danger mt-2"
-                                                          onClick={() =>
-                                                            handleMediaRemoveImage(
-                                                              media.file_name
-                                                            )
-                                                          }
-                                                        >
-                                                          Remove
-                                                        </button>
-                                                      </div>
-                                                    </div>
-                                                  )}
-                                                </Draggable>
-                                              </div>
-                                            );
-                                          })}
-                                        </div>
-                                        {provided.placeholder}
-                                      </div>
-                                    )}
-                                  </Droppable>
-                                </DragDropContext>
+                           
                                 <div>
-                                  {/* <input
-                                      type="file"
-                                      multiple
-                                      onChange={(event) => {
-                                        const newFiles = Array.from(
-                                          event.target.files
-                                        );
-                                        setFieldValue("files", [
-                                          ...values.files,
-                                          ...newFiles,
-                                        ]);
-                                      }}
-                                    /> */}
-                                  <input
+                            
+                                <input
                                     type="file"
-                                    name="files"
-                                    multiple
-                                    onChange={handleMediaFileChange}
+                                    className="form-control"
+                                    id="media"
+                                    name="media"
+                                  multiple
+                                    onChange={(event) => {
+  const newFiles = Array.from(event.currentTarget.files);
+ 
+  const updatedValues = {
+    ...values, 
+    media: values.media ? values.media.concat(newFiles) : newFiles,
+  };
+  
+  setFieldValue('media', updatedValues.media);
+  
+}}
                                   />
-                                  <FieldArray name="files">
-                                    {({ push, remove }) => (
-                                      <div className="row mt-4">
-                                        {values.files?.map((file, index) => (
-                                          <div
-                                            key={index}
-                                            className="col-md-4 mb-4"
-                                          >
-                                            {file.type.startsWith("image/") && (
-                                              <img
-                                                src={URL.createObjectURL(file)}
-                                                alt={`Preview ${index}`}
-                                                style={{
-                                                  width: "100px",
-                                                  height: "100px",
-                                                }}
-                                              />
-                                            )}
-                                            {file.type.startsWith("video/") && (
-                                              <video
-                                                src={URL.createObjectURL(file)}
-                                                controls
-                                                width="100"
-                                                height="100"
-                                              />
-                                            )}
-                                            <div>
-                                              <p>{file.name}</p>
-                                              <button
-                                                type="button"
-                                                onClick={() => remove(index)}
-                                                className="btn btn-sm btn-danger"
-                                              >
-                                                <span>
-                                                  <FontAwesomeIcon
-                                                    icon={faTrash}
-                                                  />
-                                                </span>
-                                              </button>
-                                            </div>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    )}
-                                  </FieldArray>
                                 </div>
+                                <div style={{display:"flex",gap:"20px",flexWrap:"wrap"}}>
+
+                   
+{values.media.map((file, index) => (
+            <div key={index} className="col-md-3 mb-2" style={{display:"flex",flexDirection:"column",gap:"10px"}} >
+            {typeof image !== "string"&&<img src={URL.createObjectURL(file)} height="150px" />}
+
+
+
+            {typeof file !== "string"&&<button
+      type="button"
+      className="btn btn-sm  mt-2"
+      onClick={() => {
+    setFieldValue('media', values.media.filter((_, i) => i !== index));
+    console.log(values.media)
+  }}
+      style={{ backgroundColor: 'transparent', border: "1px solid #D93D6E" }}
+    >
+      Remove Image
+    </button>}
+
+
+            </div>
+
+
+
+
+
+            
+        ))}
+        </div>
                               </div>
                             </div>
                           </div>
