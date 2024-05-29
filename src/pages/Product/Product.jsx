@@ -121,9 +121,9 @@ const [category,setcategory]=useState([])
       name: "Image",
       grow:1,
       cell: (row) => <>
-      {row.image  ? ( 
+      {row.media  ? ( 
         <img
-          src={`${mediaFolder}/${row.image}`}
+          src={`${mediaFolder}/${row.media[0]}`}
           alt="Icon"
           height="50px"
           className="custom-icon"
