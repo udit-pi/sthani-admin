@@ -2,25 +2,19 @@ import React, { useEffect } from "react";
 import Layout from "../../components/layouts/Layout";
 import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import { useHistory } from 'react-router-dom'
+
 import { Formik, Form, Field } from "formik";
 import { addCategoryValidation } from "../../validations/addCategoryValidation";
 import { addCategory } from "../../features/category/categorySlice";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
-import MultiSelectDropdown from "../../components/MultiSelectDropDown";
 import { FaArrowLeft } from "react-icons/fa";
 import {
 
-  fetchAllCategories,
+  fetchAllCategories, 
 
 } from "../../features/category/categorySlice";
 
-import Box from '@mui/material/Box';
-
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
 const AddCategory = () => {
   const [loading, setLoading] = useState(false);
   const [error, seError] = useState([]);
@@ -135,58 +129,40 @@ const AddCategory = () => {
                       )}
                     </div>
 
-                    <div className="mb-4">
-                      <label
-                        htmlFor="parent_category"
-                        className="form-label"
-                      >
-                        Parent category:
-                      </label>
-                      {/* <MultiSelectDropdown
-                        name="parent_category"
-                        options={catOption}
-           
-                      
-                    
-                      /> */}
- <Box sx={{ minWidth: 120 }}>
-      <FormControl fullWidth>
-  
-        <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-      
-          onChange={(event) => {
- 
-setFieldValue("parent_category",event.target.value)
 
- }}
-        >
-        
-          {catOption.map((option) => (
-            <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
-        
-      
-      ))}
-        </Select>
-      </FormControl>
-    </Box>
+                    <div className="mb-4">
+                      <label htmlFor="parent_category" className="form-label">
+                        Parent Category:
+                      </label>
+                      <Field as="select" name="parent_category" id="parent_category" className="form-control"
+                        onChange={(event) => {
+                          const { value } = event.target;
+                          // Explicitly handle the 'None' option by setting the value to null or undefined
+                          const realValue = value === "" ? null : value;
+                          setFieldValue("parent_category", realValue);
+                        }}
+
+                      >
+                        <option value="">None</option>
+                        {catOption.map((option) => (
+                          
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          
+                        ))}
+                      </Field>
                       {errors.parent_category && (
                         <small className="text-danger">
                           {errors.parent_category}
                         </small>
                       )}
-
                     </div>
 
 
 
 
-                    {
-                      // error && (
-                      //     <div className='alert alert-danger' role='alert'>{error}</div>
-                      // )
-                    }
+
                   </div>
                 </div>
                 <div className="card">

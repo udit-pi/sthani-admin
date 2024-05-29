@@ -2,19 +2,13 @@ import React, { useEffect } from "react";
 import Layout from "../../components/layouts/Layout";
 import { useState } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
-import { useHistory } from 'react-router-dom'
 import { Formik, Form, Field } from "formik";
 import { editCategoryValidation } from "../../validations/editCategoryValidation";
 import { addCategory, editCategory, fetchAllCategories, fetchCategoryById } from "../../features/category/categorySlice";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
-import MultiSelectDropdown from "../../components/MultiSelectDropDown";
 import { FaArrowLeft } from "react-icons/fa";
-import Box from '@mui/material/Box';
 
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
 const EditCategory = ({ history }) => {
   const [loading, setLoading] = useState(false);
   const [error, seError] = useState([]);
@@ -173,6 +167,8 @@ const EditCategory = ({ history }) => {
 
 
             <Form>
+
+              {/* <pre>{JSON.stringify(values, null, 2)}</pre> */}
               <div className="card">
                 <div className="card-body">
                   <div className="mb-3">
@@ -226,35 +222,64 @@ const EditCategory = ({ history }) => {
                       // options={catOption}
                       /> */}
 
-                    <Box sx={{ minWidth: 120 }}>
-                      <FormControl fullWidth>
 
-                        <Select
-                          labelId="demo-simple-select-label"
-                          id="parent_category"
-                          name="parent_category"
-                          value={defaultValue}
-                          onChange={(event) => {
-                            const { value } = event.target;
-                            setdefaultValue(value);
-                            setFieldValue("parent_category", value);
-                          }}
-                        >
-                          <MenuItem value="">
-                            None
-                          </MenuItem>
-                          {Allcategory.map((option) => (
-                            option.id !== id && (
-                              <MenuItem key={option.id} value={option.id}>
-                                {option.name}
-                              </MenuItem>
-                            )
-                          ))}
-                        </Select>
+                    {/* <FormControl fullWidth>
+
+                      <Select
+                        labelId="demo-simple-select-label"
+                        id="parent_category"
+                        name="parent_category"
+                        value={defaultValue}
+                        onChange={(event) => {
+                          const { value } = event.target;
+                          setdefaultValue(value);
+                          setFieldValue("parent_category", value);
+                        }}
+                      >
+                        <MenuItem value="">
+                          None
+                        </MenuItem>
+                        {Allcategory.map((option) => (
+                          option.id !== id && (
+                            <MenuItem key={option.id} value={option.id}>
+                              {option.name}
+                            </MenuItem>
+                          )
+                        ))}
+                      </Select>
 
 
-                      </FormControl>
-                    </Box>
+                    </FormControl> */}
+
+                    <div className="mb-4">
+                      <label htmlFor="parent_category" className="form-label">
+                        Parent Category:
+                      </label>
+                      <Field as="select" name="parent_category" id="parent_category" className="form-control"
+                        onChange={(event) => {
+                          const { value } = event.target;
+                          // Explicitly handle the 'None' option by setting the value to null or undefined
+                          const realValue = value === "" ? null : value;
+                          setFieldValue("parent_category", realValue);
+                        }}
+
+                      >
+                        <option value="">None</option>
+                        {Allcategory.map((option) => (
+                          option.id !== id && (
+                            <option key={option.id} value={option.id}>
+                              {option.name}
+                            </option>
+                          )
+                        ))}
+                      </Field>
+                      {errors.parent_category && (
+                        <small className="text-danger">
+                          {errors.parent_category}
+                        </small>
+                      )}
+                    </div>
+
 
 
 
@@ -394,33 +419,6 @@ const EditCategory = ({ history }) => {
                       id="slide_show"
                       multiple
                       name="slide_show"
-                      // onChange={(event) => {
-
-                      //   const selectedFiles = [];
-
-
-                      //   for (let i = 0; i < event.currentTarget.files.length; i++) {
-
-
-                      //     values.slide_show.push(event.currentTarget.files[i])
-
-                      //   }
-
-
-
-                      //   console.log(values.slide_show)
-
-
-                      // }}
-
-                      // onChange={(event) => {
-
-                      //   const newFiles = Array.from(event.currentTarget.files);
-                      //   values.slide_show = values.slide_show ? values.slide_show.concat(newFiles) : newFiles;
-
-                      //   console.log(values.slide_show);
-                      // }}
-
                       onChange={(event) => {
                         const newFiles = Array.from(event.currentTarget.files);
                         // Create a new object with the updated 'slide_show' property
