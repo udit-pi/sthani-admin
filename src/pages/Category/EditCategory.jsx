@@ -16,18 +16,11 @@ const EditCategory = ({ history }) => {
   const { id } = useParams();
   const [dataLoaded, setDataLoaded] = useState(false)
   const [Allcategory, setAllcategory] = useState([])
-
   const [catOption, setcatOption] = useState([])
-
   const [defaultValue, setdefaultValue] = useState(null)
-  console.log(dataLoaded)
   const mediaFolder = process.env.REACT_APP_MEDIA_URL;
 
-  console.log(id)
-  console.log(category.parent_category)
-  console.log(Allcategory)
-
-  //image usestate
+ 
 
   const [bannerImage, setbannerImage] = useState("")
   const [icon, seticon] = useState("")
@@ -52,18 +45,7 @@ const EditCategory = ({ history }) => {
 
   const imageUrlIcon = `${process.env.REACT_APP_MEDIA_URL}/${category.icon}`;
   const url = `${process.env.REACT_APP_MEDIA_URL}`
-  //  const imageUrlBanner = 'http://localhost:3500/api/uploads/' + category.banner;
-  //  const  imageUrlIcon  = `http://localhost:3500/api/uploads/${category.icon}`;
-  //  const  url  = `http://localhost:3500/api/uploads/api/uploads/`;
-  // const imageUrlIcon = 'http://localhost:3500/uploads/' + category.icon;
 
-  // const url = 'http://localhost:3500/uploads/'
-
-
-
-  // const imageUrlBanner = mediaFolder+category.banner;
-  // const imageUrlIcon = mediaFolder+category.icon;
-  // const url = mediaFolder;
 
 
   const fetchCategory = async () => {
@@ -94,7 +76,7 @@ const EditCategory = ({ history }) => {
   };
 
   console.log(defaultValue)
-  // const imageUrl = 'http://165.22.222.184/api/uploads/' + category.banner;
+
 
   useEffect(() => {
 
@@ -217,48 +199,12 @@ const EditCategory = ({ history }) => {
                     >
                       Parent category:
                     </label>
-                    {/* <MultiSelectDropdown
-                        name="Parent category"
-                      // options={catOption}
-                      /> */}
-
-
-                    {/* <FormControl fullWidth>
-
-                      <Select
-                        labelId="demo-simple-select-label"
-                        id="parent_category"
-                        name="parent_category"
-                        value={defaultValue}
-                        onChange={(event) => {
-                          const { value } = event.target;
-                          setdefaultValue(value);
-                          setFieldValue("parent_category", value);
-                        }}
-                      >
-                        <MenuItem value="">
-                          None
-                        </MenuItem>
-                        {Allcategory.map((option) => (
-                          option.id !== id && (
-                            <MenuItem key={option.id} value={option.id}>
-                              {option.name}
-                            </MenuItem>
-                          )
-                        ))}
-                      </Select>
-
-
-                    </FormControl> */}
+                   
 
                     <div className="mb-4">
-                      <label htmlFor="parent_category" className="form-label">
-                        Parent Category:
-                      </label>
                       <Field as="select" name="parent_category" id="parent_category" className="form-control"
                         onChange={(event) => {
                           const { value } = event.target;
-                          // Explicitly handle the 'None' option by setting the value to null or undefined
                           const realValue = value === "" ? null : value;
                           setFieldValue("parent_category", realValue);
                         }}
