@@ -98,7 +98,7 @@ const Category = () => {
     const parentCategoryId = row.parent_category;
 
     // Find the category with the matching ID
-    console.log(category.id)
+    
     const parentCategory = categories.find(
       (category) => category.id === parentCategoryId
     );
