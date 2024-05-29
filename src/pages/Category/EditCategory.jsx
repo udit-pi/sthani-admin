@@ -2,19 +2,13 @@ import React, { useEffect } from "react";
 import Layout from "../../components/layouts/Layout";
 import { useState } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
-import { useHistory } from 'react-router-dom'
 import { Formik, Form, Field } from "formik";
 import { editCategoryValidation } from "../../validations/editCategoryValidation";
 import { addCategory, editCategory, fetchAllCategories, fetchCategoryById } from "../../features/category/categorySlice";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
-import MultiSelectDropdown from "../../components/MultiSelectDropDown";
 import { FaArrowLeft } from "react-icons/fa";
-import Box from '@mui/material/Box';
 
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
 const EditCategory = ({ history }) => {
   const [loading, setLoading] = useState(false);
   const [error, seError] = useState([]);
