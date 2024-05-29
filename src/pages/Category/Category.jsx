@@ -91,19 +91,21 @@ const Category = () => {
       });
   };
 
-
+  // filteredCategories.forEach((cat, index) => {
+  //   cat.serial = index + 1;
+  // });
   const parentCategoryName = (row, categories) => {
     const parentCategoryId = row.parent_category;
 
     // Find the category with the matching ID
-    // const parentCategory = categories.find(
-    //   (category) => category.id === parentCategoryId
-    // );
-
+    console.log(category.id)
     const parentCategory = categories.find(
-      category => category._id.equals(parentCategoryId)
+      (category) => category.id === parentCategoryId
     );
+
     
+
+    // If parent category is found, return its name, otherwise return a default value
     return parentCategory ? parentCategory.name : "-";
   };
 
@@ -146,15 +148,23 @@ const Category = () => {
       name: "Action",
       cell: (row) => (
         <div>
-          
+          {/* <Link
+            to={`/showcategory/${row.id}`}
+            className="btn btn-sm btn-primary"
+          >
+            <span>
+            <FontAwesomeIcon icon={faCircleInfo} />
+             
+            </span>
+          </Link> */}
           <Link to={`/editcategory/${row.id}`} className=" ">
             <span style={{ color: " #D93D6E " }}>
-              
+              {/* <i className="ti ti-pencil" /> */}
               Edit
             </span>
           </Link>
 
-         
+          {/* <span  onClick={() => handleDelete(row.id)}  style={{marginLeft:"20px",cursor:"pointer",color: ' #D93D6E ' }}> */}
           <span
             onClick={() => handleOpen(row.id)}
             style={{
@@ -169,7 +179,11 @@ const Category = () => {
       ),
       width: "15%",
     },
- 
+    // {
+    //     name: 'Created',
+    //     selector: row => row.createdAt,
+    //     sortable: true,
+    // },
   ];
 
   if (!currentUser) {
@@ -239,7 +253,15 @@ const Category = () => {
                 highlightOnHover
                 subHeader
                 onRowClicked={handleRowClick}
-             
+                // subHeaderComponent={
+                //   <input
+                //     type="text"
+                //     className="w-25 form-control"
+                //     placeholder="Search Category"
+                //     value={search}
+                //     onChange={(e) => setSearch(e.target.value)}
+                //   />
+                // }
               />
             </div>
           </div>
