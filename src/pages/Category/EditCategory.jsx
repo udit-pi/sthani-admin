@@ -174,7 +174,7 @@ const EditCategory = ({ history }) => {
 
             <Form>
 
-<pre>{JSON.stringify(values, null, 2)}</pre>
+              {/* <pre>{JSON.stringify(values, null, 2)}</pre> */}
               <div className="card">
                 <div className="card-body">
                   <div className="mb-3">
@@ -257,34 +257,34 @@ const EditCategory = ({ history }) => {
 
                     </FormControl> */}
 
-                  <div className="mb-4">
-                    <label htmlFor="parent_category" className="form-label">
-                      Parent Category:
-                    </label>
-                    <Field as="select" name="parent_category" id="parent_category" className="form-control"
-                     onChange={(event) => {
-                      const { value } = event.target;
-                      // Explicitly handle the 'None' option by setting the value to null or undefined
-                      const realValue = value === "" ? null : value;
-                      setFieldValue("parent_category", realValue);
-                    }}
-                    
-                    >
-                      <option value="">None</option>
-                      {Allcategory.map((option) => (
-                        option.id !== id && (
-                          <option key={option.id} value={option.id}>
-                            {option.name}
-                          </option>
-                        )
-                      ))}
-                    </Field>
-                    {errors.parent_category && (
-                      <small className="text-danger">
-                        {errors.parent_category}
-                      </small>
-                    )}
-                  </div>
+                    <div className="mb-4">
+                      <label htmlFor="parent_category" className="form-label">
+                        Parent Category:
+                      </label>
+                      <Field as="select" name="parent_category" id="parent_category" className="form-control"
+                        onChange={(event) => {
+                          const { value } = event.target;
+                          // Explicitly handle the 'None' option by setting the value to null or undefined
+                          const realValue = value === "" ? null : value;
+                          setFieldValue("parent_category", realValue);
+                        }}
+
+                      >
+                        <option value="">None</option>
+                        {Allcategory.map((option) => (
+                          option.id !== id && (
+                            <option key={option.id} value={option.id}>
+                              {option.name}
+                            </option>
+                          )
+                        ))}
+                      </Field>
+                      {errors.parent_category && (
+                        <small className="text-danger">
+                          {errors.parent_category}
+                        </small>
+                      )}
+                    </div>
 
 
 
