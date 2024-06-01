@@ -103,14 +103,14 @@ const Home = () => {
             <div className='pages'>
                 <div className="home">
                     <div className="row">
-                        <h2 className="mb-5">Hi <b style={{ color: '#D93D6E' }}>{user ? user.user.name : ''}</b>, welcome to dashboard</h2>
+                        <h2 className="mb-5 mt-4">Hi <b style={{ color: '#D93D6E' }}>{user ? user.user.name : ''}</b>, Welcome to Sthani Admin Panel</h2>
 
                         <div className="col-md-6 d-flex align-items-strech">
                             <div className="card w-100">
                                 <div className="card-body">
                                     <div className="d-sm-flex d-block align-items-center justify-content-between mb-9">
                                         <div className="mb-3 mb-sm-0">
-                                            <h5 className="card-title fw-semibold">Incidents Overview</h5>
+                                            <h5 className="card-title fw-semibold">Sales</h5>
                                         </div>
                                         <div>
                                             <select className="form-select">
@@ -135,10 +135,10 @@ const Home = () => {
                                     {/* Yearly Breakup */}
                                     <div className="card overflow-hidden">
                                         <div className="card-body p-5">
-                                            <h5 className="card-title mb-9 fw-semibold">Total Incidents</h5>
+                                            <h5 className="card-title mb-9 fw-semibold">Total Order Value in AED</h5>
                                             <div className="row align-items-center">
                                                 <div className="col-8">
-                                                    <h4 className="fw-semibold mb-3">4565</h4>
+                                                    <h4 className="fw-semibold mb-3">AED 4565</h4>
                                                     <div className="d-flex align-items-center mb-3">
                                                         <span className="me-1 rounded-circle bg-light-success round-20 d-flex align-items-center justify-content-center">
                                                             <i className="ti ti-arrow-up-left text-success" />
@@ -172,7 +172,7 @@ const Home = () => {
                                         <div className="card-body p-5">
                                             <div className="row alig n-items-start">
                                                 <div className="col-8">
-                                                    <h5 className="card-title mb-9 fw-semibold"> Monthly Reports </h5>
+                                                    <h5 className="card-title mb-9 fw-semibold"> Total Customers </h5>
                                                     <h4 className="fw-semibold mb-3">506</h4>
                                                     <div className="d-flex align-items-center pb-1">
                                                         <span className="me-2 rounded-circle bg-light-danger round-20 d-flex align-items-center justify-content-center">
