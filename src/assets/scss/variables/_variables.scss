@@ -14,11 +14,11 @@ $gray-600: #2A3547 !default;
 $black: #000 !default;
 
 // Color
-$blue: #5D87FF !default;
+$blue: #6369D1 !default;
 $indigo: #6610f2 !default;
 $purple: #6f42c1 !default;
-$pink: #d63384 !default;
-$red: #FA896B !default;
+$pink: #E21556 !default;
+$red: #E21556 !default;
 $orange: #fd7e14 !default;
 $yellow: #FFAE1F !default;
 $green: #13DEB9 !default;
@@ -26,7 +26,7 @@ $teal: #20c997 !default;
 $cyan: #539BFF !default;
 
 // Main Colors
-$primary: $blue !default;
+$primary: $pink !default;
 $secondary: #49BEFF !default;
 $success: $green !default;
 $info: $cyan !default;
@@ -39,13 +39,13 @@ $dark-light: $gray-600 !default;
 $light-gray: $gray-100 !default;
 
 // light colors
-$light-primary: #ECF2FF;
-$light-secondary: #E8F7FF;
-$light-info: #EBF3FE;
-$light-success: #E6FFFA;
-$light-warning: #FEF5E5;
-$light-danger: #FBF2EF;
-$light-indigo: #EBF3FE;
+$light-primary: lighten($primary, 20%);
+$light-secondary: lighten($secondary, 20%);
+$light-info: lighten($info, 20%);
+$light-success: lighten($success, 20%);
+$light-warning: lighten($warning, 20%);
+$light-danger: lighten($danger, 20%);
+$light-indigo: lighten($indigo, 20%);
 
 
 // Theme Colorss
@@ -115,7 +115,7 @@ $btn-font-size: 14 !default;
 $btn-border-radius-lg: 9px !default;
 
 // Font Family
-$font-family-sans-serif: "Plus Jakarta Sans", sans-serif !default;
+$font-family-sans-serif: "Lato", sans-serif !default;
 
 // Font Sizes
 $font-sizes: (
