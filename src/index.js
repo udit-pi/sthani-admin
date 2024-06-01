@@ -6,8 +6,8 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.css';
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import './assets/css/styles.min.css';
-import './index.css';
+import './assets/scss/styles.scss';
+
 
 const container = document.getElementById('root');
 const root = createRoot(container);

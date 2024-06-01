@@ -11,7 +11,8 @@
         height: 100%;
         width: 100%;
         opacity: 0.3;
-        background: radial-gradient(rgb(210, 241, 223), rgb(211, 215, 250), rgb(186, 216, 244)) 0% 0% / 400% 400%;
+        background: rgb(238,174,202);
+background: radial-gradient(circle, rgba(238,174,202,1) 0%, rgba(148,187,233,1) 100%);
         animation: 15s ease 0s infinite normal none running gradient;
     }
 }
