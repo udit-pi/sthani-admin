@@ -138,11 +138,11 @@ const CreateHomeWidget = () => {
 
     setSubmitting(false);
 
-    // const res = await dispatch(addWidget(values)).unwrap();
-    // if (res) {
-    //   toast.success("Widget created successfully!");
-    //   navigate("/homePage");
-    // }
+    const res = await dispatch(addWidget(values)).unwrap();
+    if (res) {
+      toast.success("Widget created successfully!");
+      navigate("/homePage");
+    }
   };
 
   const handleWidgetChange = async (e) => {
