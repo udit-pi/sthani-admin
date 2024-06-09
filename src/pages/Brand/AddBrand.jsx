@@ -210,12 +210,9 @@ const AddBrand = () => {
                                   <option value="">
                                     Select Label
                                   </option>
-                                  <option value="banner">
-                                    Banner
-                                  </option>
-                                  <option value="hero">
-                                    Hero Image
-                                  </option>
+                                  <option value="cover">
+                                                Cover Image (Used as Background)
+                                              </option>
                                   {/* Add more options as needed */}
                                 </Field>
                                 <ErrorMessage

@@ -295,12 +295,10 @@ const[brands,setbrands]=useState({})
                                               <option value="">
                                                 Select Label
                                               </option>
-                                              <option value="banner">
-                                                Banner
+                                              <option value="cover">
+                                                Cover Image (Used as Background)
                                               </option>
-                                              <option value="hero">
-                                                Hero Image
-                                              </option>
+                                             
                                               {/* Add more options as needed */}
                                             </Field>
                                             <ErrorMessage
