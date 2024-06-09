@@ -98,6 +98,27 @@ const AddBrand = () => {
                   </div>
                   <div className="mb-4">
                     <label
+                      htmlFor="color"
+                      className="form-label"
+                    >
+                      Color
+                    </label>
+                    <Field
+                      type="color"
+                      className="form-control"
+                      id="color"
+                      name="color"
+                      placeholder="Select a color" 
+                    ></Field>
+                    {errors.color && (
+                      <small className="text-danger">
+                        {errors.color}
+                      </small>
+                    )}
+                  </div>
+
+                  <div className="mb-4">
+                    <label
                       htmlFor="website"
                       className="form-label"
                     >

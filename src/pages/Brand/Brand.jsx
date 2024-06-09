@@ -112,6 +112,22 @@ const Brand = () => {
       )}
     </>,
     },
+
+    {
+      name: "Color",
+      cell: (row) => (
+        <div style={{
+          width: "20px",
+          height: "20px",
+          backgroundColor: row.color || '#FFFFFF', // Default to white if no color specified
+          border: '1px solid #ddd' // Optional: adds a border around the color box
+        }}>
+        </div>
+      ),
+      grow: 0.5,
+      ignoreRowClick: true,
+      allowOverflow: true,
+    },
     
     {
       name: "Name",
