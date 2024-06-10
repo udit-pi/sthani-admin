@@ -38,7 +38,7 @@ import {
 
 import DraggableMediaGallery from '../../components/DraggableMediaGallery';
 const mediaFolder = process.env.REACT_APP_MEDIA_URL;
-
+const debugMode = process.env.REACT_APP_DEBUG;
 const EditProductNew = () => {
   const { id } = useParams();
   const isEditMode = id !== undefined;
@@ -303,9 +303,10 @@ const EditProductNew = () => {
 
                     }) => (
                       <>
-                        <div><pre>{JSON.stringify(values, null, 2)}</pre></div>
-                        <pre>{JSON.stringify(values.categories)}</pre>
-                        <pre>{JSON.stringify(categories)}</pre>
+                     
+                        {debugMode && <div><pre>{JSON.stringify(values, null, 2)}</pre></div>}
+                        {debugMode && <pre>{JSON.stringify(values.categories)}</pre>}
+                        {debugMode && <pre>{JSON.stringify(categories)}</pre>}
                         <Form>
                           <div className="row">
                             <div className="col-md-9">
