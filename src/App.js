@@ -68,7 +68,7 @@ function App() {
             <Route exact path="/showproduct/:id" element={<ShowProduct />} />
             <Route exact path="/addproduct" element={<AddProduct />} />     
             {/* <Route exact path="/editproduct/:id" element={<EditProduct />} /> */}
-            <Route exact path="/editproduct/:id" element={<EditProduct />} />
+            <Route exact path="/editproduct/:id?" element={<EditProduct />} />
 
              {/* Product Routes */}
             <Route exact path="/properties" element={<Properties />} />

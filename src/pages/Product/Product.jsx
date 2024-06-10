@@ -141,11 +141,16 @@ const [category,setcategory]=useState([])
       sortable: true,
       grow:3,
     },
-    // {
-    //   name: "Short Description",
-    //   selector: (row) => row.description_short,
-    //   sortable: true,
-    // },
+    {
+      name: "SKU",
+      selector: (row) => row.sku,
+      sortable: true,
+    },
+    {
+      name: "Stock",
+      selector: (row) => row.stock,
+      sortable: true,
+    },
     {
       name: "Brand",
       selector: (row) =>getBrandName(row.brand_id) ,
@@ -165,6 +170,12 @@ const [category,setcategory]=useState([])
       grow:1,
     },
     // {
+    //   name: "Variants",
+    //   selector: (row) =>row.product_variants.length,
+    //   sortable: true,
+      
+    // },
+    // {
     //     name: 'Meta Description',
     //     selector: row => row.meta_description,
     //     sortable: true,
@@ -172,13 +183,18 @@ const [category,setcategory]=useState([])
     {
       name: "Action",
       right:true,
+      
+    ignoreRowClick: true,
+    allowOverflow: true,
+    button: true,
+    fixed: 'right', 
       cell: (row) => (
         <div>
           <Link to={`/editproduct/${row.id}`}>
             <span style={{ color: " #D93D6E " }}>Edit</span>
           </Link>
 
-          <span
+          {/* <span
             onClick={() => handleDelete(row.id)}
             style={{
               marginLeft: "20px",
@@ -187,7 +203,7 @@ const [category,setcategory]=useState([])
             }}
           >
             Delete
-          </span>
+          </span> */}
         </div>
       ),
     },
@@ -208,8 +224,7 @@ const [category,setcategory]=useState([])
   
           <h2 className="heading">Product</h2>
      
-        <div className="card">
-          <div className="card-body">
+       
             <div
               style={{
                 display: "flex",
@@ -224,7 +239,7 @@ const [category,setcategory]=useState([])
                 style={{ display: "flex", flexDirection: "row", gap: "10px" }}
               >
                 <Link
-                  to={`/addproduct`}
+                  to={`/editproduct`}
                   className="btn"
                   style={{
                     backgroundColor: "#D93D6E",
@@ -252,6 +267,7 @@ const [category,setcategory]=useState([])
                 pagination
                 highlightOnHover
                 subHeader
+                
                 // onRowClicked={handleRowClick}
                 // subHeaderComponent={
                 //   <input
@@ -265,8 +281,7 @@ const [category,setcategory]=useState([])
               />
             </div>
           </div>
-        </div>
-      </div>
+        
     </Layout>
   );
 };

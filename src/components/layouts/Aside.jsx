@@ -4,9 +4,9 @@ import MainLogo from "../../assets/images/logos/sthani_logo.png"
 const Aside = () => {
 
     return (
-        <aside className="left-sidebar">
+        <aside className="left-sidebar bg-black" style={{maxHeight:"100vh"}}>
             {/* Sidebar scroll*/}
-            <div>
+            
                 <div className="brand-logo d-flex align-items-center justify-content-between mb-3 mt-3">
                     <Link to="/dashboard" className="text-nowrap logo-img">
                         {/* <h2><strong>Dashboa</strong></h2> */}
@@ -18,7 +18,7 @@ const Aside = () => {
                     </div>
                 </div>
                 <Navbar />
-            </div>
+            
             {/* End Sidebar scroll*/}
         </aside>
     )

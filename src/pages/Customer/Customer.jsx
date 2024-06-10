@@ -165,8 +165,7 @@ const Customer = () => {
     <Layout>
        <h2 className="heading ms-3">Customers</h2>
       <div className="col-12 stretch-card container-fluid">
-        <div className="card">
-          <div className="card-body">
+      
          
             <div className="table-responsive">
               <DataTable
@@ -189,8 +188,7 @@ const Customer = () => {
               />
             </div>
           </div>
-        </div>
-      </div>
+       
     </Layout>
   );
 };

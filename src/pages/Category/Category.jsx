@@ -207,8 +207,7 @@ const Category = () => {
      
           <h2 className="heading">Categories</h2>
      
-        <div className="card">
-          <div className="card-body">
+      
             <div
               style={{
                 display: "flex",
@@ -265,8 +264,7 @@ const Category = () => {
               />
             </div>
           </div>
-        </div>
-      </div>
+       
 
       <Modal
         open={open}

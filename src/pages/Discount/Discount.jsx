@@ -153,10 +153,7 @@ Delete
        <h2 className="heading ms-3">Discount</h2>
    
       <div className="col-12 stretch-card container-fluid">
-     
-        <div className="card">
-     
-          <div className="card-body">
+    
           <div style={{display:"flex",flexDirection:"row",justifyContent:"flex-end" ,gap:"10px"}}>
           <Link
             to={`/addDiscount`}
@@ -195,8 +192,7 @@ Delete
               />
             </div>
           </div>
-        </div>
-      </div>
+        
 
       <Modal
         open={open}
