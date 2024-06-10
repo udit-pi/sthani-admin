@@ -38,7 +38,7 @@ import {
 
 import DraggableMediaGallery from '../../components/DraggableMediaGallery';
 const mediaFolder = process.env.REACT_APP_MEDIA_URL;
-const debugMode = process.env.REACT_APP_DEBUG;
+const debugMode = process.env.REACT_APP_DEBUG || "";
 const EditProductNew = () => {
   const { id } = useParams();
   const isEditMode = id !== undefined;
