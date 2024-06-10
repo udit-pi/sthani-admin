@@ -64,3 +64,5 @@
 .table-responsive .custom-icon{
   padding: 10px;
 }
+
+.sidebar-nav ul .sidebar-item .sidebar-link { color:white !important;}

@@ -1,13 +1,36 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faHouse, faShop, faTicketSimple,faUsers } from '@fortawesome/free-solid-svg-icons'
-
+import { faCartArrowDown, faCubesStacked, faDollar, faHome, faHouse, faLayerGroup, faMoneyBill, faPercent, faRightFromBracket, faShippingFast, faShop, faShoppingBag, faShoppingCart, faTag, faTicketSimple,faUsers } from '@fortawesome/free-solid-svg-icons'
+import { useDispatch, useSelector } from 'react-redux'
+import { logout } from '../../features/auth/authSlice';
+import { faProductHunt } from '@fortawesome/free-brands-svg-icons'
 
 const Navbar = () => {
 
     const [isActive, setIsActive] = useState('');
     const navigate = useNavigate()
+
+    const { user: currentUser } = useSelector((state) => state.auth) ||  {};
+    // const [user, setUser] = useState(currentUser);
+
+  
+
+    const dispatch = useDispatch();
+    
+    const handleLogout = async (event) => {
+        event.preventDefault();
+
+        let refreshToken = currentUser.tokens.refresh.token;
+
+        dispatch(logout(refreshToken)).then((result) => {
+            if (result) {
+                navigate('/login');
+            }
+        })
+    }
+
+
     // console.log(isActive);
 
     // const handleLinkClick = (link) => {
@@ -16,56 +39,60 @@ const Navbar = () => {
     // }
     let location = useLocation();
     return (
-        <nav className="sidebar-nav scroll-sidebar" data-simplebar>
-            <ul id="sidebarnav">
+        <nav className="sidebar-nav scroll-sidebar d-flex flex-column" data-simplebar style={{height:"calc(100vh-200px"}}>
+            <ul id="sidebarnav" className='d-flex flex-column flex-grow-1' >
                 <li className="sidebar-item">
                     <Link id="dashboard" className={`${location.pathname=='/dashboard' ?'sidebar-link active':'sidebar-link'}`} onClick={() =>  setIsActive('dashboard') } to="/dashboard" aria-expanded="false">
-                        <span>
-                            <i className="ti ti-layout-dashboard" />
+                    <span>
+                        <FontAwesomeIcon icon={faHome} />
                         </span>
                         <span className="hide-menu">Home</span>
                     </Link>
                 </li>
+
+                <li className="sidebar-item">
+                    <Link id="home-page"className={`${location.pathname=='/orders' ?'sidebar-link active':'sidebar-link'}`} onClick={() => { setIsActive('orders') }} to="/orders" aria-expanded="false">
+                        <span>
+                        <FontAwesomeIcon icon={faShoppingCart} />
+                        </span>
+                        <span className="hide-menu">Orders</span>
+                    </Link>
+                </li>
+               
+                <li className="sidebar-item">
+                    <Link id="product"className={`${location.pathname=='/product' ?'sidebar-link active':'sidebar-link'}`} onClick={() =>  setIsActive('product') } to="/product" aria-expanded="false">
+                        <span>
+                        <FontAwesomeIcon icon={faProductHunt} />
+                        </span>
+                        <span className="hide-menu">Products</span>
+                    </Link>
+                </li>
                 <li className="sidebar-item">
                     <Link id="category"  className={`${location.pathname=='/category' ?'sidebar-link active':'sidebar-link'}`} onClick={() =>  setIsActive('category') } to="/category" aria-expanded="false">
-                        <span>
-                            <i className="ti ti-folder" />
+                    <span>
+                        <FontAwesomeIcon icon={faLayerGroup} />
                         </span>
-                        <span className="hide-menu">Category</span>
+                        <span className="hide-menu">Categories</span>
                     </Link>
                 </li>
                 <li className="sidebar-item">
                     <Link id="brand" className={`${location.pathname=='/brand' ?'sidebar-link active':'sidebar-link'}`} onClick={() =>  setIsActive('brand') } to="/brand" aria-expanded="false">
-                        <span>
-                            <i className="ti ti-package" />
+                    <span>
+                        <FontAwesomeIcon icon={faTag} />
                         </span>
-                        <span className="hide-menu">Brand</span>
+                        <span className="hide-menu">Brands</span>
                     </Link>
                 </li>
-                <li className="sidebar-item">
-                    <Link id="product"className={`${location.pathname=='/product' ?'sidebar-link active':'sidebar-link'}`} onClick={() =>  setIsActive('product') } to="/product" aria-expanded="false">
-                        <span>
-                        <FontAwesomeIcon icon={faShop} />
-                        </span>
-                        <span className="hide-menu">Product</span>
-                    </Link>
-                </li>
-                <li className="sidebar-item">
-                    <Link id="properties" className={`${location.pathname=='/properties' ?'sidebar-link active':'sidebar-link'}`} onClick={() =>  setIsActive('properties') } to="/properties" aria-expanded="false">
-                        <span>
-                        <FontAwesomeIcon icon={faTicketSimple} />
-                        </span>
-                        <span className="hide-menu">Product Properties</span>
-                    </Link>
-                </li>
-                <li className="sidebar-item">
+                
+                
+                {/* <li className="sidebar-item">
                     <Link id="users" className={`${location.pathname=='/users' ?'sidebar-link active':'sidebar-link'}`} onClick={() => { setIsActive('users') }} to="/users" aria-expanded="false">
                         <span>
                             <i className="ti ti-users" />
                         </span>
                         <span className="hide-menu">Users</span>
                     </Link>
-                </li>
+                </li> */}
                 <li className="sidebar-item">
                     <Link id="customers" className={`${location.pathname=='/customers' ?'sidebar-link active':'sidebar-link'}`} onClick={() => { setIsActive('customers') }} to="/customers" aria-expanded="false">
                         <span>
@@ -74,20 +101,40 @@ const Navbar = () => {
                         <span className="hide-menu">Customers</span>
                     </Link>
                 </li>
-                <li className="sidebar-item">
-                    <Link id="home-page"className={`${location.pathname=='/homePage' ?'sidebar-link active':'sidebar-link'}`} onClick={() => { setIsActive('home-page') }} to="/homePage" aria-expanded="false">
-                        <span>
-                        <FontAwesomeIcon icon={faHouse} />
-                        </span>
-                        <span className="hide-menu">Home Widget</span>
-                    </Link>
-                </li>
+                
                 <li className="sidebar-item">
                     <Link id="home-page"className={`${location.pathname=='/discount' ?'sidebar-link active':'sidebar-link'}`} onClick={() => { setIsActive('home-page') }} to="/discount" aria-expanded="false">
                         <span>
-                        <FontAwesomeIcon icon={faHouse} />
+                        <FontAwesomeIcon icon={faPercent} />
                         </span>
                         <span className="hide-menu">Discounts</span>
+                    </Link>
+                </li>
+
+                <li className="sidebar-item">
+                    <Link id="home-page"className={`${location.pathname=='/homePage' ?'sidebar-link active':'sidebar-link'}`} onClick={() => { setIsActive('home-page') }} to="/homePage" aria-expanded="false">
+                        <span>
+                        <FontAwesomeIcon icon={faCubesStacked} />
+                        </span>
+                        <span className="hide-menu">Widgets</span>
+                    </Link>
+                </li>
+
+                <li className="sidebar-item">
+                    <Link id="home-page"className={`${location.pathname=='/shipping' ?'sidebar-link active':'sidebar-link'}`} onClick={() => { setIsActive('shipping') }} to="/shipping" aria-expanded="false">
+                        <span>
+                        <FontAwesomeIcon icon={faShippingFast} />
+                        </span>
+                        <span className="hide-menu">Shipping Rates</span>
+                    </Link>
+                </li>
+
+                <li className="sidebar-item " style={{marginTop:"auto", marginBottom:"20px"}}>
+                    <Link id="home-page" className='sidebar-link' onClick={handleLogout} to="#" aria-expanded="false">
+                        <span>
+                        <FontAwesomeIcon icon={faRightFromBracket} />
+                        </span>
+                        <span className="hide-menu">Logout</span>
                     </Link>
                 </li>
             </ul>

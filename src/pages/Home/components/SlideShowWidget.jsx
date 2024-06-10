@@ -269,7 +269,7 @@ const SlideShowWidget = ({
                                           <img
                                             src={
                                               imageBaseUrl +
-                                              values.items[index].image
+                                              values.items[index].image.name
                                             }
                                             className="ms-2  image-cover bg-white "
                                             alt=""

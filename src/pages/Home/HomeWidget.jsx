@@ -166,8 +166,7 @@ const HomeWidget = () => {
     <Layout>
       <h2 className="heading ms-3">Home Widget</h2>
       <div className="col-12 stretch-card container-fluid">
-        <div className="card">
-          <div className="card-body">
+        
           <div
               style={{
                 display: "flex",
@@ -222,8 +221,7 @@ const HomeWidget = () => {
               />
             </div>
           </div>
-        </div>
-      </div>
+        
       <Modal
         open={open}
         onClose={handleClose}

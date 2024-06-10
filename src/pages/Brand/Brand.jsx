@@ -219,10 +219,9 @@ const Brand = () => {
     <Layout>
       <div className="col-12 stretch-card container-fluid">
       
-      <h2 className="heading">Brand</h2>
+      <h2 className="heading">Brands</h2>
    
-        <div className="card">
-          <div className="card-body">
+      
           <div style={{display:"flex",justifyContent:"space-between" ,gap:"20px"}}>
           <div style={{ color: 'gray', fontWeight: 'bold' }}>
   {brands.length}  Brands
@@ -266,8 +265,7 @@ const Brand = () => {
               />
             </div>
           </div>
-        </div>
-      </div>
+       
 
       <Modal
         open={open}

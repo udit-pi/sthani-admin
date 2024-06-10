@@ -7,12 +7,12 @@ const Layout = ({ children }) => {
 
 
     return (
-        <div className="page-wrapper bg-light" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+        <div className="page-wrapper bg-white" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
             data-sidebar-position="fixed" data-header-position="fixed">
             <Aside />
             <div className="body-wrapper">
-                <Header />
-                <div className="container-fluid" style={{minHeight:"100vh"}}>
+                
+                <div className="" style={{minHeight:"100vh", padding:"20px 25px"}}>
                     {children}
                    
                 </div>

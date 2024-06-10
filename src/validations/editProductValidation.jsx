@@ -23,12 +23,12 @@ Yup.addMethod(Yup.array, 'uniqueNames', function (message) {
 });
 
 const productVariantSchema = Yup.object().shape({
-  variantName: Yup.string().nullable(),
-  variantSKU: Yup.string().required("SKU is a required field"),
-  variantPrice: Yup.number().required('Price is a required field').positive("Price field must be a number"),
-  variantStock: Yup.number().required("Stock is a required field").positive("Stock field must be a number"),
-  variantDiscountedPrice: Yup.number()
-    .when('variantPrice', (variantPrice, schema) =>
+  name: Yup.string().nullable(),
+  sku: Yup.string().required("SKU is a required field"),
+  price: Yup.number().required('Price is a required field').positive("Price field must be a number"),
+  stock: Yup.number().required("Stock is a required field").positive("Stock field must be a number"),
+  discounted_price: Yup.number()
+    .when('price', (variantPrice, schema) =>
       variantPrice ? schema
         .positive()
         .lessThan(variantPrice, "Discounted price must be less than price")
@@ -67,12 +67,12 @@ export const editProductValidation = Yup.object({
   productVariant: Yup.array().nullable().transform(transformProductVariant).of(productVariantSchema),
   productVariant1: Yup.array().of(
     Yup.object().shape({
-    variantName: Yup.string().nullable(),
-    variantSKU: Yup.string().required("SKU is a required field"),
-    variantPrice: Yup.number().required('Price is a required field').positive("Price field must be a number"),
-    variantStock: Yup.number().required("Stock is a required field").positive("Stock field must be a number"),
-    variantDiscountedPrice: Yup.number()
-      .when('variantPrice', (variantPrice, schema) =>
+    name: Yup.string().nullable(),
+    sku: Yup.string().required("SKU is a required field"),
+    price: Yup.number().required('Price is a required field').positive("Price field must be a number"),
+    stock: Yup.number().required("Stock is a required field").positive("Stock field must be a number"),
+    discounted_price: Yup.number()
+      .when('price', (variantPrice, schema) =>
         variantPrice ? schema
           .positive()
           .lessThan(variantPrice, "Discounted price must be less than price")

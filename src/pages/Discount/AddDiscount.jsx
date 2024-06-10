@@ -29,6 +29,7 @@ const AddDiscount = () => {
       };
       const dispatch = useDispatch();
       const navigate = useNavigate();
+
       const handleSubmit = async (values) => {
         // console.log(values);
         const res = await dispatch(addDiscount(values)).unwrap();
@@ -56,7 +57,7 @@ const AddDiscount = () => {
           validationSchema={AddDiscountValidation}
           onSubmit={(values) => {
             console.log(values);
-            // handleSubmit(values);
+             handleSubmit(values);
           }}
         >
           {({ values, errors, setFieldValue }) => (

@@ -27,38 +27,56 @@ const getProduct = async (id) => {
     return res.data;
 }
 
-const saveProduct = async(data) => {
+const saveProduct = async (data) => {
     try {
-        // console.log(data.values)
-        const res = await axiosInstance.post(API_URL+ "products",data.values, {
+        //console.log("in updateProduct service file")
+        //console.log(data)
+        const res = await axiosInstance.post(API_URL + "products", data, {
             headers: {
-              'Content-Type': 'multipart/form-data',
-            },});
+                'Content-Type': 'multipart/form-data',
+            },
+        });
         return res.data
-    }  catch (err) {
+    } catch (err) {
         console.log(err)
     }
-   
+
 }
-const updateProduct = async(id,updatedValues) => {
+const updateProduct = async (id, updatedValues) => {
     try {
-         console.log(updatedValues)
-        const res = await axiosInstance.patch(API_URL+ "products/" + id,updatedValues, {
+       // console.log("in updateProduct service file")
+       // console.log(updatedValues)
+        const res = await axiosInstance.patch(API_URL + "products/" + id, updatedValues, {
             headers: {
-              'Content-Type': 'multipart/form-data',
-            },});
+                'Content-Type': 'multipart/form-data',
+            },
+        });
         return res.data
-    }  catch (err) {
+    } catch (err) {
         console.log(err)
     }
-   
+
 }
+
+const deleteProduct = async (id) => {
+    try {
+      //  console.log("Attempting to delete product with ID:", id);
+        const res = await axiosInstance.delete(API_URL + "products/" + id);
+       // console.log("Product deleted successfully:", res.data);
+        return res.data;
+    } catch (err) {
+        console.error("Error deleting product:", err);
+        throw err; // Re-throwing the error is important if you want to handle it (e.g., show a user message) at a higher level in your application.
+    }
+}
+
 
 
 const ProductService = {
     getProducts,
     getProduct,
     saveProduct,
-    updateProduct
+    updateProduct,
+    deleteProduct
 }
 export default ProductService;
