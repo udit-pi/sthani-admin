@@ -35,7 +35,7 @@ import EditProductNew from "./pages/Product/EditProductNew";
 import Discount from "./pages/Discount/Discount";
 import AddDiscount from "./pages/Discount/AddDiscount";
 import EditDiscount from "./pages/Discount/EditDiscount";
-
+import ShippingRate from "./pages/ShippingRate";
 
 function App() {
   return (
@@ -89,6 +89,8 @@ function App() {
             <Route exact path="/discount" element={<Discount />} />
             <Route exact path="/addDiscount" element={<AddDiscount/>} />
             <Route exact path="/editDiscount/:id" element={<EditDiscount />} />
+
+            <Route exact path="/shippingRate" element={<ShippingRate />} />
 
           </Route>
         </Routes>

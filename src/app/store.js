@@ -5,7 +5,7 @@ import brandReducer from '../features/brand/brandSlice'
 import productSlice from '../features/product/productSlice'
 import propertySlice from '../features/properties/propertySlice';
 import customerSlice from '../features/customer/customerSlice';
-
+import shippingrateSlice from '../features/shippingrate/shippingrateSlice';
 
 export const store = configureStore({
   reducer: {
@@ -15,5 +15,6 @@ export const store = configureStore({
     product: productSlice,
     property: propertySlice,
     customer: customerSlice,
+    shippingRates: shippingrateSlice,
   },
 });
