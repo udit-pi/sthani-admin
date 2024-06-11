@@ -121,7 +121,7 @@ const Navbar = () => {
                 </li>
 
                 <li className="sidebar-item">
-                    <Link id="home-page"className={`${location.pathname=='/shipping' ?'sidebar-link active':'sidebar-link'}`} onClick={() => { setIsActive('shipping') }} to="/shipping" aria-expanded="false">
+                    <Link id="home-page"className={`${location.pathname=='/shippingRate' ?'sidebar-link active':'sidebar-link'}`} onClick={() => { setIsActive('shippingRate') }} to="/shippingRate" aria-expanded="false">
                         <span>
                         <FontAwesomeIcon icon={faShippingFast} />
                         </span>
