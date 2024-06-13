@@ -19,3 +19,11 @@ export const AddDiscountValidation = Yup.object().shape({
       }),
  
   });
+
+
+  export const EditDiscountValidation = Yup.object().shape({
+    startDate: Yup.date()
+      .required('Start date is required'),
+      
+ 
+  });
