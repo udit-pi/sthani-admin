@@ -83,27 +83,51 @@ const Discount = () => {
       selector: (row) => row.first_name ,
       cell: (row) => <div style={{ fontWeight: "bold" }}>{row.code}</div>,
       sortable: true,
-      grow:3,
+      searchable: true,
+      grow:1,
     },
    
     {
       name: "Type",
-      selector: (row) => row.discountType,
+      selector: (row) => row.discountType.replace("_"," "),
       sortable: true,
-      grow:2,
+      grow:1,
+    },
+
+    {
+      name: "Discount",
+      selector: (row) => `${row.discountValueType === "AMOUNT" ? `AED ${row.discountValue}` : `${row.discountValue}%`}`
+      ,
+      sortable: true,
+      grow:1,
     },
     {
-        name: "parent",
+      name: "Minimum",
+      selector: (row) => row.minimumPurchaseAmount && `AED ${row.minimumPurchaseAmount} `
+      ,
+      sortable: true,
+      grow:1,
+    },
+    
+    {
+        name: "Status",
         selector: (row) => row.status,
         sortable: true,
-        grow:2,
+        grow:1,
+      },
+
+      {
+        name: "Used",
+        selector: (row) => row.used,
+        sortable: true,
+        grow:1,
       },
     
   
     {
       name: "Action",
       right:true,
-      // grow:1,
+       grow:1,
       cell: (row) => (
         <div>
           {/* <Link
@@ -122,7 +146,7 @@ Delete
  </span>
 
           <Link
-            to={`/editCustomer/${row.id}`}
+            to={`/editDiscount/${row._id}`}
             // className="btn btn-sm btn-warning ms-1"
             style={{marginLeft:"20px",cursor:"pointer",color: ' #D93D6E ' }}
           >
@@ -150,7 +174,7 @@ Delete
   return (
     
           <Layout>
-       <h2 className="heading ms-3">Discount</h2>
+       <h2 className="heading ms-3">Discounts</h2>
    
       <div className="col-12 stretch-card container-fluid">
     
