@@ -143,45 +143,45 @@ const EditDiscount = () => {
                     )} */}
                   </div>
                   {values.discountType === 'ORDER_DISCOUNT' && (
-                  <div className="mb-3">
-                    <label className="form-label">Discount Value</label>
+                    <div className="mb-3">
+                      <label className="form-label">Discount Value</label>
 
-                    <div className="d-flex align-items-center">
-                      <Field
-                        as="select"
-                        className="form-select me-3"
-                        name="discountValueType"
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setFieldValue('discountValueType', value);
-                          setDiscountType(value);
-                        }}
-                      >
-                        <option value="">Select Type</option>
-                        <option value="PERCENTAGE">PERCENTAGE</option>
-                        <option value="AMOUNT">AMOUNT</option>
-                      </Field>
-                      <div className="input-group">
-                        {discountType === 'AMOUNT' && (
-                          <span className="input-group-text">AED</span>
-                        )}
+                      <div className="d-flex align-items-center">
                         <Field
-                          type="text"
-                          className="form-control"
-                          id="discountValue"
-                          name="discountValue"
-                        />
-                        {discountType == 'PERCENTAGE' && (
-                          <span className="input-group-text">%</span>
-                        )}
+                          as="select"
+                          className="form-select me-3"
+                          name="discountValueType"
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setFieldValue('discountValueType', value);
+                            setDiscountType(value);
+                          }}
+                        >
+                          <option value="">Select Type</option>
+                          <option value="PERCENTAGE">PERCENTAGE</option>
+                          <option value="AMOUNT">AMOUNT</option>
+                        </Field>
+                        <div className="input-group">
+                          {discountType === 'AMOUNT' && (
+                            <span className="input-group-text">AED</span>
+                          )}
+                          <Field
+                            type="text"
+                            className="form-control"
+                            id="discountValue"
+                            name="discountValue"
+                          />
+                          {discountType == 'PERCENTAGE' && (
+                            <span className="input-group-text">%</span>
+                          )}
+                        </div>
                       </div>
+                      {errors.discountValue && (
+                        <small className="text-danger">
+                          {errors.discountValue}
+                        </small>
+                      )}
                     </div>
-                    {errors.discountValue && (
-                      <small className="text-danger">
-                        {errors.discountValue}
-                      </small>
-                    )}
-                  </div>
                   )}
 
                   {values.discountType === 'ORDER_DISCOUNT' && (
@@ -342,6 +342,40 @@ const EditDiscount = () => {
             </Form>
           )}
         </Formik>
+
+        <div className="card mt-4">
+          <div className="card-body">
+            <h4 className="card-title">Used By</h4>
+            <table className="table">
+              <thead>
+                <tr>
+                  <th scope="col">Customer Name</th>
+                  <th scope="col">Email</th>
+                  <th scope="col">Order ID</th>
+                  <th scope="col">Used Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredCustomers.usedBy && filteredCustomers.usedBy.length > 0 ? (
+                  filteredCustomers.usedBy.map((usage, index) => (
+                    <tr key={index}>
+                      <td>{`${usage.firstName || ''} ${usage.lastName || ''}`.trim()}</td>
+                      <td>{usage.email}</td>
+                      <td>{usage.orderId}</td>
+                      <td>{usage.date ? new Date(usage.date).toLocaleString() : ''}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="4" className="text-center">No records found</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+
       </div>
     </Layout>
   )
