@@ -140,7 +140,7 @@ const EditProductNew = () => {
     } else {
       setInitialValues(defaultInitialValues); // Set default for add new product
     }
-  }, [dispatch, isEditMode]);
+  }, [categories, brands, isEditMode]);
 
   const fetchProduct = async () => {
     try {
@@ -155,8 +155,9 @@ const EditProductNew = () => {
       console.log('Fetched Product Data');
       console.log(product);
 
-
+      
       const productCategories = product.categories ? categories.filter(cat => product.categories.includes(cat.value)) : []
+      console.log(productCategories)
       setSelectedCategories(productCategories);
 
       const formattedVariants = product.product_variants?.map(variant => ({
