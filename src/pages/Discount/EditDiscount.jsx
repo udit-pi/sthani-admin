@@ -8,6 +8,8 @@ import { Formik, Form, Field, FieldArray, ErrorMessage } from "formik";
 import { toast } from 'react-toastify';
 import { AddDiscountValidation, EditDiscountValidation } from '../../validations/addDiscountValidation';
 const EditDiscount = () => {
+  const debugMode = process.env.REACT_APP_DEBUG || "";
+
   const [discountType, setDiscountType] = useState('');
   const [showMinimumPurchaseInput, setShowMinimumPurchaseInput] = useState(false);
   const [showMinimumPurchaseInputShow, setShowMinimumPurchaseInputShow] = useState(false);
@@ -72,6 +74,7 @@ const EditDiscount = () => {
 
   return (
     <Layout>
+       
       <div className="col-12 stretch-card container-fluid">
         <div style={{ marginBottom: '30px', display: "flex", alignItems: "center", gap: "20px", color: '#D93D6E' }}>
           <FaArrowLeft size={20} cursor="pointer" onClick={goBack} />
@@ -89,6 +92,8 @@ const EditDiscount = () => {
           }}
         >
           {({ values, errors, setFieldValue }) => (
+            <>
+            {debugMode && <div><pre>{JSON.stringify(values, null, 2)}</pre></div>}
             <Form>
               <div className="card">
                 <div className="card-body">
@@ -340,9 +345,10 @@ const EditDiscount = () => {
                 {loading ? "Loading..." : "Edit Discount"}
               </button>
             </Form>
+            </>
           )}
         </Formik>
-
+      
         <div className="card mt-4">
           <div className="card-body">
             <h4 className="card-title">Used By</h4>
@@ -378,6 +384,7 @@ const EditDiscount = () => {
 
       </div>
     </Layout>
+    
   )
 }
 
