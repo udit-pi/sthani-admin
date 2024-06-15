@@ -36,6 +36,8 @@ import Discount from "./pages/Discount/Discount";
 import AddDiscount from "./pages/Discount/AddDiscount";
 import EditDiscount from "./pages/Discount/EditDiscount";
 import ShippingRate from "./pages/ShippingRate";
+import OrderList from './pages/Order/OrderList';
+import OrderDetails from './pages/Order/OrderDetails';
 
 function App() {
   return (
@@ -91,6 +93,9 @@ function App() {
             <Route exact path="/editDiscount/:id" element={<EditDiscount />} />
 
             <Route exact path="/shippingRate" element={<ShippingRate />} />
+            
+            <Route path="/orders" element={<OrderList />} />
+            <Route path="/orders/:id" element={<OrderDetails />} />
 
           </Route>
         </Routes>
