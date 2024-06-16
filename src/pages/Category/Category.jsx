@@ -134,14 +134,20 @@ const Category = () => {
       selector: (row) => row.name,
       cell: (row) => <div style={{ fontWeight: "bold" }}>{row.name}</div>,
       sortable: true,
-      width: "",
+      grow:3,
     },
 
     {
       name: "Parent category",
       selector: (row) => parentCategoryName(row, categories),
       sortable: true,
-      width: "30%",
+      grow:2,
+    },
+    {
+      name: "Collection list",
+      selector: (row) => row.is_featured===true ? 'Yes' : 'No',
+      sortable: true,
+      grow:1
     },
 
     {

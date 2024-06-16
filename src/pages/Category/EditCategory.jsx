@@ -20,7 +20,7 @@ const EditCategory = ({ history }) => {
   const [defaultValue, setdefaultValue] = useState(null)
   const mediaFolder = process.env.REACT_APP_MEDIA_URL;
 
- 
+
 
   const [bannerImage, setbannerImage] = useState("")
   const [icon, seticon] = useState("")
@@ -62,6 +62,7 @@ const EditCategory = ({ history }) => {
         initialValues.icon = res.icon
         initialValues.banner = res.banner
         initialValues.slide_show = res.slide_show
+        initialValues.is_featured = res.is_featured
         initialValues.parent_category = res.parent_category
 
       })
@@ -191,6 +192,7 @@ const EditCategory = ({ history }) => {
                       </small>
                     )}
                   </div>
+                
 
                   <div className="mb-4">
                     <label
@@ -199,7 +201,7 @@ const EditCategory = ({ history }) => {
                     >
                       Parent category:
                     </label>
-                   
+
 
                     <div className="mb-4">
                       <Field as="select" name="parent_category" id="parent_category" className="form-control"
@@ -226,7 +228,27 @@ const EditCategory = ({ history }) => {
                       )}
                     </div>
 
+                    <div className="mb-4">
+                    
 
+                    <Field
+                      type="checkbox"
+                      className="form-check-input"
+                      id="is_featured"
+                      name="is_featured"
+                    ></Field>
+                    <label
+                      htmlFor="is_featured"
+                      className="form-check-label ms-1"
+                    >
+                      Show in Collection List
+                    </label>
+                    {errors.is_featured && (
+                      <small className="text-danger">
+                        {errors.is_featured}
+                      </small>
+                    )}
+                  </div>
 
 
 
