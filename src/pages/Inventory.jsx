@@ -154,18 +154,18 @@ const InventoryManagement = () => {
                 <div className="modal-content">
                   <div className="modal-header">
                     <h5 className="modal-title">Upload CSV</h5>
-                    <button type="button" className="close" onClick={handleCloseModal} aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
+                    <button type="button" className=" btn-close" onClick={handleCloseModal} aria-label="Close">
+                      {/* <span aria-hidden="true">&times;</span> */}
                     </button>
                   </div>
                   <div className="modal-body">
                     <div className="form-group">
-                      <input type="file" className="form-control-file" onChange={handleFileChange} />
+                      <input type="file" className="form-control form-control-file" onChange={handleFileChange} />
                     </div>
                   </div>
                   <div className="modal-footer">
-                    <button type="button" className="btn btn-secondary" onClick={handleCloseModal}>Close</button>
-                    <button type="button" className="btn btn-success" onClick={handleBulkUpdate}>Upload CSV</button>
+                    <button type="button" className="btn btn-link" onClick={handleCloseModal}>Close</button>
+                    <button type="button" className="btn btn-dark" onClick={handleBulkUpdate}>Upload CSV</button>
                   </div>
                 </div>
               </div>

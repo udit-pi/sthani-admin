@@ -1,204 +1,102 @@
-import { useState } from 'react'
-import Chart from "react-apexcharts";
-import Layout from '../components/layouts/Layout'
-import { useSelector } from 'react-redux';
-import { Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchOrders } from '../features/order/orderSlice';
+import { fetchProducts, selectLowStockItems } from '../features/inventory/inventorySlice';
+import { fetchAllCustomers } from '../features/customer/customerSlice';
+import Layout from '../components/layouts/Layout';
+import Chart from 'react-apexcharts';
+import LowStockTable from '../components/LowStockTable'
 
-function getUser() {
-    let user = localStorage.getItem('user');
+const Dashboard = () => {
+    const dispatch = useDispatch();
+    const orders = useSelector(state => state.orders.items);
+    const customers = useSelector(state => state.customer.customers);
+    
 
-    if (user) {
-        user = JSON.parse(user)
-    }
-    else {
-        user = null;
-    }
+    const totalSales = orders.reduce((acc, order) => acc + order.total, 0);
+    const monthlySales = orders.reduce((acc, order) => {
+        const month = new Date(order.createdAt).getMonth();
+        acc[month] = (acc[month] || 0) + order.total;
+        return acc;
+    }, Array(12).fill(0));
 
-    return user;
-}
+    useEffect(() => {
+        dispatch(fetchOrders());
+        dispatch(fetchProducts());
+        dispatch(fetchAllCustomers());
+    }, [dispatch]);
 
-const Home = () => {
-
-    const { user: currentUser } = useSelector((state) => state.auth);
-    const [user, setUser] = useState(getUser());
-
-    const [options, setObject] = useState({
+    const options = {
         chart: {
-            height: 350,
             type: 'bar',
+            height: 350
         },
-        plotOptions: {
-            bar: {
-                borderRadius: 10,
-                dataLabels: {
-                    position: 'top', // top, center, bottom
-                },
-            }
+        title: {
+            text: 'Monthly Sales',
+            align: 'center'
         },
-        dataLabels: {
-            enabled: true,
-            formatter: function (val) {
-                return val + "%";
-            },
-            offsetY: -20,
-            style: {
-                fontSize: '12px',
-                colors: ["#304758"]
-            }
-        },
-
         xaxis: {
-            categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-            position: 'top',
-            axisBorder: {
-                show: false
-            },
-            axisTicks: {
-                show: false
-            },
-            crosshairs: {
-                fill: {
-                    type: 'gradient',
-                    gradient: {
-                        colorFrom: '#D8E3F0',
-                        colorTo: '#BED1E6',
-                        stops: [0, 100],
-                        opacityFrom: 0.4,
-                        opacityTo: 0.5,
-                    }
-                }
-            },
-            tooltip: {
-                enabled: true,
-            }
+            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
         },
         yaxis: {
-            axisBorder: {
-                show: false
-            },
-            axisTicks: {
-                show: false,
-            },
-            labels: {
-                show: false,
-                formatter: function (val) {
-                    return val + "%";
-                }
+            title: {
+                text: 'Total Sales (AED)'
             }
+        }
+    };
 
-        },
-    });
-
-    const [series, setSeries] = useState([{
-        name: 'Inflation',
-        data: [8.3, 3.1, 4.0, 6.1, 4.0, 3.6, 3.2, 2.3, 1.4, 0.8, 0.5, 5.2]
-    }]);
-
-    if (!currentUser) {
-        return <Navigate to="/login" />;
-      }
-
+    const series = [{
+        name: 'Sales',
+        data: monthlySales
+    }];
+    console.log(monthlySales);
     return (
         <Layout>
-            <div className='pages'>
-                <div className="home">
-                    <div className="row">
-                        <h2 className="mb-5 mt-4">Hi <b style={{ color: '#D93D6E' }}>{user ? user.user.name : ''}</b>, Welcome to Sthani Admin Panel</h2>
-
-                        <div className="col-md-6 d-flex align-items-strech">
-                            <div className="card w-100">
-                                <div className="card-body">
-                                    <div className="d-sm-flex d-block align-items-center justify-content-between mb-9">
-                                        <div className="mb-3 mb-sm-0">
-                                            <h5 className="card-title fw-semibold">Sales</h5>
-                                        </div>
-                                        <div>
-                                            <select className="form-select">
-                                                <option value={1}>March 2023</option>
-                                                <option value={2}>April 2023</option>
-                                                <option value={3}>May 2023</option>
-                                                <option value={4}>June 2023</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <Chart
-                                        options={options}
-                                        series={series}
-                                        type="bar"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-lg-6">
-                            <div className="row">
-                                <div className="col-lg-12">
-                                    {/* Yearly Breakup */}
-                                    <div className="card overflow-hidden">
-                                        <div className="card-body p-5">
-                                            <h5 className="card-title mb-9 fw-semibold">Total Order Value in AED</h5>
-                                            <div className="row align-items-center">
-                                                <div className="col-8">
-                                                    <h4 className="fw-semibold mb-3">AED 4565</h4>
-                                                    <div className="d-flex align-items-center mb-3">
-                                                        <span className="me-1 rounded-circle bg-light-success round-20 d-flex align-items-center justify-content-center">
-                                                            <i className="ti ti-arrow-up-left text-success" />
-                                                        </span>
-                                                        <p className="text-dark me-1 fs-3 mb-0">+9%</p>
-                                                        <p className="fs-3 mb-0">last year</p>
-                                                    </div>
-                                                    <div className="d-flex align-items-center">
-                                                        <div className="me-4">
-                                                            <span className="round-8 bg-primary rounded-circle me-2 d-inline-block" />
-                                                            <span className="fs-2">2023</span>
-                                                        </div>
-                                                        <div>
-                                                            <span className="round-8 bg-light-primary rounded-circle me-2 d-inline-block" />
-                                                            <span className="fs-2">2023</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="col-4">
-                                                    <div className="d-flex justify-content-center">
-                                                        <div id="breakup" />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="col-lg-12">
-                                    {/* Monthly Earnings */}
-                                    <div className="card">
-                                        <div className="card-body p-5">
-                                            <div className="row alig n-items-start">
-                                                <div className="col-8">
-                                                    <h5 className="card-title mb-9 fw-semibold"> Total Customers </h5>
-                                                    <h4 className="fw-semibold mb-3">506</h4>
-                                                    <div className="d-flex align-items-center pb-1">
-                                                        <span className="me-2 rounded-circle bg-light-danger round-20 d-flex align-items-center justify-content-center">
-                                                            <i className="ti ti-arrow-down-right text-danger" />
-                                                        </span>
-                                                        <p className="text-dark me-1 fs-3 mb-0">+9%</p>
-                                                        <p className="fs-3 mb-0">last month</p>
-                                                    </div>
-                                                </div>
-                                                <div className="col-4">
-                                                    <div className="d-flex justify-content-end">
-
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div id="earning" />
-                                    </div>
-                                </div>
+            <div className='dashboard py-5' style={{maxWidth:"1200px"}}>
+                <h2 className="heading mb-4">Dashboard</h2>
+                <div className="row">
+                    <div className="col-md-4">
+                        <div className="card text-center mb-4 rounded" style={{borderRadius:"20px"}}>
+                            <div className="card-body bg-primary text-white rounded">
+                                <h3 className="card-title text-white">Total Orders</h3>
+                                <p className="card-text">{orders.length}</p>
                             </div>
                         </div>
                     </div>
+                    <div className="col-md-4">
+                        <div className="card text-center mb-4">
+                            <div className="card-body rounded" style={{backgroundColor:"#f6ccd9"}}>
+                                <h5 className="card-title  text-primary">Total Sales</h5>
+                                <p className="card-text">${totalSales.toFixed(2)}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="col-md-4">
+                        <div className="card text-center mb-4">
+                            <div className="card-body"  style={{backgroundColor:"#f6ccd9"}}>
+                                <h5 className="card-title text-primary">Total Customers</h5>
+                                <p className="card-text">{customers.length}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="col-md-6 ">
+                    <div className="card mb-4">
+                    <div className="card-body">
+                        <div className="chart">
+                        <h5 className="card-title p-2 text-primary">Orders</h5>
+                        <hr/>
+                            <Chart options={options} series={series} type="bar" />
+                        </div>
+                        </div></div>
+                    </div>
+                    <div className="col-md-6">
+                         <LowStockTable />
+                    </div>
+                    
                 </div>
             </div>
         </Layout>
-    )
+    );
 }
 
-export default Home
+export default Dashboard;

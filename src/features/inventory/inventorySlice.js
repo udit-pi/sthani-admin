@@ -4,6 +4,7 @@ import inventoryService from '../../services/inventory.service';
 // Async thunk for fetching products
 export const fetchProducts = createAsyncThunk('inventory/fetchProducts', async () => {
   const response = await inventoryService.fetchProducts();
+  console.log(response);
   return response;
 });
 
@@ -34,6 +35,10 @@ export const bulkUpdateProductStock = createAsyncThunk('inventory/bulkUpdateProd
     return thunkAPI.rejectWithValue(message);
   }
 });
+
+// in inventorySlice.js
+export const selectLowStockItems = (state) => state.inventory.items.filter(item => item.stock < 20);
+
 
 const inventorySlice = createSlice({
   name: 'inventory',
