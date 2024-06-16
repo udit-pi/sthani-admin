@@ -60,13 +60,23 @@ const Navbar = () => {
                 </li>
                
                 <li className="sidebar-item">
-                    <Link id="product"className={`${location.pathname=='/product' ?'sidebar-link active':'sidebar-link'}`} onClick={() =>  setIsActive('product') } to="/product" aria-expanded="false">
+                    <Link id="product" className={`${location.pathname=='/product' ?'sidebar-link active':'sidebar-link'}`} onClick={() =>  setIsActive('product') } to="/product" aria-expanded="false">
                         <span>
                         <FontAwesomeIcon icon={faProductHunt} />
                         </span>
                         <span className="hide-menu">Products</span>
                     </Link>
                 </li>
+
+                <li className="sidebar-item">
+                    <Link id="inventory" className={`${location.pathname=='/inventory' ?'sidebar-link active':'sidebar-link'}`} onClick={() =>  setIsActive('inventory') } to="/inventory" aria-expanded="false">
+                        <span>
+                        <FontAwesomeIcon icon={faProductHunt} />
+                        </span>
+                        <span className="hide-menu">Inventory</span>
+                    </Link>
+                </li>
+
                 <li className="sidebar-item">
                     <Link id="category"  className={`${location.pathname=='/category' ?'sidebar-link active':'sidebar-link'}`} onClick={() =>  setIsActive('category') } to="/category" aria-expanded="false">
                     <span>

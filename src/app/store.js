@@ -7,6 +7,7 @@ import propertySlice from '../features/properties/propertySlice';
 import customerSlice from '../features/customer/customerSlice';
 import shippingrateSlice from '../features/shippingrate/shippingrateSlice';
 import orderSlice from '../features/order/orderSlice';
+import inventorySlice from '../features/inventory/inventorySlice';
 
 export const store = configureStore({
   reducer: {
@@ -17,6 +18,7 @@ export const store = configureStore({
     property: propertySlice,
     customer: customerSlice,
     shippingRates: shippingrateSlice,
-    orders: orderSlice
+    orders: orderSlice,
+    inventory: inventorySlice
   },
 });
