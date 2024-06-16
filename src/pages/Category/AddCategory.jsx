@@ -159,6 +159,28 @@ const AddCategory = () => {
                       )}
                     </div>
 
+                    <div className="mb-4">
+                    
+
+                    <Field
+                      type="checkbox"
+                      className="form-check-input"
+                      id="is_featured"
+                      name="is_featured"
+                    ></Field>
+                    <label
+                      htmlFor="is_featured"
+                      className="form-check-label ms-1"
+                    >
+                      Show in Collection List
+                    </label>
+                    {errors.is_featured && (
+                      <small className="text-danger">
+                        {errors.is_featured}
+                      </small>
+                    )}
+                  </div>
+
 
 
 
