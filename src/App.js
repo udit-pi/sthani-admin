@@ -38,6 +38,7 @@ import EditDiscount from "./pages/Discount/EditDiscount";
 import ShippingRate from "./pages/ShippingRate";
 import OrderList from './pages/Order/OrderList';
 import OrderDetails from './pages/Order/OrderDetails';
+import Inventory from './pages/Inventory';
 
 function App() {
   return (
@@ -96,6 +97,8 @@ function App() {
             
             <Route path="/orders" element={<OrderList />} />
             <Route path="/orders/:id" element={<OrderDetails />} />
+
+            <Route path="/inventory" element={<Inventory />} />
 
           </Route>
         </Routes>
