@@ -191,13 +191,13 @@ const HomeWidget = () => {
                 >
                   Add Widget
                 </Link>
-                <input
+                {/* <input
                   type="text"
                   className="w-30 form-control"
                   placeholder="Search Widget"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                />
+                /> */}
               </div>
             </div>
             <div className="table-responsive">
