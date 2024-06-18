@@ -52,7 +52,9 @@ const OrderDetails = () => {
 
                 <div className='col-6'>
                 <div className="d-flex justify-content-end mt-4">
-                  {order.orderStatus === 'Unfulfilled' && (
+                
+
+                  {order.orderStatus === 'Unfulfilled' && order.paymentStatus === "Paid" (
                     <button className="btn btn-primary me-2" onClick={() => handleStatusUpdate('Fulfilled')}>
                       Mark as Fulfilled
                     </button>
