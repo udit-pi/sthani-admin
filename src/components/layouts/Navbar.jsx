@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCartArrowDown, faCubesStacked, faDollar, faHome, faHouse, faLayerGroup, faMoneyBill, faPercent, faRightFromBracket, faShippingFast, faShop, faShoppingBag, faShoppingCart, faTag, faTicketSimple,faUsers } from '@fortawesome/free-solid-svg-icons'
+import { faCartArrowDown, faCubesStacked, faDollar, faHome, faHouse, faLayerGroup, faMoneyBill, faPercent, faRightFromBracket, faShippingFast, faShop, faShoppingBag, faShoppingCart, faTag, faTicketSimple,faUsers, faBoxesStacked, faMobileScreen } from '@fortawesome/free-solid-svg-icons'
 import { useDispatch, useSelector } from 'react-redux'
 import { logout } from '../../features/auth/authSlice';
 import { faProductHunt } from '@fortawesome/free-brands-svg-icons'
@@ -71,7 +71,7 @@ const Navbar = () => {
                 <li className="sidebar-item">
                     <Link id="inventory" className={`${location.pathname=='/inventory' ?'sidebar-link active':'sidebar-link'}`} onClick={() =>  setIsActive('inventory') } to="/inventory" aria-expanded="false">
                         <span>
-                        <FontAwesomeIcon icon={faProductHunt} />
+                        <FontAwesomeIcon icon={faBoxesStacked} />
                         </span>
                         <span className="hide-menu">Inventory</span>
                     </Link>
@@ -124,7 +124,7 @@ const Navbar = () => {
                 <li className="sidebar-item">
                     <Link id="home-page"className={`${location.pathname=='/homePage' ?'sidebar-link active':'sidebar-link'}`} onClick={() => { setIsActive('home-page') }} to="/homePage" aria-expanded="false">
                         <span>
-                        <FontAwesomeIcon icon={faCubesStacked} />
+                        <FontAwesomeIcon icon={faMobileScreen} />
                         </span>
                         <span className="hide-menu">Widgets</span>
                     </Link>
