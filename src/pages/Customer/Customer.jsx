@@ -28,22 +28,14 @@ const Customer = () => {
     const result = customers.filter((customer) => {
       const searchTerm = search.toLowerCase();
       return (
-        customer.first_name.toLowerCase().includes(searchTerm) ||
-        customer.last_name.toLowerCase().includes(searchTerm) ||
-        customer.email.toLowerCase().includes(searchTerm) ||
-        customer.mobile.toString().includes(searchTerm) 
+        (customer.first_name && customer.first_name.toLowerCase().includes(searchTerm)) ||
+        (customer.last_name && customer.last_name.toLowerCase().includes(searchTerm)) ||
+        (customer.email && customer.email.toLowerCase().includes(searchTerm)) ||
+        (customer.mobile && customer.mobile.toString().includes(searchTerm))
       );
     });
     setFilteredCustomers(result);
   }, [search, customers]);
-
-  const capitalizeString = (str) => {
-    return str.toUpperCase();
-  };
-
-  const handleDelete = (id) => {
-    // Add your delete logic here
-  };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -57,7 +49,11 @@ const Customer = () => {
     {
       name: "Name",
       selector: (row) => row.first_name,
-      cell: (row) => <div style={{ fontWeight: "bold" }}>{row.first_name} {row.last_name}</div>,
+      cell: (row) => (
+        <div style={{ fontWeight: "bold" }}>
+          {row.first_name} {row.last_name}
+        </div>
+      ),
       sortable: true,
       grow: 3,
     },
