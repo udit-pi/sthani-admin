@@ -119,7 +119,9 @@ const InventoryManagement = () => {
 
   return (
     <Layout>
-      <div className="container mt-5">
+      <div className="col-12 stretch-card container-fluid">
+      
+     
         <h2 className="heading ms-3">Inventory Management</h2>
         <hr/>
         <div className="d-flex justify-content-between align-items-center mb-3">
@@ -128,12 +130,12 @@ const InventoryManagement = () => {
             <CSVLink
               data={csvData}
               filename={"inventory.csv"}
-              className="btn btn-primary me-2"
+              className="btn btn-dark me-2"
               target="_blank"
             >
               Download CSV
             </CSVLink>
-            <button className="btn btn-primary" onClick={handleShowModal}>Bulk Update</button>
+            <button className="btn btn-dark" onClick={handleShowModal}>Bulk Update</button>
           </div>
         </div>
 
