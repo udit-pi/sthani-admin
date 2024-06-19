@@ -4,6 +4,8 @@ import Layout from "../../components/layouts/Layout";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllCustomers } from "../../features/customer/customerSlice";
+import * as XLSX from 'xlsx';
+const mediaFolder = process.env.REACT_APP_MEDIA_URL ;
 
 const Customer = () => {
   const { user: currentUser } = useSelector((state) => state.auth);
@@ -43,6 +45,27 @@ const Customer = () => {
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const year = date.getFullYear();
     return `${day}-${month}-${year}`;
+  };
+
+  const exportToExcel = () => {
+    const data = customers.map(customer => ({
+      'First Name': customer.first_name,
+      'Last Name': customer.last_name,
+      'Mobile': customer.mobile,
+      'Email': customer.email,
+      'Date of Birth': customer.dob,
+      'Gender': customer.gender,
+      'Wishlist': customer.wishlist.map(product => product.name).join(', '),
+      'Favorite Brands': customer.favoriteBrands.map(brand => brand.name).join(', '),
+      'Addresses': customer.addresses.map(address => `${address.name}, ${address.mobile}, ${address.address_line}, ${address.city}, ${address.state}, ${address.postal_code}, ${address.landmark}, ${address.address_type}`).join(' | '),
+      'Profile Picture': `${mediaFolder}${customer.profilePicture}`
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Customers');
+
+    XLSX.writeFile(workbook, 'customers.xlsx');
   };
 
   const columns = [
@@ -106,6 +129,8 @@ const Customer = () => {
             highlightOnHover
             subHeader
             subHeaderComponent={
+              <>
+              <button onClick={exportToExcel} className="me-3 btn btn-dark">Export to Excel</button>
               <input
                 type="text"
                 className="w-25 form-control"
@@ -113,6 +138,8 @@ const Customer = () => {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
+              
+              </>
             }
           />
         </div>
