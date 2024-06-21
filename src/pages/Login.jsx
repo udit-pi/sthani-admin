@@ -1,10 +1,12 @@
 import { useState } from 'react'
+import { useEffect } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { login } from '../features/auth/authSlice';
 import { Formik, Form, Field } from 'formik'
 import { loginValidation } from '../validations/loginValidation';
 import MainLogo from "../assets/images/logos/sthani_logo.png"
+
 const initialValues = {
     email: '',
     password: ''
@@ -29,9 +31,11 @@ const Login = () => {
         })
 
     }
-    if(user) {
-        return <Navigate to ="/dashboard" />
-    }
+    useEffect(() => {
+        if (user) {
+            navigate('/dashboard');
+        }
+    }, [user, navigate]);
 
     return (
         <div className="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full" data-sidebar-position="fixed" data-header-position="fixed">
