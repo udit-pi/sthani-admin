@@ -96,6 +96,7 @@ const EditProductNew = () => {
     discounted_price: "",
     cost: "",
     published: false,
+    is_upsell: false,
     brand_id: "",
     categories: [],
     files: [],
@@ -184,6 +185,7 @@ const EditProductNew = () => {
         discounted_price: product.discounted_price || "",
         cost: product.cost || "",
         published: product.published || false,
+        is_upsell: product.is_upsell || false,
         brand_id: product.brand_id?.id || "",
         categories: productCategories,
         productVariants: formattedVariants,
@@ -570,6 +572,34 @@ const EditProductNew = () => {
                                     {errors.published && (
                                       <small className="text-danger">
                                         {errors.published}
+                                      </small>
+                                    )}
+
+                                  
+                                  </div>
+
+                                  {/* Upsell */}
+                                  <div className="mt-4">
+                                    <label
+                                      htmlFor="is_upsell"
+                                      className="form-label"
+                                    >
+                                      Upsell (Cart Page):
+                                    </label>
+                                    <Field
+                                      as="select"
+                                      id="is_upsell"
+                                      name="is_upsell"
+                                      // placeholder="Select label"
+                                      className="form-select"
+                                    >
+                                      <option value="false">No</option>
+                                      <option value="true">Yes</option>
+                                      {/* Add more options as needed */}
+                                    </Field>
+                                    {errors.is_upsell && (
+                                      <small className="text-danger">
+                                        {errors.is_upsell}
                                       </small>
                                     )}
 
