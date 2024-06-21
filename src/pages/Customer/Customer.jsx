@@ -5,6 +5,7 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllCustomers } from "../../features/customer/customerSlice";
 import * as XLSX from 'xlsx';
+import { formatDateUAE } from '../../utils/formatDate';
 const mediaFolder = process.env.REACT_APP_MEDIA_URL ;
 
 const Customer = () => {
@@ -78,25 +79,37 @@ const Customer = () => {
         </div>
       ),
       sortable: true,
-      grow: 3,
+      grow: 1.5,
     },
     {
       name: "Email",
       selector: (row) => row.email,
       sortable: true,
-      grow: 2,
+      grow: 1.5,
     },
     {
       name: "Mobile",
       selector: (row) => row.mobile,
       sortable: true,
-      grow: 2,
+      grow: 1,
+    },
+    {
+      name: "Total Orders",
+      selector: (row) => row.totalOrders,
+      sortable: true,
+      grow: 1,
+    },
+    {
+      name: "Total Sales",
+      selector: (row) => "AED " + row.totalSales,
+      sortable: true,
+      grow: 1,
     },
     {
       name: "Registered On",
-      selector: (row) => formatDate(row.createdAt),
+      selector: (row) => formatDateUAE(row.createdAt),
       sortable: true,
-      grow: 2,
+      grow: 1.5,
     },
     {
       name: "Action",
@@ -104,7 +117,7 @@ const Customer = () => {
       grow: 1,
       cell: (row) => (
         <div>
-          <Link to={`/editCustomer/${row.id}`}>
+          <Link to={`/customer/${row._id}`}>
             <span style={{ color: '#D93D6E' }}>View Details</span>
           </Link>
         </div>
