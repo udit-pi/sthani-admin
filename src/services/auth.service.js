@@ -1,60 +1,82 @@
-import axios from "axios";
+import api from './api'; // Adjust the path accordingly
 
-// const API_URL = "http://localhost:3500/api/admin/auth/";
-
-// const API_URL = `https://64.227.162.145/api/v1/auth/`;
 const API_URL = `${process.env.REACT_APP_API_URL}/api/v1/auth/`;
 
+const setTokens = (data) => {
+  localStorage.setItem("user", JSON.stringify(data));
+  localStorage.setItem("token", data.tokens.access.token);
+  localStorage.setItem("refreshToken", data.tokens.refresh.token);
+};
 
-      
-const register = (username, email, password) => {
-  return axios.post(API_URL + "register",{
-    name: username,
-    email,
-    password,
-  }) .then((response) => {
+const register = async (username, email, password) => {
+  try {
+    const response = await api.post(API_URL + "register", {
+      name: username,
+      email,
+      password,
+    });
+
     if (response.data.user) {
-      localStorage.setItem("user", JSON.stringify(response.data));
-      localStorage.setItem("token",JSON.stringify(response.data.tokens.access.token))
-      localStorage.setItem("refreshToken",JSON.stringify(response.data.tokens.refresh.token))
+      setTokens(response.data);
     }
 
     return response.data;
-  });
+  } catch (error) {
+    console.error("Registration error:", error);
+    throw error;
+  }
 };
 
-const login = (email, password) => {
-  // console.log(process.env.REACT_APP_API_URL)
-  return axios
-    .post(API_URL + "login", {
+const login = async (email, password) => {
+  try {
+    const response = await api.post(API_URL + "login", {
       email,
       password,
-    })
-    .then((response) => {
-      if (response.data.user) {
-        localStorage.setItem("user", JSON.stringify(response.data));
-        localStorage.setItem("token",JSON.stringify(response.data.tokens.access.token))
-        localStorage.setItem("refreshToken",JSON.stringify(response.data.tokens.refresh.token))
-      }
-
-      return response.data;
     });
+
+    if (response.data.user) {
+      setTokens(response.data);
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error("Login error:", error);
+    throw error;
+  }
 };
 
-// logout pending because of refresh token 
-const logout = () => {
+const logout = async () => {
+  const refreshToken = localStorage.getItem("refreshToken");
 
-  const refreshToken = JSON.parse(localStorage.getItem('refreshToken'))
-  localStorage.removeItem("user");
-  localStorage.removeItem("token");
-  
-  return axios.post(API_URL + "logout",{refreshToken}).then((response) => {
-    console.log('logout')
+  try {
+    await api.post(API_URL + "logout", { refreshToken });
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
     localStorage.removeItem("refreshToken");
+    console.log("Logout successful");
+  } catch (error) {
+    console.error("Logout error:", error);
+    // Even if logout request fails, remove tokens from local storage
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
+  }
+};
+
+const refreshToken = async () => {
+  const refreshToken = localStorage.getItem("refreshToken");
+  if (!refreshToken) throw new Error("No refresh token available");
+
+  try {
+    const response = await api.post(API_URL + "refresh-token", { refreshToken });
+    if (response.data.user) {
+      setTokens(response.data);
+    }
     return response.data;
-  }).catch((err) => {
-    console.log(err)
-  });
+  } catch (error) {
+    console.error("Refresh token error:", error);
+    throw error;
+  }
 };
 
 const getCurrentUser = () => {
@@ -65,7 +87,8 @@ const AuthService = {
   register,
   login,
   logout,
+  refreshToken,
   getCurrentUser,
-}
+};
 
 export default AuthService;

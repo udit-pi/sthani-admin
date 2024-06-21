@@ -100,6 +100,8 @@ const Dashboard = () => {
                             </div>
                         </div>
                     </div>
+                    </div>
+                    <div className='row'>
                     <div className="col-md-6 ">
                     <div className="card mb-4">
                     <div className="card-body">
