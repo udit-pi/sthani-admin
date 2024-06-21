@@ -26,7 +26,7 @@ import AddProperty from "./pages/Properties/AddProperty";
 import EditProperty from "./pages/Properties/EditProperty";
 import EditProduct from "./pages/Product/EditProduct";
 import  Customer  from "./pages/Customer/Customer";
-import EditCustomer from "./pages/Customer/EditCustomer";
+import CustomerDetails from "./pages/Customer/CustomerDetails";
 import CreateHomeWidget from "./pages/Home/CreateHomeWidget";
 import HomeWidget from "./pages/Home/HomeWidget";
 import EditHomeWidget from "./pages/Home/EditHomeWidget";
@@ -50,7 +50,7 @@ function App() {
           </Route>
           <Route exact path="/register" element={<Register />} />
           <Route exact path="/login" element={<Login />} />
-
+          
           <Route path="/" element={<ProtectedRoute />}>
             <Route exact path="/dashboard" element={<Home />} />
 
@@ -80,7 +80,7 @@ function App() {
 
             {/* Customer Routes */}
             <Route exact path="/customers" element={<Customer />} />
-            <Route exact path="/editCustomer/:id" element={<EditCustomer/>} />
+            <Route exact path="/customer/:id" element={<CustomerDetails/>} />
 
              {/* Home Widget Route */}
              <Route exact path="/homePage" element={<HomeWidget />} />
