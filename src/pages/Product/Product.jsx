@@ -129,6 +129,7 @@ const [category,setcategory]=useState([])
       'Cost': product.cost,
       'Media': product.media.join(', '),
       'Published': product.published,
+      'Upselling': product.is_upsell,
       'Categories': product.categories.join(', '),
       'Product Variants': product.product_variants.map(variant => `${variant.name}: ${variant.price}`).join(' | '),
       'Additional Descriptions': product.additional_descriptions.map(desc => `${desc.label}: ${desc.value}`).join(' | ')
@@ -150,7 +151,7 @@ const [category,setcategory]=useState([])
     // },
     {
       name: "Image",
-      grow:1,
+      grow:0.75,
       cell: (row) => <>
       {row.media  ? ( 
         <img
@@ -170,7 +171,7 @@ const [category,setcategory]=useState([])
       name: "Name",
       selector: (row) => <b>{row.name}</b>,
       sortable: true,
-      grow:3,
+      grow:2,
     },
     {
       name: "SKU",
@@ -181,12 +182,13 @@ const [category,setcategory]=useState([])
       name: "Stock",
       selector: (row) => row.stock,
       sortable: true,
+      grow:0.5
     },
     {
       name: "Brand",
       selector: (row) =>getBrandName(row.brand_id) ,
       sortable: true,
-      grow:2,
+      grow:1,
     },
     {
       name: 'Category',
@@ -198,7 +200,19 @@ const [category,setcategory]=useState([])
       name: "Price",
       selector: (row) => "AED "+row.price,
       sortable: true,
-      grow:1,
+      grow:0.75,
+    },
+    {
+      name: "Upsell",
+      selector: (row) => row.is_upsell === true? "Yes": "No",
+      sortable: true,
+      grow:0.75,
+    },
+    {
+      name: "Published",
+      selector: (row) => row.published === true? "Yes": "No",
+      sortable: true,
+      grow:0.75,
     },
     // {
     //   name: "Variants",
