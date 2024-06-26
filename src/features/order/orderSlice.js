@@ -16,6 +16,11 @@ export const updateOrderStatus = createAsyncThunk('orders/updateOrderStatus', as
   return await OrderService.updateOrderStatus(id, status);
 });
 
+// Async thunk for deleting an order
+export const deleteOrder = createAsyncThunk('orders/deleteOrder', async (id) => {
+  return await OrderService.deleteOrder(id);
+});
+
 const orderSlice = createSlice({
   name: 'orders',
   initialState: {

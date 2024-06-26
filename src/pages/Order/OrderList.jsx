@@ -26,7 +26,7 @@ const OrderList = () => {
   useEffect(() => {
     setFilteredItems(
       items.filter((item) => {
-        const orderId = item.id.toString().toLowerCase();
+        const orderId = item.order_no.toString().toLowerCase();
         const customerName = item.address.name.toLowerCase();
         const email = item.customer.email.toLowerCase();
         const orderStatus = item.orderStatus.toLowerCase();
@@ -46,8 +46,8 @@ const OrderList = () => {
 
   const columns = [
     {
-      name: 'Order ID',
-      selector: (row) => <b>{row.id}</b>,
+      name: 'Order #',
+      selector: (row) => <b>{row.order_no}</b>,
       sortable: true,
       grow:1.75
     },
