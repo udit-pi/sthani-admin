@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchOrderById, updateOrderStatus } from '../../features/order/orderSlice';
+import { fetchOrderById, updateOrderStatus, deleteOrder } from '../../features/order/orderSlice';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../../components/layouts/Layout';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -21,6 +21,7 @@ const OrderDetails = () => {
   const debugMode = process.env.REACT_APP_DEBUG || "";
   
   useEffect(() => {
+    
     dispatch(fetchOrderById(id));
   }, [dispatch, id]);
 
@@ -28,9 +29,24 @@ const OrderDetails = () => {
     dispatch(updateOrderStatus({ id, status }));
   };
 
+  const handleDelete = () => {
+    if (order) {
+      const confirmed = window.confirm('Are you sure you want to delete this order?');
+      if (confirmed) {
+        dispatch(deleteOrder(order.Order_id))
+          .then(() => {
+            navigate('/orders'); // Redirect to orders list after deletion
+          })
+          .catch((error) => {
+            console.error('Failed to delete order:', error);
+          });
+      }
+    }
+  };
+
   return (
     <Layout>
-        {/* {debugMode && <div><pre>{JSON.stringify(order, null, 2)}</pre></div>} */}
+        {debugMode && <div><pre>{JSON.stringify(order, null, 2)}</pre></div>}
         <div className="col-12 stretch-card container-fluid">
         
         {loading && <p>Loading...</p>}
@@ -42,11 +58,12 @@ const OrderDetails = () => {
         </button>
             <div className='row align-center'>
                 <div className='col-6'>
-                <h2 className='heading ms-3'> Order #{order.id}</h2>
+                <h2 className='heading ms-3'> Order #{order.order_no}</h2>
                
                <div className='d-flex gap-3 justify-between align-center ms-3 pb-5'> 
 
-                <div className=''>Placed on {formatDateUAE(order.createdAt)} </div> <div className='pe-2'> {orderStatusFormat(order.orderStatus)} {paymentStatusFormat(order.paymentStatus)}</div>
+                <div className=''>Placed on {formatDateUAE(order.createdAt)} </div> 
+                <div className='pe-2'> {orderStatusFormat(order.orderStatus)} <span className='ms-2'><small>PAYMENT </small> {paymentStatusFormat(order.paymentStatus)}</span></div>
                 </div>
                 </div>
 
@@ -79,7 +96,7 @@ const OrderDetails = () => {
           </div>
           <div className="col-12 stretch-card container-fluid">
                 <div className="row">
-                <div className="col-md-6">
+                <div className="col-md-8">
                     <div className='card' style={{ border:"1px solid #efefef"}}>
 
                         <div className='card-body'>
@@ -91,7 +108,7 @@ const OrderDetails = () => {
                           <div className="d-flex justify-content-between align-items-center">
                             <div>
                               <img src={`${mediaFolder}/${item.image}`} alt={item.name} style={{ width: '50px', marginRight: '10px' }} />
-                              <strong>{item.name}</strong> ({item.variant.name})
+                              <strong>{item.name} - {item.variant.name} (Qty:{item.quantity} Price: AED {item.price})</strong> 
                             </div>
                             <div>AED {item.total.toFixed(2)}</div>
                           </div>
@@ -111,8 +128,14 @@ const OrderDetails = () => {
                         <strong>Subtotal:</strong> <span style={{width:"120px", display:"inline-block"}}>AED {order.subtotal.toFixed(2)}</span>
                       </li>
                       <li className="list-group-item text-end">
-                        <strong>Shipping:</strong> <span style={{width:"120px", display:"inline-block"}}>AED {order.shipping.toFixed(2)}</span>
+                        <strong>Shipping:</strong> <span style={{width:"120px", display:"inline-block"}}>AED {order.shippingAmount?.toFixed(2) || 0}</span>
                       </li>
+
+                      { order.discount.amount > 0 && 
+                      <li className="list-group-item text-end">
+                      <strong>Discount: (Code: {order.discount.code})</strong> <span style={{width:"120px", display:"inline-block"}}>AED -{order.discount.amount.toFixed(2)}</span>
+                    </li>
+                      }
                       <li className="list-group-item text-end">
                         <strong>Total:</strong> <span style={{width:"120px", display:"inline-block"}}>AED {order.total.toFixed(2)}</span>
                       </li>
@@ -120,14 +143,14 @@ const OrderDetails = () => {
                   </div>
                   </div>
                     </div>
-                  <div className="col-md-6">
+                  <div className="col-md-4">
                    
                     <div className='card' style={{maxWidth:"400px", border:"1px solid #efefef"}}>
                         <div className='card-body'>
                         <h6 className=' text-dark' style={{fontWeight:"bold"}}>Customer Details</h6>
-                        {order.customer.name} <br />
-                        {order.customer.email}<br/>
-                        {order.customer.mobile ? order.customer.mobile: "No Mobile number"}
+                        {order.customer?.name} <br />
+                        {order.customer?.email}<br/>
+                        {order.customer?.mobile ? order.customer.mobile: "No Mobile number"}
                        <br/><br/>
                        <h6 className=' text-dark' style={{fontWeight:"bold"}}>Shipping Address</h6>
                         {order.address.name} <br />
@@ -158,6 +181,12 @@ const OrderDetails = () => {
                
               
             </div>
+            <div>
+       
+          <button className='btn btn-outline-danger' onClick={handleDelete} style={{ marginTop: '20px' }}>
+            Delete Order
+          </button>
+        </div>
           </>
         )}
       </div>

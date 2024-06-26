@@ -17,10 +17,17 @@ const updateOrderStatus = async (id, status) => {
   return res.data;
 };
 
+// Add this function to delete an order
+const deleteOrder = async (id) => {
+  const res = await axiosInstance.delete(API_URL + id);
+  return res.data;
+};
+
 const OrderService = {
   getOrders,
   getOrderById,
   updateOrderStatus,
+  deleteOrder,
 };
 
 export default OrderService;
