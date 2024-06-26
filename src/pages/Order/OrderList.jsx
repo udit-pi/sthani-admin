@@ -107,7 +107,7 @@ const OrderList = () => {
   const exportData = items.flatMap(order => {
     const formattedDate = formatDateUAE(order.createdAt);
     return order.items.map((item, index) => ({
-      OrderID: index === 0 ? order.id : '',
+      OrderNo: index === 0 ? order.order_no : '',
       OrderDate: index === 0 ? formattedDate : '',
       CustomerName: index === 0 ? order.customer.name : '',
       CustomerEmail: index === 0 ? (order.customer.email || '') : '',
@@ -124,19 +124,20 @@ const OrderList = () => {
       OrderStatus: index === 0 ? order.orderStatus : '',
       ItemName: item.name,
       ItemSKU: item.sku,
-      ItemQuantity: item.quantity,
-      ItemPrice: item.price,
-      ItemDiscountedPrice: item.discounted_price || item.price,
-      ItemTotal: item.total,
       VariantName: item.variant ? item.variant.name : '',
       VariantSKU: item.variant ? item.variant.sku : '',
-      VariantPrice: item.variant ? item.variant.price : '',
-      VariantDiscountedPrice: item.variant ? item.variant.discounted_price : ''
+      ItemQuantity: item.quantity,
+      ItemPrice: item.price,
+     // ItemDiscountedPrice: item.discounted_price || item.price,
+      ItemTotal: item.total,
+      
+     // VariantPrice: item.variant ? item.variant.price : '',
+      //VariantDiscountedPrice: item.variant ? item.variant.discounted_price : ''
     }));
   });
 
   const headers = [
-    { label: "Order ID", key: "OrderID" },
+    { label: "Order No", key: "OrderNo" },
     { label: "Order Date", key: "OrderDate" },
     { label: "Customer Name", key: "CustomerName" },
     { label: "Customer Email", key: "CustomerEmail" },
@@ -153,14 +154,15 @@ const OrderList = () => {
     { label: "Order Status", key: "OrderStatus" },
     { label: "Item Name", key: "ItemName" },
     { label: "Item SKU", key: "ItemSKU" },
-    { label: "Item Quantity", key: "ItemQuantity" },
-    { label: "Item Price", key: "ItemPrice" },
-    { label: "Item Discounted Price", key: "ItemDiscountedPrice" },
-    { label: "Item Total", key: "ItemTotal" },
     { label: "Variant Name", key: "VariantName" },
     { label: "Variant SKU", key: "VariantSKU" },
-    { label: "Variant Price", key: "VariantPrice" },
-    { label: "Variant Discounted Price", key: "VariantDiscountedPrice" },
+    { label: "Item Quantity", key: "ItemQuantity" },
+    { label: "Item Price", key: "ItemPrice" },
+    //{ label: "Item Discounted Price", key: "ItemDiscountedPrice" },
+    { label: "Item Total", key: "ItemTotal" },
+   
+    //{ label: "Variant Price", key: "VariantPrice" },
+    //{ label: "Variant Discounted Price", key: "VariantDiscountedPrice" },
   ];
 
   const handleDownload = () => {
