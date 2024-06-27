@@ -107,8 +107,8 @@ const OrderDetails = () => {
                         <li className="list-group-item" key={index}>
                           <div className="d-flex justify-content-between align-items-center">
                             <div>
-                              <img src={`${mediaFolder}/${item.image}`} alt={item.name} style={{ width: '50px', marginRight: '10px' }} />
-                              <strong>{item.name} - {item.variant.name} (Qty:{item.quantity} Price: AED {item.price})</strong> 
+                              <img src={`${item.image}`}  style={{ width: '50px', marginRight: '10px' }} />
+                              <strong>{item.name} - {item.variant.name} </strong> (Qty:{item.quantity} Price: AED {item.price})
                             </div>
                             <div>AED {item.total.toFixed(2)}</div>
                           </div>
@@ -131,9 +131,9 @@ const OrderDetails = () => {
                         <strong>Shipping:</strong> <span style={{width:"120px", display:"inline-block"}}>AED {order.shippingAmount?.toFixed(2) || 0}</span>
                       </li>
 
-                      { order.discount.amount > 0 && 
+                      { order.discountAmount > 0 && 
                       <li className="list-group-item text-end">
-                      <strong>Discount: (Code: {order.discount.code})</strong> <span style={{width:"120px", display:"inline-block"}}>AED -{order.discount.amount.toFixed(2)}</span>
+                      <strong>Discount: (Code: {order.discountCode})</strong> <span style={{width:"120px", display:"inline-block"}}>AED -{order.discountAmount.toFixed(2)}</span>
                     </li>
                       }
                       <li className="list-group-item text-end">
