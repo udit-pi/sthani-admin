@@ -20,7 +20,7 @@ const ProtectedRoute = () => {
     if (tokenExpiration) {
       return new Date(tokenExpiration) <= new Date();
     }
-    return false;
+    return false; 
   }; 
 
   const isAuthenticated = () => {
