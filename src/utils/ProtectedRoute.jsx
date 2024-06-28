@@ -21,7 +21,7 @@ const ProtectedRoute = () => {
       return new Date(tokenExpiration) <= new Date();
     }
     return false;
-  };
+  }; 
 
   const isAuthenticated = () => {
     return isLoggedIn && !checkTokenExpiry();
