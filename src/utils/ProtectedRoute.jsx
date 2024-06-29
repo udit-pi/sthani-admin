@@ -1,58 +1,41 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { logout } from "../features/auth/authSlice";
 
-const ProtectedRoute = ({ component: Component, ...rest }) => {
-
+const ProtectedRoute = () => {
   const dispatch = useDispatch();
-  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn)
-  const { user: currentUser } = useSelector((state) => state.auth);
+  const { isLoggedIn, user: currentUser } = useSelector((state) => state.auth);
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!isLoggedIn || checkTokenExpiry()) {
+      console.log('Token expired or user not logged in');
+      dispatch(logout());
+    }
+  }, [dispatch, isLoggedIn, currentUser]);
 
   const checkTokenExpiry = () => {
     const tokenExpiration = currentUser?.tokens?.access?.expires;
     if (tokenExpiration) {
-      const expirationTime = new Date(tokenExpiration);
-      return expirationTime <= new Date(); // Token has expired
+      return new Date(tokenExpiration) <= new Date();
     }
-    return false; // Token is still valid
-  };
-
-
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (checkTokenExpiry()) {
-        console.log('Token expired');
-        dispatch(logout());
-      }
-    }, 1000); // Check token expiry every second
-
-    return () => clearInterval(interval);
-  }, [dispatch, currentUser]);
-
-
-
+    return false; 
+  }; 
 
   const isAuthenticated = () => {
-    const token = localStorage.getItem('token');
-    const expirationTime = currentUser?.tokens.access.expires;
-    // console.log(token)
-    return token && expirationTime && new Date(expirationTime) > new Date();
+    return isLoggedIn && !checkTokenExpiry();
   };
 
-
-  if (isAuthenticated === null) {
-    return <div>Loading...</div>; // Or some loading spinner
+  if (!isAuthenticated()) {
+    return <Navigate to="/login" replace />;
   }
 
-  if (window.location.pathname === '/') {
-    return isAuthenticated ? <Navigate to="/dashboard" /> : <Navigate to="/login" />;
+  if (location.pathname === '/') {
+    return <Navigate to="/dashboard" replace />;
   }
 
-  return isAuthenticated ? <Outlet /> : <Navigate to="/login" />
-
-
+  return <Outlet />;
 };
 
 export default ProtectedRoute;
