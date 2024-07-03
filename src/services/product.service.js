@@ -71,12 +71,27 @@ const deleteProduct = async (id) => {
 }
 
 
+const syncProductsIQ = async () => {
+    try {
+        const res = await axiosInstance.post(API_URL + "products/sync-iq");
+       // console.log('Response Status:', res.status);
+        //console.log('Response Data:', res.data);
+        return res.data;
+    } catch (err) {
+        console.error("Error in syncProductsIQ:", err.response ? err.response.data : err.message);
+        // Optionally handle the error more gracefully
+        return null; // return null or appropriate error object
+    }
+}
+
+
 
 const ProductService = {
     getProducts,
     getProduct,
     saveProduct,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    syncProductsIQ
 }
 export default ProductService;

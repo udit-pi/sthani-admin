@@ -13,12 +13,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleInfo } from "@fortawesome/free-solid-svg-icons";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
-import { fetchAllProducts } from "../../features/product/productSlice";
+import { fetchAllProducts, syncProductsWithIQ } from "../../features/product/productSlice";
 import { Grow } from "@mui/material";
 import { fetchAllBrands, fetchBrandById, getBrand } from "../../features/brand/brandSlice";
 import * as XLSX from 'xlsx';
 
-const mediaFolder = process.env.REACT_APP_MEDIA_URL ;
+
+const mediaFolder = process.env.REACT_APP_MEDIA_URL;
 
 const Product = () => {
   const { user: currentUser } = useSelector((state) => state.auth);
@@ -26,7 +27,9 @@ const Product = () => {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const [brand,setBrand] = useState({})
+  const [brand, setBrand] = useState({})
+  const { syncResults, error, isLoading } = useSelector(state => state.product);
+  const [showModal, setShowModal] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -38,10 +41,33 @@ const Product = () => {
     // const id = res.brand_id
     // const brand = await dispatch(fetchBrandById({id })).unwrap()
     //  setBrand(brand);
-   
+
     setProducts(res);
     setFilteredProducts(res);
   };
+
+  useEffect(() => {
+    if (syncResults) {
+      console.log(syncResults);
+      setShowModal(true);
+    }
+  }, [syncResults]);
+  
+  const handleSyncClick = async () => {
+    dispatch(syncProductsWithIQ())
+      .unwrap()
+      .catch((errorMsg) => {
+        toast.error(`Error: ${errorMsg}`);
+      });
+  };
+
+  useEffect(() => {
+    // Component unmount cleanup function
+    return () => {
+      setShowModal(false);  // This will ensure the modal is closed when the component unmounts
+    };
+  }, []);
+
 
   useEffect(() => {
     fetchProducts();
@@ -53,6 +79,8 @@ const Product = () => {
     });
     setFilteredProducts(result);
   }, [search]);
+
+
 
   const capitalizeString = (str) => {
     // console.log(str);
@@ -77,20 +105,20 @@ const Product = () => {
   // filteredCategories.forEach((cat, index) => {
   //   cat.serial = index + 1;
   // });
-const [brands,setbrands]=useState([])
-const [category,setcategory]=useState([])
+  const [brands, setbrands] = useState([])
+  const [category, setcategory] = useState([])
 
   const fetchBrand = async () => {
     const res = await dispatch(fetchAllBrands()).unwrap();
     //  console.log(res)
     setbrands(res);
-   
+
   };
   const fetchCategory = async () => {
     const res = await dispatch(fetchAllCategories()).unwrap();
-     console.log(res)
-     setcategory(res);
-   
+    console.log(res)
+    setcategory(res);
+
   };
 
   useEffect(() => {
@@ -104,7 +132,7 @@ const [category,setcategory]=useState([])
     return brand ? brand.name : 'Unknown';
   };
 
- 
+
   const getCategoryNames = (categoryIds) => {
     const names = categoryIds.map(id => {
       const categories = category.find(cat => cat.id === id);
@@ -151,27 +179,27 @@ const [category,setcategory]=useState([])
     // },
     {
       name: "Image",
-      grow:0.75,
+      grow: 0.75,
       cell: (row) => <>
-      {row.media  ? ( 
-        <img
-          src={`${mediaFolder}/${row.media[0]}`}
-          alt="Icon"
-          height="50px"
-          className="custom-icon"
-         
-        />
-      ) : (
-        <span>-</span> 
-           
-      )}
-    </>,
+        {row.media ? (
+          <img
+            src={`${mediaFolder}/${row.media[0]}`}
+            alt="Icon"
+            height="50px"
+            className="custom-icon"
+
+          />
+        ) : (
+          <span>-</span>
+
+        )}
+      </>,
     },
     {
       name: "Name",
       selector: (row) => <b>{row.name}</b>,
       sortable: true,
-      grow:2,
+      grow: 2,
     },
     {
       name: "SKU",
@@ -182,13 +210,13 @@ const [category,setcategory]=useState([])
       name: "Stock",
       selector: (row) => row.stock,
       sortable: true,
-      grow:0.5
+      grow: 0.5
     },
     {
       name: "Brand",
-      selector: (row) =>getBrandName(row.brand_id) ,
+      selector: (row) => getBrandName(row.brand_id),
       sortable: true,
-      grow:1,
+      grow: 1,
     },
     {
       name: 'Category',
@@ -198,27 +226,33 @@ const [category,setcategory]=useState([])
     },
     {
       name: "Price",
-      selector: (row) => "AED "+row.price,
+      selector: (row) => "AED " + row.price,
       sortable: true,
-      grow:0.75,
+      grow: 0.75,
     },
     {
       name: "Upsell",
-      selector: (row) => row.is_upsell === true? "Yes": "No",
+      selector: (row) => row.is_upsell === true ? "Yes" : "No",
       sortable: true,
-      grow:0.75,
+      grow: 0.75,
     },
     {
       name: "Published",
-      selector: (row) => row.published === true? "Yes": "No",
+      selector: (row) => row.published === true ? "Yes" : "No",
       sortable: true,
-      grow:0.75,
+      grow: 0.75,
+    },
+    {
+      name: "Synced with IQ",
+      selector: (row) => row.isSyncedWithIQ === true ? "Yes" : "No",
+      sortable: true,
+      grow: 0.75,
     },
     // {
     //   name: "Variants",
     //   selector: (row) =>row.product_variants.length,
     //   sortable: true,
-      
+
     // },
     // {
     //     name: 'Meta Description',
@@ -227,12 +261,12 @@ const [category,setcategory]=useState([])
     // },
     {
       name: "Action",
-      right:true,
-      
-    ignoreRowClick: true,
-    allowOverflow: true,
-    button: true,
-    fixed: 'right', 
+      right: true,
+
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+      fixed: 'right',
       cell: (row) => (
         <div>
           <Link to={`/editproduct/${row.id}`}>
@@ -266,69 +300,125 @@ const [category,setcategory]=useState([])
   return (
     <Layout>
       <div className="col-12 stretch-card container-fluid">
-  
-          <h2 className="heading">Product</h2>
-     
-       
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                gap: "20px",
-              }}
-            >
-              <div style={{ color: "gray", fontWeight: "bold" }}>
-                <p className="">{products?.length} products</p>
-              </div>
-              <div
-                style={{ display: "flex", flexDirection: "row", gap: "10px" }}
-              >
-                 <div><button onClick={exportToExcel} className="me-2 btn btn-dark">Export to Excel</button></div>
-                 <div><Link
-                  to={`/editproduct`}
-                  className="btn"
-                  style={{
-                    backgroundColor: "#D93D6E",
-                    color: "white",
-                    width: "200px",
-                  }}
-                >
-                  Add Product
-                </Link></div>
-                <div>
-                <input
-                  type="text"
-                  className="w-30 form-control"
-                  placeholder="Search Product"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                /></div>
-              </div>
-            </div>
-            <div className="table-responsive">
-              <DataTable
-                // title="Category"
-                columns={columns}
-                data={filteredProducts}
-                fixedHeader
-                pagination
-                highlightOnHover
-                subHeader
+
+      {showModal && (
+        <>
+        <div className="modal-backdrop fade show"></div>
+        <div className={`modal  fade ${showModal ? 'show' : ''}`} style={{ display: showModal ? 'block' : 'none' }} tabIndex="-1" role="dialog">
+        <div className="modal-dialog" role="document">
+          <div className="modal-content"  style={{width:"700px", height:"600px"}}>
+            <div className="modal-header">
+              <h4 className="modal-title">Sync Summary</h4>
+             
+              <button type="button" className="btn-close" onClick={() => setShowModal(false)} aria-label="Close">
                 
-                // onRowClicked={handleRowClick}
-                // subHeaderComponent={
-                //   <input
-                //     type="text"
-                //     className="w-25 form-control"
-                //     placeholder="Search Category"
-                //     value={search}
-                //     onChange={(e) => setSearch(e.target.value)}
-                //   />
-                // }
-              />
+              </button>
+            </div>
+            <div className="modal-body"  style={{width:"700px", height:"600px", overflow: "auto"}}>
+            <div className="text-black fw-bolder mb-3">
+              <span className="me-3">{syncResults && Array.isArray(syncResults.created) && (
+                `Created ${syncResults.created.length} Product(s)`
+              )} </span>
+              <span>
+              {syncResults && Array.isArray(syncResults.updated) && (
+                `Updated ${syncResults.updated.length} Product(s)`
+              )}</span></div>
+      <hr/>
+            {syncResults && Array.isArray(syncResults.created) && syncResults.created.length >0 && (
+            <div>
+              <u><h6>Created Products List:</h6></u>
+              <ul>
+                {syncResults.created.map((item, index) => (
+                  <li key={item}>{index + 1}. {item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {syncResults && Array.isArray(syncResults.updated) && syncResults.updated.length >0 && (
+            <div>
+              <u><h6>Updated Products List:</h6></u>
+              <ul>
+                {syncResults.updated.map((item, index) => (
+                 <li key={item}>{index + 1}. {item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Close</button>
             </div>
           </div>
-        
+        </div>
+      </div>
+      </>
+      )}
+
+        <h2 className="heading">Product</h2>
+
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: "20px",
+          }}
+        >
+          <div style={{ color: "gray", fontWeight: "bold" }}>
+            <p className="">{products?.length} products</p>
+          </div>
+          <div
+            style={{ display: "flex", flexDirection: "row", gap: "10px" }}
+          >
+            <div><button onClick={handleSyncClick} className="me-2 btn btn-dark" disabled={isLoading}>{isLoading ? 'Syncing...' : 'Sync with IQ'}</button></div>
+            <div><button onClick={exportToExcel} className="me-2 btn btn-dark">Export to Excel</button></div>
+            <div><Link
+              to={`/editproduct`}
+              className="btn"
+              style={{
+                backgroundColor: "#D93D6E",
+                color: "white",
+                width: "200px",
+              }}
+            >
+              Add Product
+            </Link></div>
+            <div>
+              <input
+                type="text"
+                className="w-30 form-control"
+                placeholder="Search Product"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              /></div>
+          </div>
+        </div>
+        <div className="table-responsive">
+          <DataTable
+            // title="Category"
+            columns={columns}
+            data={filteredProducts}
+            fixedHeader
+            pagination
+            highlightOnHover
+            subHeader
+
+          // onRowClicked={handleRowClick}
+          // subHeaderComponent={
+          //   <input
+          //     type="text"
+          //     className="w-25 form-control"
+          //     placeholder="Search Category"
+          //     value={search}
+          //     onChange={(e) => setSearch(e.target.value)}
+          //   />
+          // }
+          />
+        </div>
+      </div>
+
+     
+
     </Layout>
   );
 };

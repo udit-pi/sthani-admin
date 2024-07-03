@@ -12,6 +12,9 @@ let initialState = {
   limit: 10,
   totalPages: 1,
   totalResults: 1,
+  syncResults: null, 
+  isLoading: false,
+  error: null
 
 };
 
@@ -113,38 +116,71 @@ export const updateProduct = createAsyncThunk(
   }
 );
 
+export const syncProductsWithIQ = createAsyncThunk(
+  "product/syncProductsWithIQ",
+  async (_, thunkAPI) => {
+    try {
+      const response = await ProductService.syncProductsIQ();
+     // console.log("Response from syncProductsIQ:", response);  // Ensure you're logging the right response
+
+      // Check for response success status
+      if (response.success) {
+        thunkAPI.dispatch(setMessage('Products synced successfully'));
+        // Return the data part directly from the response
+        return response.data;
+      } else {
+        // Handle non-successful responses by dispatching a message and rejecting with value
+        const errMsg = response.message || 'Failed to sync products';
+        thunkAPI.dispatch(setMessage(errMsg));
+        return thunkAPI.rejectWithValue(errMsg);
+      }
+    } catch (error) {
+      // Detailed error handling and logging
+      let errMsg = 'Unknown error syncing products';
+      if (error.response && error.response.data) {
+        errMsg = error.response.data.message || JSON.stringify(error.response.data, null, 2);
+      } else if (error.message) {
+        errMsg = error.message;
+      }
+      console.error("Sync Error:", errMsg);
+      thunkAPI.dispatch(setMessage(errMsg));
+      return thunkAPI.rejectWithValue(errMsg);
+    }
+  }
+);
+
 
 
 const productSlice = createSlice({
   name: 'product',
   initialState,
   reducers: {},
-  extraReducers(builder) {
-
-    builder.addCase(fetchAllProducts.fulfilled, (state, action) => {
-      //  console.log(action.payload)
-      state.products = action.payload;
-      //  state.limit = action.payload.limit;
-      //  state.page = action.payload.page;
-      //  state.totalPages = action.payload.totalPages;
-      //  state.totalResults = action.payload.totalResults
-
-    })
-
-    builder.addCase(fetchProductById.fulfilled, (state, action) => {
-      //  console.log(action.payload)
-      state.product = action.payload;
-      //  state.limit = action.payload.limit;
-      //  state.page = action.payload.page;
-      //  state.totalPages = action.payload.totalPages;
-      //  state.totalResults = action.payload.totalResults
-
-    })
-
-
-
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchAllProducts.fulfilled, (state, action) => {
+        state.products = action.payload;
+      })
+      .addCase(fetchProductById.fulfilled, (state, action) => {
+        state.product = action.payload;
+      })
+      .addCase(syncProductsWithIQ.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+        state.syncResults = null;  // Reset sync results on new sync
+      })
+      .addCase(syncProductsWithIQ.fulfilled, (state, action) => {
+        state.syncResults = action.payload;  // Expect action.payload to contain { created, updated }
+        state.isLoading = false;
+      })
+      .addCase(syncProductsWithIQ.rejected, (state, action) => {
+        state.error = action.payload;  // Error message or object
+        state.isLoading = false;
+        state.syncResults = null;  // Ensure clean state on error
+      });
   }
-})
+});
+
+
 export const getAllProducts = (state) => state.product.products;
 export const getProduct = (state) => state.product.product;
 export default productSlice.reducer
