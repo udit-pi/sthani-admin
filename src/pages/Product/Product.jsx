@@ -242,12 +242,12 @@ const Product = () => {
       sortable: true,
       grow: 0.75,
     },
-    {
-      name: "Synced with IQ",
-      selector: (row) => row.isSyncedWithIQ === true ? "Yes" : "No",
-      sortable: true,
-      grow: 0.75,
-    },
+    // {
+    //   name: "Synced with IQ",
+    //   selector: (row) => row.isSyncedWithIQ === true ? "Yes" : "No",
+    //   sortable: true,
+    //   grow: 0.75,
+    // },
     // {
     //   name: "Variants",
     //   selector: (row) =>row.product_variants.length,
