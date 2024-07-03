@@ -123,7 +123,7 @@ const OrderDetails = () => {
                                 <img src={`${item.image}`} style={{ width: '50px', marginRight: '10px' }} />
                                 <strong>{item.name} - {item.variant.name} </strong> (Qty:{item.quantity} Price: AED {item.price})
                               </div>
-                              <div>AED {item.total.toFixed(2)}</div>
+                              <div>AED {item.total}</div>
                             </div>
                           </li>
                         ))}
@@ -138,7 +138,7 @@ const OrderDetails = () => {
                       <h5>Totals</h5>
                       <ul className="list-group list-group-flush mt-4">
                         <li className="list-group-item text-end">
-                          <strong>Subtotal:</strong> <span style={{ width: "120px", display: "inline-block" }}>AED {order.subtotal.toFixed(2)}</span>
+                          <strong>Subtotal:</strong> <span style={{ width: "120px", display: "inline-block" }}>AED {order.subtotal}</span>
                         </li>
                         <li className="list-group-item text-end">
                           <strong>Shipping:</strong> <span style={{ width: "120px", display: "inline-block" }}>AED {order.shippingAmount?.toFixed(2) || 0}</span>
@@ -146,11 +146,11 @@ const OrderDetails = () => {
 
                         {order.discountAmount > 0 &&
                           <li className="list-group-item text-end">
-                            <strong>Discount: (Code: {order.discountCode})</strong> <span style={{ width: "120px", display: "inline-block" }}>AED -{order.discountAmount.toFixed(2)}</span>
+                            <strong>Discount: (Code: {order.discountCode})</strong> <span style={{ width: "120px", display: "inline-block" }}>AED -{order.discountAmount}</span>
                           </li>
                         }
                         <li className="list-group-item text-end">
-                          <strong>Total:</strong> <span style={{ width: "120px", display: "inline-block" }}>AED {order.total.toFixed(2)}</span>
+                          <strong>Total:</strong> <span style={{ width: "120px", display: "inline-block" }}>AED {order.total}</span>
                         </li>
                       </ul>
                     </div>
@@ -203,7 +203,7 @@ const OrderDetails = () => {
                       <li key={index}>
                         <div className='card p-3 mb-2 col-6' >
                           <div className='row'>
-                            <div className='col-auto'><strong>{formatDateUAE(log.timestamp)}:</strong></div>
+                            <div className='col-auto'><strong>{log.timestamp}:</strong></div>
                             <div className='col-6'> {log.status}</div>
                           </div>
                         
