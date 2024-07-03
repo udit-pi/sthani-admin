@@ -23,11 +23,17 @@ const deleteOrder = async (id) => {
   return res.data;
 };
 
+const createOrderInIQ = async (orderId) => {
+  const res = await axiosInstance.post(`${API_URL}${orderId}/createIQOrder`);
+  return res.data;
+};
+
 const OrderService = {
   getOrders,
   getOrderById,
   updateOrderStatus,
   deleteOrder,
+  createOrderInIQ,
 };
 
 export default OrderService;

@@ -21,6 +21,12 @@ export const deleteOrder = createAsyncThunk('orders/deleteOrder', async (id) => 
   return await OrderService.deleteOrder(id);
 });
 
+export const createIQOrder = createAsyncThunk('orders/createIQOrder', async (orderId) => {
+  
+  return await OrderService.createOrderInIQ(orderId);
+});
+
+
 const orderSlice = createSlice({
   name: 'orders',
   initialState: {
@@ -65,6 +71,18 @@ const orderSlice = createSlice({
       })
       .addCase(updateOrderStatus.rejected, (state, action) => {
         toast.error('Failed to update order status');
+      })
+      .addCase(createIQOrder.pending, (state) => {
+        state.creatingIQOrder = true;
+      })
+      .addCase(createIQOrder.fulfilled, (state) => {
+        state.creatingIQOrder = false;
+        state.IQOrderCreated = true;
+        toast.success('Order created in IQ Fulfillment successfully!');
+      })
+      .addCase(createIQOrder.rejected, (state, action) => {
+        state.creatingIQOrder = false;
+        toast.error(`Failed to create order in IQ Fulfillment: ${action.payload}`);
       });
   },
 });

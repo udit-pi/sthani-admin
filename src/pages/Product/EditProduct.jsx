@@ -193,6 +193,7 @@ const EditProductNew = () => {
         media: product.media || [],
         files: [],
         options: [],
+        isSyncedWithIQ: product.isSyncedWithIQ || false
       };
 
       console.log('Initial Values');
@@ -206,6 +207,13 @@ const EditProductNew = () => {
       //console.error('Failed to fetch product details:', error);
       toast.error('Error fetching product details');
     }
+
+
+    const syncStatus = product.lastSyncWithIQ
+    ? `Synced with IQ on: ${new Date(product.lastSyncWithIQ).toLocaleString()}`
+    : "Not Synced with IQ";
+
+
   };
 
 
@@ -219,7 +227,7 @@ const EditProductNew = () => {
     const data = {
       ...values,
       media: mediaItems,
-      categories: values.categories.map((cat) => cat.value),
+      categories: values.categories.map((cat) => cat.value)
     };
 
 
