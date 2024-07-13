@@ -63,7 +63,28 @@ const EditProductNew = () => {
 
   const [mediaItems, setMediaItems] = useState([]);
 
+  const [productTags, setProductTags] = useState([]); // Holds the tags
+  const [tagInput, setTagInput] = useState(''); // Holds the current input value
 
+  const handleInputChange = (e) => {
+    setTagInput(e.target.value);
+    if (e.target.value.includes(',')) { // Split tags on comma
+      const tags = e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag && !productTags.includes(tag));
+      setProductTags([...productTags, ...tags]);
+      setTagInput(''); // Reset input field
+    }
+  };
+
+  const handleAddTag = () => {
+    if (tagInput && !productTags.includes(tagInput.trim())) {
+      setProductTags([...productTags, tagInput.trim()]);
+      setTagInput(''); // Clear the input after adding a tag
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove) => {
+    setProductTags(productTags.filter(tag => tag !== tagToRemove));
+  };
 
   const handleDelete = () => {
     // Use the browser's confirm dialog to confirm deletion
@@ -102,8 +123,8 @@ const EditProductNew = () => {
     files: [],
     options: [],
     productVariants: [],
+    productTags: [],
   };
-
 
 
 
@@ -146,17 +167,13 @@ const EditProductNew = () => {
   const fetchProduct = async () => {
     try {
 
-
-
-
-
       const response = await dispatch(fetchProductById({ id })).unwrap();
       const { product } = response;
 
       console.log('Fetched Product Data');
       console.log(product);
 
-      
+
       const productCategories = product.categories ? categories.filter(cat => product.categories.includes(cat.value)) : []
       console.log(productCategories)
       setSelectedCategories(productCategories);
@@ -193,7 +210,9 @@ const EditProductNew = () => {
         media: product.media || [],
         files: [],
         options: [],
-        isSyncedWithIQ: product.isSyncedWithIQ || false
+        isSyncedWithIQ: product.isSyncedWithIQ || false,
+        productTags: product.productTags || [],
+
       };
 
       console.log('Initial Values');
@@ -202,6 +221,7 @@ const EditProductNew = () => {
       setInitialValues(initialValues);
       setFormData(product);
       setMediaItems(product.media || []);
+      setProductTags(product.productTags || []);
 
     } catch (error) {
       //console.error('Failed to fetch product details:', error);
@@ -210,8 +230,8 @@ const EditProductNew = () => {
 
 
     const syncStatus = product.lastSyncWithIQ
-    ? `Synced with IQ on: ${new Date(product.lastSyncWithIQ).toLocaleString()}`
-    : "Not Synced with IQ";
+      ? `Synced with IQ on: ${new Date(product.lastSyncWithIQ).toLocaleString()}`
+      : "Not Synced with IQ";
 
 
   };
@@ -227,6 +247,7 @@ const EditProductNew = () => {
     const data = {
       ...values,
       media: mediaItems,
+      productTags: productTags,
       categories: values.categories.map((cat) => cat.value)
     };
 
@@ -314,7 +335,7 @@ const EditProductNew = () => {
 
                     }) => (
                       <>
-                     
+
                         {debugMode && <div><pre>{JSON.stringify(values, null, 2)}</pre></div>}
                         {debugMode && <pre>{JSON.stringify(values.categories)}</pre>}
                         {debugMode && <pre>{JSON.stringify(categories)}</pre>}
@@ -476,6 +497,33 @@ const EditProductNew = () => {
                                 </div>
                               </div>
 
+                              {/* Tag Input Field */}
+                              <div className="card mb-3">
+                                <div className="card-body">
+                                  <label htmlFor="tagInput" className="form-label">Product Tags</label>
+                                  <div className="input-group mb-3">
+                                    <input
+                                      type="text"
+                                      className="form-control"
+                                      id="tagInput"
+                                      placeholder="Enter tags"
+                                      value={tagInput}
+                                      onChange={handleInputChange}
+                                      onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()} // Prevent form submission on Enter
+                                    />
+                                    <button className="btn btn-outline-primary" type="button" onClick={handleAddTag}>Add Tag</button>
+                                  </div>
+                                  <div className="d-flex flex-wrap">
+                                    {productTags.map((tag, index) => (
+                                      <div key={index} className="badge bg-primary m-1">
+                                        {tag} <span className="badge bg-danger ms-1" onClick={() => handleRemoveTag(tag)} style={{ cursor: 'pointer' }}>×</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                              
+
                               {/* Variants */}
                               <div className="card mb-3">
                                 <div className="card-body">
@@ -583,7 +631,7 @@ const EditProductNew = () => {
                                       </small>
                                     )}
 
-                                  
+
                                   </div>
 
                                   {/* Upsell */}
