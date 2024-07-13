@@ -254,8 +254,8 @@ const EditProductNew = () => {
 
 
 
-    console.log(data);
-    console.log("------------")
+    //console.log(data);
+    //console.log("------------")
     //  console.log(errors)
 
     try {
@@ -515,8 +515,8 @@ const EditProductNew = () => {
                                   </div>
                                   <div className="d-flex flex-wrap">
                                     {productTags.map((tag, index) => (
-                                      <div key={index} className="badge bg-primary m-1">
-                                        {tag} <span className="badge bg-danger ms-1" onClick={() => handleRemoveTag(tag)} style={{ cursor: 'pointer' }}>×</span>
+                                      <div key={index} className="badge bg-dark m-1">
+                                        {tag} <span className="ms-1" onClick={() => handleRemoveTag(tag)} style={{ cursor: 'pointer' }}>×</span>
                                       </div>
                                     ))}
                                   </div>
