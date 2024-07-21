@@ -8,6 +8,7 @@ import {
   getAllCategories,
   fetchAllCategories,
   deleteCategory,
+  editCategory,
 } from "../../features/category/categorySlice";
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 // import { faCircleInfo } from '@fortawesome/free-solid-svg-icons'
@@ -91,6 +92,28 @@ const Category = () => {
       });
   };
 
+  const handleFeaturedChange = (id, isFeatured) => {
+    // Optimistically update the local state
+    setFilteredCategories(prevState =>
+      prevState.map(category =>
+        category.id === id ? { ...category, is_featured: isFeatured } : category
+      )
+    );
+    // Dispatch the action to update the Redux state
+    dispatch(editCategory({ id, updateData: { is_featured: isFeatured } }));
+  };
+
+  const handleSortOrderChange = (id, newSortOrder) => {
+    // Optimistically update the local state
+    setFilteredCategories(prevState =>
+      prevState.map(category =>
+        category.id === id ? { ...category, sort_order: newSortOrder } : category
+      )
+    );
+    // Dispatch the action to update the Redux state
+    dispatch(editCategory({ id, updateData: { sort_order: newSortOrder } }));
+  };
+
   // filteredCategories.forEach((cat, index) => {
   //   cat.serial = index + 1;
   // });
@@ -114,7 +137,7 @@ const Category = () => {
       name: "Icon",
       cell: (row) => (
         <>
-          {row.icon ? (
+          {row.icon ? ( 
             <img
               src={`${mediaFolder}/${row.icon}`}
               alt="Icon"
@@ -144,10 +167,28 @@ const Category = () => {
       grow:2,
     },
     {
-      name: "Collection list",
-      selector: (row) => row.is_featured===true ? 'Yes' : 'No',
+      name: 'Featured',
+      selector: row => row.is_featured,
       sortable: true,
-      grow:1
+      cell: row => (
+        <input
+          type="checkbox"
+          checked={row.is_featured}
+          onChange={(e) => handleFeaturedChange(row.id, e.target.checked)}
+        />
+      ),
+    },
+    {
+      name: 'Sort Order',
+      cell: row => row.is_featured && (
+        <input
+          type="number"
+          className="form-control form-control-sm"
+          style={{ width: '60px' }}
+          value={row.sort_order}
+          onChange={(e) => handleSortOrderChange(row.id, parseInt(e.target.value))}
+        />
+      ),
     },
 
     {
