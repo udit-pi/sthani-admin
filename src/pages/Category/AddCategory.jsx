@@ -30,6 +30,7 @@ const AddCategory = () => {
     banner: " ",
     icon: " ",
     slide_show:[] ,
+    tag: ''
   };
   const catOptions = [];
  
@@ -155,6 +156,24 @@ const AddCategory = () => {
                       {errors.parent_category && (
                         <small className="text-danger">
                           {errors.parent_category}
+                        </small>
+                      )}
+                    </div>
+
+                    <div className="mb-3">
+                      <label htmlFor="name" className="form-label">
+                        Category Tag (Visible on Category List)
+                      </label>
+                      <Field
+                        type="text"
+                        className="form-control"
+                        id="tag"
+                        name="tag"
+                        aria-describedby="nameHelp"
+                      ></Field>
+                      {errors.tag && (
+                        <small className="text-danger">
+                          {errors.tag}
                         </small>
                       )}
                     </div>

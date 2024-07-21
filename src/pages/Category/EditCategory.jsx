@@ -38,7 +38,8 @@ const EditCategory = ({ history }) => {
     description: "",
     icon: "",
     slide_show: [],
-    parent_category: ""
+    parent_category: "",
+    tag: ""
   };
 
   const imageUrlBanner = `${process.env.REACT_APP_MEDIA_URL}/${category.banner}`;
@@ -224,6 +225,24 @@ const EditCategory = ({ history }) => {
                       {errors.parent_category && (
                         <small className="text-danger">
                           {errors.parent_category}
+                        </small>
+                      )}
+                    </div>
+
+                    <div className="mb-3">
+                      <label htmlFor="name" className="form-label">
+                        Category Tag (Visible on Category List)
+                      </label>
+                      <Field
+                        type="text"
+                        className="form-control"
+                        id="tag"
+                        name="tag"
+                        aria-describedby="nameHelp"
+                      ></Field>
+                      {errors.tag && (
+                        <small className="text-danger">
+                          {errors.tag}
                         </small>
                       )}
                     </div>
