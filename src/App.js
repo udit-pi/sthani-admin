@@ -13,12 +13,15 @@ import Category from "./pages/Category/Category";
 import ShowCategory from "./pages/Category/ShowCategory";
 import EditCategory from "./pages/Category/EditCategory";
 import AddCategory from "./pages/Category/AddCategory";
+import CategoryImport from "./pages/Category/CategoryImport";
 import { ToastContainer } from "react-toastify";
 import Brand from "./pages/Brand/Brand";
 import AddBrand from "./pages/Brand/AddBrand";
 import ShowBrand from "./pages/Brand/ShowBrand";
 import EditBrand from "./pages/Brand/EditBrand";
+import BrandImport from "./pages/Brand/BrandImport";
 import Product from "./pages/Product/Product";
+import ProductImport from "./pages/Product/ProductImport";
 import ShowProduct from "./pages/Product/ShowProduct";
 import AddProduct from "./pages/Product/AddProduct";
 import Properties from "./pages/Properties/Properties";
@@ -59,12 +62,14 @@ function App() {
             <Route exact path="/addcategory" element={<AddCategory />} />
             <Route exact path="/showcategory/:id" element={<ShowCategory />} />
             <Route path="/editcategory/:id" element={<EditCategory />} />
+            <Route exact path="/categoryimport" element={<CategoryImport />} />
 
             {/* Brand Routes */}
             <Route exact path="/brand" element={<Brand />} />
             <Route exact path="/addbrand" element={<AddBrand />} />
             <Route exact path="/showbrand/:id" element={<ShowBrand />} />
             <Route exact path="/editbrand/:id" element={<EditBrand />} />
+            <Route exact path="/brandimport" element={<BrandImport />} />
 
             {/* Product Routes */}
             <Route exact path="/product" element={<Product />} />
@@ -72,6 +77,7 @@ function App() {
             <Route exact path="/addproduct" element={<AddProduct />} />     
             {/* <Route exact path="/editproduct/:id" element={<EditProduct />} /> */}
             <Route exact path="/editproduct/:id?" element={<EditProduct />} />
+            <Route exact path="/productimport" element={<ProductImport />} />
 
              {/* Product Routes */}
             <Route exact path="/properties" element={<Properties />} />

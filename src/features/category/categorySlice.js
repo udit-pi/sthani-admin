@@ -56,11 +56,9 @@ export const fetchCategoryById = createAsyncThunk(
 
 export const addCategory = createAsyncThunk(
   "category/addCategory",
-  async (catData,thunkAPI) => {
+  async (catData, thunkAPI) => {
     try {
-    //  console.log(catData)
       const res = await CategoryService.saveCategory(catData);
-    //   thunkAPI.dispatch(setMessage(data.message));
       return res;
     } catch (error) {
       const message =
@@ -69,8 +67,7 @@ export const addCategory = createAsyncThunk(
           error.response.data.message) ||
         error.message ||
         error.toString();
-      thunkAPI.dispatch(setMessage(message));
-      return thunkAPI.rejectWithValue();
+      return thunkAPI.rejectWithValue(message);
     }
   }
 );
@@ -119,55 +116,67 @@ export const deleteCategory = createAsyncThunk(
   }
 );
 
+// Define the thunk for validating and importing categories
+export const validateCategoriesImport = createAsyncThunk('category/validateCategoriesImport', async ({ file, shouldImport = false }, thunkAPI) => {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await CategoryService.validateCategories(formData, shouldImport);
+    
+
+    return response;
+  } catch (error) {
+    const message =
+      (error.response && error.response.data && error.response.data.message) ||
+      error.message ||
+      error.toString();
+    thunkAPI.dispatch(setMessage(message));
+    return thunkAPI.rejectWithValue(message);
+  }
+});
 
 const categorySlice = createSlice({
-    name: 'category',
-    initialState,
-    reducers: { },
-    extraReducers(builder) {
-       
-        builder.addCase(fetchAllCategories.fulfilled, (state, action) => {
-            //  console.log(action.payload)
-         state.categories =  action.payload;
-        
-        //  state.limit = action.payload.limit;
-        //  state.page = action.payload.page;
-        //  state.totalPages = action.payload.totalPages;
-        //  state.totalResults = action.payload.totalResults
-
-        })
-
-        builder.addCase(addCategory.fulfilled, (state, action) => {
-          //  console.log(action.payload)
-       state.category =  action.payload;
-      //  state.limit = action.payload.limit;
-      //  state.page = action.payload.page;
-      //  state.totalPages = action.payload.totalPages;
-      //  state.totalResults = action.payload.totalResults
-
+  name: 'category',
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchAllCategories.fulfilled, (state, action) => {
+        state.categories = action.payload;
       })
-
-      
-      builder.addCase(fetchCategoryById.fulfilled, (state, action) => {
-        //  console.log(action.payload)
-     state.category =  action.payload;
-    //  state.limit = action.payload.limit;
-    //  state.page = action.payload.page;
-    //  state.totalPages = action.payload.totalPages;
-    //  state.totalResults = action.payload.totalResults
-
+      .addCase(addCategory.fulfilled, (state, action) => {
+        state.category = action.payload;
       })
-      builder.addCase(editCategory.fulfilled, (state, action) => {
-        //  console.log(action.payload)
-     state.category =  action.payload;
-    //  state.limit = action.payload.limit;
-    //  state.page = action.payload.page;
-    //  state.totalPages = action.payload.totalPages;
-    //  state.totalResults = action.payload.totalResults
-
+      .addCase(addCategory.rejected, (state, action) => {
+        state.error = action.payload; // Set the error state
       })
-      
-    }
-})
+      .addCase(fetchCategoryById.fulfilled, (state, action) => {
+        state.category = action.payload;
+      })
+      .addCase(editCategory.fulfilled, (state, action) => {
+        state.category = action.payload;
+      })
+      .addCase(validateCategoriesImport.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(validateCategoriesImport.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        if (action.meta.arg.shouldImport) {
+          state.importResults = action.payload.importSummary;
+        } else {
+          state.validationResults = action.payload.validationResults;
+          state.isValid = action.payload.isValid;
+        }
+      })
+      .addCase(validateCategoriesImport.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+      });
+  }
+});
+
 export const getAllCategories = (state) => state.category.categories;
+export const getCategoryError = (state) => state.category.error;
+
 export default categorySlice.reducer

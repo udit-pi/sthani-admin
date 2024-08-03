@@ -52,13 +52,17 @@ const AddCategory = () => {
 
   const handleSubmit = async (values) => {
 
-    console.log(values);
+    try {
     const res = await dispatch(addCategory(values)).unwrap();
-    if (res) {
+    
       toast.success('Category created successfully!')
-      navigate('/category')
+     // navigate('/category')
 
+    } catch(error) {
+      toast.error('Error Saving Category ==> '+error)
     }
+
+    
   }
 
 

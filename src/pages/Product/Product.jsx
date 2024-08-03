@@ -9,14 +9,11 @@ import {
   fetchAllCategories,
   deleteCategory,
 } from "../../features/category/categorySlice";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleInfo } from "@fortawesome/free-solid-svg-icons";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import { fetchAllProducts, syncProductsWithIQ } from "../../features/product/productSlice";
-import { Grow } from "@mui/material";
 import { fetchAllBrands, fetchBrandById, getBrand } from "../../features/brand/brandSlice";
-import * as XLSX from 'xlsx';
+import exportToExcel from '../../utils/exportToExcel'; 
+
 
 
 const mediaFolder = process.env.REACT_APP_MEDIA_URL;
@@ -132,6 +129,9 @@ const Product = () => {
     return brand ? brand.name : 'Unknown';
   };
 
+  const handleExport = () => {
+    exportToExcel(products, category);
+  };
 
   const getCategoryNames = (categoryIds) => {
     const names = categoryIds.map(id => {
@@ -141,35 +141,36 @@ const Product = () => {
     return names.join(', ');
   };
 
-  const exportToExcel = () => {
-    const data = products.map(product => ({
-      'Name': product.name,
-      'SKU': product.sku,
-      'Slug': product.slug,
-      'Short Description': product.description_short,
-      'Description': product.description,
-      'Weight': product.weight,
-      'Dimensions (LxWxH)': `${product.length}x${product.width}x${product.height}`,
-      'Minimum Quantity': product.quantity_min,
-      'Stock': product.stock,
-      'Price': product.price,
-      'Discounted Price': product.discounted_price,
-      'Cost': product.cost,
-      'Media': product.media.join(', '),
-      'Published': product.published,
-      'Upselling': product.is_upsell,
-      'Categories': product.categories.join(', '),
-      'Product Variants': product.product_variants.map(variant => `${variant.name}: ${variant.price}`).join(' | '),
-      'Additional Descriptions': product.additional_descriptions.map(desc => `${desc.label}: ${desc.value}`).join(' | ')
-    }));
+  // const exportToExcel = () => {
+  //   const data = products.map(product => ({
+  //     'Name': product.name,
+  //     'SKU': product.sku,
+  //     'Slug': product.slug,
+  //     'Short Description': product.description_short,
+  //     'Description': product.description,
+  //     'Weight': product.weight,
+  //     'Dimensions (LxWxH)': `${product.length}x${product.width}x${product.height}`,
+  //     'Minimum Quantity': product.quantity_min,
+  //     'Stock': product.stock,
+  //     'Price': product.price,
+  //     'Discounted Price': product.discounted_price,
+  //     'Cost': product.cost,
+  //     'Media': product.media.join(', '),
+  //     'Published': product.published,
+  //     'Upselling': product.is_upsell,
+  //     'Categories': product.categories.join(', '),
+  //     'Product Variants': product.product_variants.map(variant => `${variant.name}: ${variant.price}`).join(' | '),
+  //     'Additional Descriptions': product.additional_descriptions.map(desc => `${desc.label}: ${desc.value}`).join(' | ')
+  //   }));
 
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Products');
+  //   const worksheet = XLSX.utils.json_to_sheet(data);
+  //   const workbook = XLSX.utils.book_new();
+  //   XLSX.utils.book_append_sheet(workbook, worksheet, 'Products');
 
-    XLSX.writeFile(workbook, 'products.xlsx');
-  };
+  //   XLSX.writeFile(workbook, 'products.xlsx');
+  // };
 
+  
 
   const columns = [
     // {
@@ -371,7 +372,8 @@ const Product = () => {
             style={{ display: "flex", flexDirection: "row", gap: "10px" }}
           >
             <div><button onClick={handleSyncClick} className="me-2 btn btn-dark" disabled={isLoading}>{isLoading ? 'Syncing...' : 'Sync with IQ'}</button></div>
-            <div><button onClick={exportToExcel} className="me-2 btn btn-dark">Export to Excel</button></div>
+            <div><button onClick={handleExport} className="me-2 btn btn-dark">Export</button></div>
+            <div><Link to={`/productimport`} className="me-2 btn btn-dark">Import</Link></div>
             <div><Link
               to={`/editproduct`}
               className="btn"
