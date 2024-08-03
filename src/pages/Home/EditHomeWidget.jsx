@@ -44,15 +44,16 @@ const EditHomeWidget = () => {
   const [homeWidgets, setHomeWidgets] = useState([]);
   const [widgetPositions, setWidgetPositions] = useState([]);
   const [widget, setWidget] = useState({});
-  const [formData,setFormData] = useState({})
-  const [showSaveButton,setShowSaveButton] = useState(false);
-  const [fetchedId,setFecthedId] = useState([]);
-
+  const [formData, setFormData] = useState({})
+  const [showSaveButton, setShowSaveButton] = useState(false);
+  const [fetchedId, setFecthedId] = useState([]);
+  const [combinedOptions, setCombinedOptions] = useState([]);
 
   const initialValues = {
     placement_id: widget.placement_id,
     title: widget.title,
     widget_type: widget.widget_type,
+    items: widget.items || []
   };
 
   //   get brands
@@ -71,7 +72,7 @@ const EditHomeWidget = () => {
   const catOptions = [];
   const fetchCategory = async () => {
     const res = await dispatch(fetchAllCategories()).unwrap();
-      // console.log(res)
+
     setCategories(res);
     res?.map((cat) => {
       catOptions.push({ label: cat.name, value: cat.id });
@@ -83,22 +84,15 @@ const EditHomeWidget = () => {
   const prodOptions = [];
   const fetchProducts = async () => {
     const res = await dispatch(fetchAllProducts()).unwrap();
-    //  console.log(res)
+
     setProducts(res);
-    const featuredCategoryOptions = []
-    res?.map((prod) => {
+    res?.forEach((prod) => { // Use forEach for side effects
       prodOptions.push({ label: prod.name, value: prod.id });
-     
-      // categories?.map(cat => {
-      //   prod.categories.includes(cat.id)
-      //   featuredCategoryOptions.push({ label: prod.name, value: prod.id });
-      // })
     });
 
-    setProdOption(prodOptions);
+    
 
-   
-    setFeaturedCategoryProducts(featuredCategoryOptions);
+    setProdOption(prodOptions); // Set the state with the populated array
   };
 
   let positions = [
@@ -135,70 +129,80 @@ const EditHomeWidget = () => {
 
       //   console.log('positions',positions)
     });
-  
+
   };
 
   const fetchWidget = async () => {
-    try {
-      const res = await dispatch(fetchWidgetById({ id })).unwrap();
-      // console.log(res);
-      setWidget(res);
-      if (res) {
-        positions.push({
-          name: `Position ${res.placement_id}`,
-          value: res.placement_id,
-        });
-        setWidgetPositions(positions);
-        setWidgetType(res.widget_type);
-        setShowItemForm(true);
-        setShowButton(true);
+    const res = await dispatch(fetchWidgetById({ id })).unwrap();
+    setWidget(res);
+    setFormData(res);
+    if (res) {
+      setWidgetPositions(prevPositions => [...prevPositions, { name: `Position ${res.placement_id}`, value: res.placement_id }]);
+      setWidgetType(res.widget_type);
+      setShowItemForm(true);
+      setShowButton(true);
+
+      // Ensure options are set based on initial values
+      if (res.widget_type === 'slideshow') {
+        setFecthedId(res.items?.map(item => item.id) || []);
+        setDestinationOptions(res.items?.map(item => {
+          
+          if (item.destination === 'product') return prodOption;
+          if (item.destination === 'category') return catOption;
+          if (item.destination === 'brand') return brandOption;
+          return [];
+        }) || []);
       }
-      const fetchedId = []
-      setFormData(res);
-       console.log(res);
-       if(res.widget_type === 'slideshow') {
-        
-        res.items?.map((item,index) => {
-          // if(item.destination === 'product') {
-            
-          //   setDestinationOptions(prodOption)
-          // }
-          // if(item.destination === 'brand') {
-          //   setDestinationOptions(brandOption)
-          // }
-          // if(item.destination === 'category') {
-          //   setDestinationOptions(catOption)
-          // }
-          fetchedId.push(item.id)
-        })
-       }
-       setFecthedId(fetchedId)
-       setDestinationOptions(prodOption)
-       
-       
-       
-    } catch (err) {
-      throw err;
     }
   };
 
+
+
+
+
   useEffect(() => {
-    fetchBrand();
-    fetchCategory();
-    fetchProducts();
+    const fetchAllData = async () => {
+      await fetchBrand();
+      await fetchCategory();
+      await fetchProducts();
+      
+    };
+
+    fetchAllData();
+  }, [dispatch]);
+
+  useEffect(() => {
+    const combined = [
+      ...brands.map(brand => ({ label: brand.name, value: brand.id, type: 'brand' })),
+      ...categories.map(category => ({ label: category.name, value: category.id, type: 'category' })),
+      ...products.map(product => ({ label: product.name, value: product.id, type: 'product' }))
+    ];
+    setCombinedOptions(combined);
+    
+    
+  }, [brands, categories, products]);
+
+ 
+  useEffect(() => {
+    console.log("combined initial", combinedOptions);
     fetchWidgets();
     fetchWidget();
-  }, [dispatch]);
-  console.log(destinationOptions)
+  }, [combinedOptions]);
+
+  
+
   const handleSubmit = async (values, { setSubmitting }) => {
     console.log("Submitting form with values:", values);
 
     setSubmitting(false);
 
-    const res = await dispatch(updateWidget({id,  values})).unwrap();
+    const res = await dispatch(updateWidget({ id, values })).unwrap();
+
     if (res) {
       toast.success("Widget updated successfully!");
-      navigate("/homePage");
+      //navigate("/homePage");
+    } else {
+      toast.error("Widget update Failed. Please ensure all fields are filled");
     }
   };
 
@@ -210,7 +214,7 @@ const EditHomeWidget = () => {
 
     // Show the button when a specific value is selected
     if (widgetType) {
-      widgetType !== 'featured_brand' ?  setShowSaveButton(true) : setShowSaveButton(false)
+      widgetType !== 'featured_brand' ? setShowSaveButton(true) : setShowSaveButton(false)
       setShowItemForm(true);
       setShowButton(true);
     } else {
@@ -249,11 +253,12 @@ const EditHomeWidget = () => {
     } else {
       setDestinationOptions([]);
     }
+
     setFieldValue(`items.${index}.destination`, e.target.value);
     setFieldValue(`items.${index}.id`, null); // Reset ID when destination changes
   };
 
-  
+
   const handleFeaturedCategoryChange = (e, setFieldValue, index) => {
     const featuredCategoryOptions = [];
     products?.map((prod) => {
@@ -268,7 +273,7 @@ const EditHomeWidget = () => {
 
   useEffect(() => {
 
-  },[featuredBrandProducts])
+  }, [featuredBrandProducts])
 
   const handleFeaturedBrandChange = (e, setFieldValue, index) => {
     const selectedBrandId = e.target.value;
@@ -294,7 +299,7 @@ const EditHomeWidget = () => {
 
   const handleSelectIdChange = (fieldName, selectedOption, setFieldValue) => {
     setFieldValue(fieldName, selectedOption.value);
-    console.log(selectedOption);
+
     // setDestinationId(selectedOption)
   };
 
@@ -370,50 +375,51 @@ const EditHomeWidget = () => {
 
   return (
     <Layout>
+      
       {/* <DndProvider backend={HTML5Backend}> */}
       <div className="col-12 stretch-card container-fluid">
-      <div style={{ marginBottom: '30px', display: "flex", alignItems: "center", gap: "20px", color: '#D93D6E' }}>
+        <div style={{ marginBottom: '30px', display: "flex", alignItems: "center", gap: "20px", color: '#D93D6E' }}>
           <FaArrowLeft size={20} cursor="pointer" onClick={goBack} />
           <h2 className="heading">Edit Widget</h2>
         </div>
-       
-          
-            <Formik
-              initialValues={formData}
-              validationSchema={addWidgetValidation}
-              enableReinitialize={true}
-              onSubmit={(values, { setSubmitting }) => {
-                handleSubmit(values, { setSubmitting });
-              }}
-            >
-              {({ values, errors, isSubmitting, setFieldValue, field }) => (
 
 
-                <Form>
+        <Formik
+          initialValues={formData}
+          validationSchema={addWidgetValidation}
+          enableReinitialize={true}
+          onSubmit={(values, { setSubmitting }) => {
+            handleSubmit(values, { setSubmitting });
+          }}
+        >
+          {({ values, errors, isSubmitting, setFieldValue, field }) => (
+
+
+            <Form>
 
               <div className="card">
-                        <div className="card-body">
-                                
-                                <div className="mb-3">
-                                  <label htmlFor="placement_id" className="form-label">
-                                    Placement:
-                                  </label>
-                                  <Field
-                                    as="select"
-                                    id="placement_id"
-                                    name="placement_id"
-                                    className="form-select"
-                                    style={{ width: '30%' }}
-                                  >
-                                    <option value="">Select Position</option>
-                                    {widgetPositions?.map((pos) => {
-                                      return (
-                                        <option value={pos.value} key={pos.value}>
-                                          {pos.name}
-                                        </option>
-                                      );
-                                    })}
-                                    {/* <option value="p1">Position 1</option>
+                <div className="card-body">
+
+                  <div className="mb-3">
+                    <label htmlFor="placement_id" className="form-label">
+                      Placement:
+                    </label>
+                    <Field
+                      as="select"
+                      id="placement_id"
+                      name="placement_id"
+                      className="form-select"
+                      style={{ width: '30%' }}
+                    >
+                      <option value="">Select Position</option>
+                      {widgetPositions?.map((pos) => {
+                        return (
+                          <option value={pos.value} key={pos.value}>
+                            {pos.name}
+                          </option>
+                        );
+                      })}
+                      {/* <option value="p1">Position 1</option>
                                     <option value="p2">Position 2</option>
                                     <option value="p3">Position 3</option>
                                     <option value="p4">Position 4</option>
@@ -423,189 +429,191 @@ const EditHomeWidget = () => {
                                     <option value="p8">Position 8</option>
                                     <option value="p9">Position 9</option>
                                     <option value="p10">Position 10</option> */}
-                                    {/* Add more options as needed */}
-                                  </Field>
-                                  {/* <ErrorMessage name="placement_id" component="div" /> */}
-                                  {errors.placement_id && (
-                                    <p className="text-danger">{errors.placement_id}</p>
-                                  )}
-                                </div>
-                                <div className="mb-3">
-                                  <label htmlFor="title" className="form-label">
-                                    Title
-                                  </label>
-                                  <Field
-                                    type="text"
-                                    className="form-control"
-                                    id="title"
-                                    name="title"
-                                    aria-describedby="titleHelp"
-                                    style={{ width: '50%' }}
-                                  ></Field>
-                                  {errors.title && (
-                                    <p className="text-danger">{errors.title}</p>
-                                  )}
-                                </div>
-                                <div className="mb-3">
-                                  <label htmlFor="subtitle" className="form-label">
-                                    Subtitle
-                                  </label>
-                                  <Field
-                                    type="text"
-                                    className="form-control"
-                                    id="subtitle"
-                                    name="subtitle"
-                                    aria-describedby="subtitleHelp"
-                                    style={{ width: '50%' }}
-                                  ></Field>
-                                  {errors.subtitle && (
-                                    <p className="text-danger">{errors.subtitle}</p>
-                                  )}
-                                </div>
-                                
+                      {/* Add more options as needed */}
+                    </Field>
+                    {/* <ErrorMessage name="placement_id" component="div" /> */}
+                    {errors.placement_id && (
+                      <p className="text-danger">{errors.placement_id}</p>
+                    )}
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="title" className="form-label">
+                      Title
+                    </label>
+                    <Field
+                      type="text"
+                      className="form-control"
+                      id="title"
+                      name="title"
+                      aria-describedby="titleHelp"
+                      style={{ width: '50%' }}
+                    ></Field>
+                    {errors.title && (
+                      <p className="text-danger">{errors.title}</p>
+                    )}
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="subtitle" className="form-label">
+                      Subtitle
+                    </label>
+                    <Field
+                      type="text"
+                      className="form-control"
+                      id="subtitle"
+                      name="subtitle"
+                      aria-describedby="subtitleHelp"
+                      style={{ width: '50%' }}
+                    ></Field>
+                    {errors.subtitle && (
+                      <p className="text-danger">{errors.subtitle}</p>
+                    )}
+                  </div>
 
-                      
 
-                                <div className="mb-3">
-                                  <label htmlFor="widget_type" className="form-label">
-                                    Widget Type:
-                                  </label>
-                                  <Field
-                                    as="select"
-                                    id="widget_type"
-                                    name="widget_type"
-                                    className="form-select"
-                                    onChange={(e) => {
-                                      handleWidgetChange(e);
-                                      setFieldValue("widget_type", e.target.value);
-                                      setFieldValue("items", []);
-                                    }}
-                                    style={{ width: '50%' }}
-                                  >
-                                    <option value="">Select Widget</option>
-                                    <option value="slideshow">Slide Show</option>
-                                    <option value="categories">Categories</option>
-                                    <option value="brands">Brands</option>
-                                    <option value="products">Products</option>
-                                    <option value="featured_categories">
-                                      Featured Categories
-                                    </option>
-                                    <option value="featured_brand">Featured Brand</option>
-                                  </Field>
-                                  {/* <ErrorMessage name="widget_type" component="div" /> */}
-                                  {errors.widget_type && (
-                                    <p className="text-danger">{errors.widget_type}</p>
-                                  )}
-                                </div>
-                                </div>
-                      </div>
 
-                      <div className="card">
-                        <div className="card-body">
-                                {/* items selection according to widget selection */}
-                                <>
-                                  {widgetType === "slideshow" && showItemForm && (
-                                    <SlideShowWidget
-                                    
-                                      values={values}
-                                      formData={formData}
-                                      brands={brands}
-                                      setFieldValue={setFieldValue}
-                                      onDragEnd={onDragEnd}
-                                      showButton={showButton}
-                                      destinationOptions={destinationOptions}
-                                      handleAddItem={handleAddItem}
-                                      handleSelectIdChange={handleSelectIdChange}
-                                      handleDestinationChange={handleDestinationChange}
-                                      fetchedId = {fetchedId}
-                                    />
-                                  )}
-                                  {widgetType === "categories" && showItemForm && (
-                                    <CategoryWidget
-                                      values={values}
-                                      setFieldValue={setFieldValue}
-                                      onDragEnd={onDragEnd}
-                                      showButton={showButton}
-                                      categories={categories}
-                                      handleAddItem={handleAddItem}
-                                    />
-                                  )}
-                                  {widgetType === "brands" && showItemForm && (
-                                    <BrandWidget
-                                      values={values}
-                                      setFieldValue={setFieldValue}
-                                      onDragEnd={onDragEnd}
-                                      showButton={showButton}
-                                      brands={brands}
-                                      handleAddItem={handleAddItem}
-                                    />
-                                  )}
 
-                                  {widgetType === "products" && showItemForm && (
-                                    <ProductWidget
-                                      values={values}
-                                      setFieldValue={setFieldValue}
-                                      onDragEnd={onDragEnd}
-                                      showButton={showButton}
-                                      productOptions={prodOption}
-                                      handleAddItem={handleAddItem}
-                                      handleSelectIdChange={handleSelectIdChange}
-                                    />
-                                  )}
-                                  {widgetType === "featured_brand" && showItemForm && (
-                                    <FeaturedBrand
-                                      values={values}
-                                      setFieldValue={setFieldValue}
-                                      onDragEnd={onDragEnd}
-                                      showButton={showButton}
-                                      productOptions={prodOption}
-                                      featuredBrandProducts={featuredBrandProducts}
-                                      brands={brands}
-                                      handleAddItem={handleAddItem}
-                                      handleFeaturedBrandChange={handleFeaturedBrandChange}
-                                    />
-                                  )}
-                                  {widgetType === "featured_categories" && showItemForm && (
-                                    <FeaturedCategories
-                                      values={values}
-                                      setFieldValue={setFieldValue}
-                                      onDragEnd={onDragEnd}
-                                      showButton={showButton}
-                                      productOptions={prodOption}
-                                      featuredCategoryProducts={featuredCategoryProducts}
-                                      categories={categories}
-                                      handleAddItem={handleAddItem}
-                                      handleFeaturedCategoryChange={
-                                        handleFeaturedCategoryChange
-                                      }
-                                    />
-                                  )}
-                                  <ErrorMessage
-                                    name="items"
-                                    className="text-danger"
-                                    component="div"
-                                  />
-                                
-                                <div className="d-flex justify-content-end pe-3">
-                                  <button
-                                    type="submit"
-                                    className="btn btn-sm mt-2 px-5 py-2"
-                                    style={{ backgroundColor: '#D93D6E', color: "white", fontSize:"15px" }}
-                                  >
-                                    Save
-                                  </button>
-                                </div>
-                                </>
-                                
-                                </div>
-                      </div>
-                  
-                </Form>
-              )}
-            </Formik>
-          </div>
+                  <div className="mb-3">
+                    <label htmlFor="widget_type" className="form-label">
+                      Widget Type:
+                    </label>
+                    <Field
+                      disabled
+                      as="select"
+                      id="widget_type"
+                      name="widget_type"
+                      className="form-select"
+                      onChange={(e) => {
+                        handleWidgetChange(e);
+                        setFieldValue("widget_type", e.target.value);
+                        setFieldValue("items", []);
+                      }}
+                      style={{ width: '50%' }}
+                    >
+                      <option value="">Select Widget</option>
+                      <option value="slideshow">Slide Show</option>
+                      <option value="categories">Categories</option>
+                      <option value="brands">Brands</option>
+                      <option value="products">Products</option>
+                      <option value="featured_categories">
+                        Featured Categories
+                      </option>
+                      <option value="featured_brand">Featured Brand</option>
+                    </Field>
+                    {/* <ErrorMessage name="widget_type" component="div" /> */}
+                    {errors.widget_type && (
+                      <p className="text-danger">{errors.widget_type}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
 
-          
+              <div className="card">
+                <div className="card-body">
+                  {/* items selection according to widget selection */}
+                  <>
+                    {widgetType === "slideshow" && showItemForm && (
+                      <SlideShowWidget
+
+                        values={values}
+                        formData={formData}
+                        brands={brands}
+                        setFieldValue={setFieldValue}
+                        onDragEnd={onDragEnd}
+                        showButton={showButton}
+                        combinedOptions={combinedOptions}
+                        handleAddItem={handleAddItem}
+                        handleSelectIdChange={handleSelectIdChange}
+                        handleDestinationChange={handleDestinationChange}
+                        fetchedId={fetchedId}
+                        
+                      />
+                    )}
+                    {widgetType === "categories" && showItemForm && (
+                      <CategoryWidget
+                        values={values}
+                        setFieldValue={setFieldValue}
+                        onDragEnd={onDragEnd}
+                        showButton={showButton}
+                        categories={categories}
+                        handleAddItem={handleAddItem}
+                      />
+                    )}
+                    {widgetType === "brands" && showItemForm && (
+                      <BrandWidget
+                        values={values}
+                        setFieldValue={setFieldValue}
+                        onDragEnd={onDragEnd}
+                        showButton={showButton}
+                        brands={brands}
+                        handleAddItem={handleAddItem}
+                      />
+                    )}
+
+                    {widgetType === "products" && showItemForm && (
+                      <ProductWidget
+                        values={values}
+                        setFieldValue={setFieldValue}
+                        onDragEnd={onDragEnd}
+                        showButton={showButton}
+                        productOptions={prodOption}
+                        handleAddItem={handleAddItem}
+                        handleSelectIdChange={handleSelectIdChange}
+                      />
+                    )}
+                    {widgetType === "featured_brand" && showItemForm && (
+                      <FeaturedBrand
+                        values={values}
+                        setFieldValue={setFieldValue}
+                        onDragEnd={onDragEnd}
+                        showButton={showButton}
+                        productOptions={prodOption}
+                        featuredBrandProducts={featuredBrandProducts}
+                        brands={brands}
+                        handleAddItem={handleAddItem}
+                        handleFeaturedBrandChange={handleFeaturedBrandChange}
+                      />
+                    )}
+                    {widgetType === "featured_categories" && showItemForm && (
+                      <FeaturedCategories
+                        values={values}
+                        setFieldValue={setFieldValue}
+                        onDragEnd={onDragEnd}
+                        showButton={showButton}
+                        productOptions={prodOption}
+                        featuredCategoryProducts={featuredCategoryProducts}
+                        categories={categories}
+                        handleAddItem={handleAddItem}
+                        handleFeaturedCategoryChange={
+                          handleFeaturedCategoryChange
+                        }
+                      />
+                    )}
+                    <ErrorMessage
+                      name="items"
+                      className="text-danger"
+                      component="div"
+                    />
+
+                    <div className="d-flex justify-content-end pe-3">
+                      <button
+                        type="submit"
+                        className="btn btn-sm mt-2 px-5 py-2"
+                        style={{ backgroundColor: '#D93D6E', color: "white", fontSize: "15px" }}
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </>
+
+                </div>
+              </div>
+
+            </Form>
+          )}
+        </Formik>
+      </div>
+
+
 
 
       {/* </DndProvider> */}

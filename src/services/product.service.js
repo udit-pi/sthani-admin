@@ -85,6 +85,34 @@ const syncProductsIQ = async () => {
 }
 
 
+const importProducts = async (products, shouldImport) => {
+    try {
+      const res = await axiosInstance.post(API_URL + "products/import", products);
+      return res.data;
+    } catch (err) {
+      console.error("Error importing product:", err);
+      throw err;
+    }
+  };
+  
+  const validateProducts = async (formData, shouldImport) => {
+    const endpoint = shouldImport ? `${API_URL}products/import` : `${API_URL}products/validate`;
+    try {
+      const res = await axiosInstance.post(endpoint, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      
+      return res.data;
+    } catch (err) {
+      console.error("Error validating product:", err);
+      throw err;
+    }
+  };
+
+
 
 const ProductService = {
     getProducts,
@@ -92,6 +120,8 @@ const ProductService = {
     saveProduct,
     updateProduct,
     deleteProduct,
-    syncProductsIQ
+    syncProductsIQ,
+    importProducts,
+    validateProducts
 }
 export default ProductService;

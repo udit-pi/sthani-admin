@@ -60,13 +60,29 @@ const deleteBrandById = async(id) => {
    
 }
 
+const validateBrands = async (formData, shouldImport) => {
+    const endpoint = shouldImport ? `${API_URL}import` : `${API_URL}validate`;
+    try {
+      const res = await axiosInstance.post(endpoint, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return res.data;
+    } catch (err) {
+      console.error("Error validating/importing brand:", err);
+      throw err;
+    }
+  };
+
 
 const BrandService = {
     getBrands,
     saveBrand,
     getBrand,
     updateBrandById,
-    deleteBrandById
+    deleteBrandById,
+    validateBrands
    
 }
 

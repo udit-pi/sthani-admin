@@ -183,7 +183,7 @@ const CategoryWidget = ({
                                             name={`items.${index}.image`}
                                           />
                                           
-                                        </div>
+                                        </div> 
                                       </div>
                                     </div>
                                   </div>

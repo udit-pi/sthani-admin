@@ -129,13 +129,36 @@ export const deleteWidget = createAsyncThunk(
 
 
 const homeWidgetSlice = createSlice({
-    name: 'home',
-    initialState,
-    reducers: { },
-    extraReducers(builder) {
-        
-    }
-})
+  name: 'home',
+  initialState,
+  reducers: {},
+  extraReducers(builder) {
+    builder
+      .addCase(fetchAllwidget.fulfilled, (state, action) => {
+        state.widgets = action.payload;
+      })
+      .addCase(updateWidget.fulfilled, (state, action) => {
+        const index = state.widgets.findIndex(widget => widget.id === action.payload.id);
+        if (index !== -1) {
+          state.widgets[index] = action.payload;
+        }
+      });
+  }
+});
+
+export const updateWidgetStatus = createAsyncThunk(
+  "home/updateWidgetStatus",
+  async ({ id, is_active }, thunkAPI) => {
+      try {
+          const data = await HomeWidgetService.updateWidgetStatus(id, is_active);
+          return data;
+      } catch (error) {
+          const message = (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
+          thunkAPI.dispatch(setMessage(message));
+          return thunkAPI.rejectWithValue();
+      }
+  }
+);
 
 
 export default homeWidgetSlice.reducer

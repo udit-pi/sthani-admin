@@ -141,7 +141,9 @@ const CreateHomeWidget = () => {
     const res = await dispatch(addWidget(values)).unwrap();
     if (res) {
       toast.success("Widget created successfully!");
-      navigate("/homePage");
+     // navigate("/homePage");
+    }else {
+      toast.error("Widget saving Failed. Please ensure all fields are filled");
     }
   };
 

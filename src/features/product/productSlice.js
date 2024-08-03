@@ -14,7 +14,9 @@ let initialState = {
   totalResults: 1,
   syncResults: null, 
   isLoading: false,
-  error: null
+  error: null,
+  validationResults: [], // Initialize validationResults
+  isValid: false // Initialize isValid
 
 };
 
@@ -116,6 +118,40 @@ export const updateProduct = createAsyncThunk(
   }
 );
 
+export const importProducts = createAsyncThunk('product/importProducts', async (products, thunkAPI) => {
+  try {
+    const data = await ProductService.importProducts(products);
+    return data;
+  } catch (error) {
+    const message =
+        (error.response && error.response.data && error.response.data.message) ||
+        error.message ||
+        error.toString();
+      thunkAPI.dispatch(setMessage(message));
+      return thunkAPI.rejectWithValue(message); 
+    }
+});
+
+
+
+export const validateProductsImport = createAsyncThunk('product/validateProductsImport', async ({ file, shouldImport = false }, thunkAPI) => {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await ProductService.validateProducts(formData, shouldImport);
+    return response;
+  } catch (error) {
+    const message =
+      (error.response && error.response.data && error.response.data.message) ||
+      error.message ||
+      error.toString();
+    thunkAPI.dispatch(setMessage(message));
+    return thunkAPI.rejectWithValue(message);
+  }
+});
+
+
 export const syncProductsWithIQ = createAsyncThunk(
   "product/syncProductsWithIQ",
   async (_, thunkAPI) => {
@@ -176,6 +212,28 @@ const productSlice = createSlice({
         state.error = action.payload;  // Error message or object
         state.isLoading = false;
         state.syncResults = null;  // Ensure clean state on error
+      })
+      .addCase(validateProductsImport.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+        state.validationResults = [];
+        state.isValid = false;
+      })
+      .addCase(validateProductsImport.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        if (action.meta.arg.shouldImport) {
+          state.importResults = action.payload.importResults;
+        } else {
+          state.validationResults = action.payload.validationResults;
+          state.isValid = action.payload.isValid;
+        }
+        state.isLoading = false;
+      })
+      .addCase(validateProductsImport.rejected, (state, action) => {
+        state.error = action.payload;
+        state.isLoading = false;
+        state.validationResults = [];
+        state.isValid = false;
       });
   }
 });

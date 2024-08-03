@@ -42,8 +42,10 @@ const updateWidgetById = async(id,updatedData) => {
           headers: {
             'Content-Type': 'multipart/form-data',
           },});
-      return res.data
+      
+          return res.data
   }  catch (err) {
+      
       console.log(err)
   }
  
@@ -60,14 +62,22 @@ const deleteWidgetById = async(id) => {
  
 }
 
-
+const updateWidgetStatus = async(id, is_active) => {
+  try {
+      const res = await axiosInstance.patch(API_URL + "home/" + id + "/status", { is_active });
+      return res.data;
+  } catch (err) {
+      console.log(err);
+  }
+}
 
 const HomeWidgetService = {
     savehomeWidget,
     getAllWidgets,
     getWidget,
     updateWidgetById,
-    deleteWidgetById
+    deleteWidgetById,
+    updateWidgetStatus
    
 }
 

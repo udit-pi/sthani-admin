@@ -1,6 +1,7 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import DataTable from "react-data-table-component";
 import Layout from "../../components/layouts/Layout";
+import * as XLSX from 'xlsx';
 
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,7 +15,7 @@ import {
 // import { faCircleInfo } from '@fortawesome/free-solid-svg-icons'
 // import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { toast } from "react-toastify";
-
+ 
 import { FaCircle } from "react-icons/fa";
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
@@ -47,7 +48,7 @@ const Category = () => {
   const [filteredCategories, setFilteredCategories] = useState([]);
   const [open, setOpen] = useState(false);
   const [deleteId, setdeleteId] = useState("");
-
+  const [exportData, setExportData] = useState([]);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -112,6 +113,35 @@ const Category = () => {
     );
     // Dispatch the action to update the Redux state
     dispatch(editCategory({ id, updateData: { sort_order: newSortOrder } }));
+  };
+
+  useEffect(() => {
+    if (categories.length > 0) {
+      const formattedData = categories.map(category => {
+        const parentCategory = categories.find(cat => cat.id === category.parent_category);
+        return {
+        'Slug': category.slug,
+        'Name': category.name,
+        'Description': category.description,
+        'Parent Category':  parentCategory ? parentCategory.slug : '',
+        'Icon': category.icon ? `${mediaFolder}/${category.icon}` : '',
+        'Is Featured': category.is_featured,
+        'Banner': category.banner ? `${mediaFolder}/${category.banner}` : '',
+        'Slideshow': category.slide_show ? category.slide_show.map(slide => `${mediaFolder}/${slide}`).join(', ') : '',
+        'Tag': category.tag,
+        'Sort Order': category.sort_order
+      };
+    });
+      setExportData(formattedData);
+    }
+  }, [categories]);
+
+  const handleExport = () => {
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Categories');
+
+    XLSX.writeFile(workbook, 'categories.xlsx');
   };
 
   // filteredCategories.forEach((cat, index) => {
@@ -268,6 +298,22 @@ const Category = () => {
               <div
                 style={{ display: "flex", flexDirection: "row", gap: "10px" }}
               >
+                <button  style={{
+                    backgroundColor: "#000",
+                    color: "white",
+                    width: "180px",
+                  }} className="btn btn-black" onClick={handleExport}>Export</button>
+                <Link
+                  to={`/categoryimport`}
+                  className="btn "
+                  style={{
+                    backgroundColor: "#000",
+                    color: "white",
+                    width: "200px",
+                  }}
+                >
+                  Import
+                </Link>
                 <Link
                   to={`/addcategory`}
                   className="btn "

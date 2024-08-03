@@ -120,6 +120,24 @@ export const deleteBrand = createAsyncThunk(
   }
 );
 
+// Define the thunk for validating and importing brands
+export const validateBrandsImport = createAsyncThunk('brand/validateBrandsImport', async ({ file, shouldImport = false }, thunkAPI) => {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await BrandService.validateBrands(formData, shouldImport); // Use BrandService
+    return response;
+  } catch (error) {
+    const message =
+      (error.response && error.response.data && error.response.data.message) ||
+      error.message ||
+      error.toString();
+    thunkAPI.dispatch(setMessage(message));
+    return thunkAPI.rejectWithValue(message);
+  }
+});
+
 
 const brandSlice = createSlice({
     name: 'brand',
@@ -146,6 +164,19 @@ const brandSlice = createSlice({
       //  state.totalResults = action.payload.totalResults
 
       })
+
+      builder.addCase(validateBrandsImport.pending, (state) => {
+        state.status = 'loading';
+      })
+      builder.addCase(validateBrandsImport.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.validationResults = action.payload.validationResults;
+        state.isValid = action.payload.isValid;
+      })
+      builder.addCase(validateBrandsImport.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+      });
 
       
     }
