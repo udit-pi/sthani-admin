@@ -112,6 +112,11 @@ const importProducts = async (products, shouldImport) => {
     }
   };
 
+  const getProductsByBrand = async (brandId) => {
+    const res =await axiosInstance.get(`${API_URL}products/brand/${brandId}`);
+    return res.data;
+  };
+
 
 
 const ProductService = {
@@ -122,6 +127,7 @@ const ProductService = {
     deleteProduct,
     syncProductsIQ,
     importProducts,
-    validateProducts
+    validateProducts,
+    getProductsByBrand
 }
 export default ProductService;

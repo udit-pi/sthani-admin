@@ -185,6 +185,19 @@ export const syncProductsWithIQ = createAsyncThunk(
   }
 );
 
+export const fetchProductsByBrand = createAsyncThunk(
+  'products/fetchByBrand',
+  async ({ brandId }, thunkAPI) => {
+    try {
+      const response = await ProductService.getProductsByBrand(brandId);
+      
+      return response;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data);
+    }
+  }
+);
+
 
 
 const productSlice = createSlice({
@@ -234,6 +247,18 @@ const productSlice = createSlice({
         state.isLoading = false;
         state.validationResults = [];
         state.isValid = false;
+      })
+      .addCase(fetchProductsByBrand.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchProductsByBrand.fulfilled, (state, action) => {
+        state.loading = false;
+        state.products = action.payload;
+      })
+      .addCase(fetchProductsByBrand.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   }
 });
