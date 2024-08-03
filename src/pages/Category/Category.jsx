@@ -39,7 +39,7 @@ const style = {
   px: 4,
   pb: 5,
 };
-
+const debugMode = process.env.REACT_APP_DEBUG || "";
 const Category = () => {
   const { user: currentUser } = useSelector((state) => state.auth);
   const allCategories = useSelector(getAllCategories);
@@ -298,6 +298,8 @@ const Category = () => {
               <div
                 style={{ display: "flex", flexDirection: "row", gap: "10px" }}
               >
+                {debugMode && (
+              <div>
                 <button  style={{
                     backgroundColor: "#000",
                     color: "white",
@@ -333,6 +335,8 @@ const Category = () => {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
+                </div>
+                )}
               </div>
             </div>
             <div className="table-responsive">
