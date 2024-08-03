@@ -1,12 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "../../components/layouts/Layout";
-import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
-
 import { Formik, Form, Field, FieldArray, ErrorMessage } from "formik";
 import { addBrandValidation } from "../../validations/addBrandValidation";
 import { FaArrowLeft } from "react-icons/fa";
-import { useDispatch, useSelector } from "react-redux";
+import { IoMdClose } from "react-icons/io";
 import { toast } from "react-toastify";
 import {
   addBrand,
@@ -14,16 +13,19 @@ import {
   getBrand,
   updateBrand,
 } from "../../features/brand/brandSlice";
-import { IoMdClose } from "react-icons/io";
+import TrendingProductsCard from "./TrendingProductsCard"; // Adjust the import based on your project structure
+
 const mediaFolder = process.env.REACT_APP_MEDIA_URL;
+const debugMode = process.env.REACT_APP_DEBUG || "";
 const EditBrand = () => {
   const [loading, setLoading] = useState(false);
-  const [error, seError] = useState([]);
+  const [error, setError] = useState([]);
   const brand = useSelector(getBrand);
   const { id } = useParams();
-  const [uploadImages, setUploadImages] = useState([])
-  const [deletedImages, setDeletedImages] = useState([])
-  const [brands, setbrands] = useState({})
+  const [uploadImages, setUploadImages] = useState([]);
+  const [deletedImages, setDeletedImages] = useState([]);
+  const [brands, setBrands] = useState({});
+  const [trendingProducts, setTrendingProducts] = useState([]);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -35,41 +37,28 @@ const EditBrand = () => {
     website: "",
     images: [],
     labels: [],
-    slide_show: []
+    slide_show: [],
+    trending_products: [],
   };
 
   const fetchBrand = async () => {
-    const res = await dispatch(fetchBrandById({ id })).unwrap()
+    await dispatch(fetchBrandById({ id })).unwrap()
       .then(res => {
-        console.log("then", res)
-
-        setbrands(res);
+        console.log("then", res);
+        setBrands(res);
         setUploadImages(res.images);
+        setTrendingProducts(res.trending_products || []);
         initialValues.name = res.name;
         initialValues.description = res.description;
         initialValues.website = res.website;
         initialValues.images = [];
-        initialValues.slide_show = res.slide_show
+        initialValues.slide_show = res.slide_show;
+        initialValues.trending_products = res.trending_products || [];
       })
       .catch(err => {
-        console.log(err)
+        console.log(err);
       });
-
-    // setcategory(res)
-    // initialValues.name = res.name;
-    // initialValues.description = res.description;
-    // initialValues.website = res.website;
-    //  initialValues.images = [];
-    //  initialValues.slide_show=res.slide_show
-
-
-    // setFilteredCategories(res);
   };
-
-  const imageBaseUrl = `${process.env.REACT_APP_MEDIA_URL}`;
-  // const imageBaseUrl = "http://165.22.222.184/api/uploads/";
-  // const imageBaseUrl = "https://64.227.162.145/api/uploads/";
-
 
   const url = mediaFolder;
 
@@ -78,35 +67,29 @@ const EditBrand = () => {
   }, [dispatch]);
 
   const handleSubmit = async (values) => {
-    //  values.deletedImages = deletedImages
-    //  console.log(values);
     const updatedValues = {
       ...values,
-      deletedImages: deletedImages
+      deletedImages: deletedImages,
+      trending_products: trendingProducts,
     };
 
     const res = await dispatch(updateBrand({ id, values: updatedValues })).unwrap();
-    console.log(res);
     if (res) {
       toast.success("Brand updated successfully!");
       navigate("/brand");
     }
   };
 
-
   const handleImageDelete = (id) => {
-
-    //  console.log(uploadImages)
-    const newImages = uploadImages.filter(img => img._id !== id)
-    setUploadImages(newImages)
+    const newImages = uploadImages.filter(img => img._id !== id);
+    setUploadImages(newImages);
     setDeletedImages(prevDeletedImages => [...prevDeletedImages, id]);
-    // console.log(newImages);
-  }
-  console.log(deletedImages)
+  };
 
   const goBack = () => {
     window.history.back();
   };
+
   return (
     <Layout>
       <div className="col-12 stretch-card container-fluid">
@@ -138,7 +121,7 @@ const EditBrand = () => {
                       id="name"
                       name="name"
                       aria-describedby="nameHelp"
-                    ></Field>
+                    />
                     {errors.name && (
                       <small className="text-danger">
                         {errors.name}
@@ -153,18 +136,17 @@ const EditBrand = () => {
                       Description
                     </label>
                     <Field
-                      type="code"
+                      type="text"
                       className="form-control"
                       id="description"
                       name="description"
-                    ></Field>
+                    />
                     {errors.description && (
                       <small className="text-danger">
                         {errors.description}
                       </small>
                     )}
                   </div>
-
                   <div className="mb-4">
                     <label
                       htmlFor="color"
@@ -178,16 +160,14 @@ const EditBrand = () => {
                       id="color"
                       name="color"
                       placeholder="Select a color"
-                      style={{width:"100px"}}
-                    ></Field>
+                      style={{ width: "100px" }}
+                    />
                     {errors.color && (
                       <small className="text-danger">
                         {errors.color}
                       </small>
                     )}
                   </div>
-
-
                   <div className="mb-4">
                     <label
                       htmlFor="website"
@@ -196,50 +176,33 @@ const EditBrand = () => {
                       Website
                     </label>
                     <Field
-                      type="website"
+                      type="url"
                       className="form-control"
                       id="website"
                       name="website"
-                    ></Field>
+                    />
                     {errors.website && (
                       <small className="text-danger">
                         {errors.website}
                       </small>
                     )}
                   </div>
-
-
-
-
-                  {
-                    // error && (
-                    //     <div className='alert alert-danger' role='alert'>{error}</div>
-                    // )
-                  }
                 </div>
               </div>
               <div className="card">
                 <div className="card-body">
-
                   <div style={{ display: "flex", gap: "40px", marginTop: "30px" }}>
                     <div className="mb-4">
                       <label htmlFor="logo" className="form-label">
                         Logo
                       </label>
-
-
                       <input
                         type="file"
                         className="form-control"
-                        id="image"
-                        name="image"
-
+                        id="logo"
+                        name="logo"
                         onChange={(event) => {
-                          // Set the uploaded file to Formik state
-                          setFieldValue(
-                            "logo",
-                            event.currentTarget.files[0]
-                          );
+                          setFieldValue("logo", event.currentTarget.files[0]);
                         }}
                       />
                       {errors.logo && (
@@ -248,106 +211,73 @@ const EditBrand = () => {
                         </small>
                       )}
                     </div>
-
-                    {typeof values.logo == "string" && values.logo && <div className="mb-2">
-
-                      <img src={url + values.logo} height="150px" />
-
-                    </div>}
-
-                    {values.logo && values.logo instanceof File && <div>
-
-                      <img src={URL.createObjectURL(values.logo)} height="150px" />
-
-                    </div>}
+                    {typeof values.logo === "string" && values.logo && (
+                      <div className="mb-2">
+                        <img src={url + values.logo} height="150px" alt="Logo" />
+                      </div>
+                    )}
+                    {values.logo && values.logo instanceof File && (
+                      <div>
+                        <img src={URL.createObjectURL(values.logo)} height="150px" alt="Logo Preview" />
+                      </div>
+                    )}
                   </div>
                   <h6>Images:</h6>
                   <div className="row mt-4 mb-2">
-                    {uploadImages?.map((image, key) => {
-                      return (
-                        <div key={key} class="col-md-3 grid-item">
-                          <img
-                            src={url + image.value}
-                            className="img-fluid"
-                            alt="Image 2"
-                            width={150}
-                            height={150}
-                          ></img>
-                          <p>{image.label}</p>
-                          <button className="btn btn-sm btn-danger" onClick={() => handleImageDelete(image._id)}>Remove</button>
-                        </div>
-
-                      );
-                    })}
+                    {uploadImages?.map((image, key) => (
+                      <div key={key} className="col-md-3 grid-item">
+                        <img
+                          src={url + image.value}
+                          className="img-fluid"
+                          alt="Brand"
+                          width={150}
+                          height={150}
+                        />
+                        <p>{image.label}</p>
+                        <button className="btn btn-sm btn-danger" onClick={() => handleImageDelete(image._id)}>Remove</button>
+                      </div>
+                    ))}
                   </div>
-                  <div >
+                  <div>
                     <h4>Upload Images</h4>
-                    <FieldArray name="images" >
+                    <FieldArray name="images">
                       {({ push, remove }) => (
                         <div>
                           {values.images && values.images.map((image, index) => (
                             <div key={index} style={{ display: "flex", gap: "30vh" }}>
                               <div className="mb-1">
-
-
                                 <input
                                   type="file"
                                   className="form-control"
-                                  // height={20}    
                                   onChange={(event) => {
-                                    const file =
-                                      event.currentTarget.files[0];
-                                    setFieldValue(
-                                      `images[${index}]`,
-                                      file
-                                    );
+                                    const file = event.currentTarget.files[0];
+                                    setFieldValue(`images[${index}]`, file);
                                   }}
                                 />
                               </div>
                               <div style={{ marginBottom: '1rem' }}>
-                                <label htmlFor="label" style={{ fontWeight: "bold", marginBottom: '0.5rem', marginRight: "10px" }}>
+                                <label htmlFor={`labels.${index}`} style={{ fontWeight: "bold", marginBottom: '0.5rem', marginRight: "10px" }}>
                                   Label:
                                 </label>
                                 <Field
                                   as="select"
-                                  id="label"
+                                  id={`labels.${index}`}
                                   name={`labels.${index}`}
                                   placeholder="Select label"
-                                  //   className="form-select"
                                   style={{ padding: '0.5rem', borderRadius: '5px', border: '1px solid #ccc' }}
                                 >
-                                  <option value="">
-                                    Select Label
-                                  </option>
-                                  <option value="cover">
-                                    Cover Image (Used as Background)
-                                  </option>
-
-                                  {/* Add more options as needed */}
+                                  <option value="">Select Label</option>
+                                  <option value="cover">Cover Image (Used as Background)</option>
                                 </Field>
-                                <ErrorMessage
-                                  name="label"
-                                  component="div"
-                                />
+                                <ErrorMessage name={`labels.${index}`} component="div" />
                               </div>
-                              <ErrorMessage
-                                name={`images[${index}]`}
-                                component="div"
-                              />
-                              {/* <button
-                                            type="button"
-                                            className="btn btn-sm btn-danger"
-                                            onClick={() => remove(index)}
-                                          >
-                                            Remove
-                                          </button> */}
+                              <ErrorMessage name={`images[${index}]`} component="div" />
                               <IoMdClose size={32} color="#D93D6E" onClick={() => remove(index)} cursor="pointer" />
-
                             </div>
                           ))}
                           <button
                             type="button"
-                            className="btn btn-sm  mt-2"
+                            className="btn btn-sm mt-2"
                             onClick={() => push({ label: '', file: null })}
                             style={{ backgroundColor: 'transparent', border: "1px solid #D93D6E" }}
                           >
@@ -357,11 +287,6 @@ const EditBrand = () => {
                       )}
                     </FieldArray>
                   </div>
-
-
-
-
-
                 </div>
               </div>
               <div className="card">
@@ -370,8 +295,6 @@ const EditBrand = () => {
                     <label htmlFor="slide_show" className="form-label">
                       Slideshow image
                     </label>
-
-
                     <input
                       type="file"
                       className="form-control"
@@ -380,14 +303,11 @@ const EditBrand = () => {
                       multiple
                       onChange={(event) => {
                         const newFiles = Array.from(event.currentTarget.files);
-                        // Create a new object with the updated 'slide_show' property
                         const updatedValues = {
-                          ...values, // Spread the existing values
+                          ...values,
                           slide_show: values.slide_show ? values.slide_show.concat(newFiles) : newFiles,
                         };
-                        // Update 'values' using Formik's setValues function
                         setFieldValue('slide_show', updatedValues.slide_show);
-
                       }}
                     />
                     {errors.logo && (
@@ -396,79 +316,61 @@ const EditBrand = () => {
                       </small>
                     )}
                   </div>
-
                   <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
-
-
                     {values.slide_show && values.slide_show.map((image, index) => (
-
-                      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-
-
-
-                        {typeof image === "string" && <img src={url + image} height="150px" />}
-
-                        {typeof image === "string" && <button
-                          type="button"
-                          className="btn btn-sm  mt-2"
-                          onClick={() => {
-                            setFieldValue('slide_show', values.slide_show.filter((_, i) => i !== index));
-                            console.log(values.slide_show)
-                          }}
-                          style={{ backgroundColor: 'transparent', border: "1px solid #D93D6E" }}
-                        >
-                          Remove Image
-                        </button>}
+                      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }} key={index}>
+                        {typeof image === "string" && (
+                          <>
+                            <img src={url + image} height="150px" alt="Slideshow" />
+                            <button
+                              type="button"
+                              className="btn btn-sm mt-2"
+                              onClick={() => {
+                                setFieldValue('slide_show', values.slide_show.filter((_, i) => i !== index));
+                              }}
+                              style={{ backgroundColor: 'transparent', border: "1px solid #D93D6E" }}
+                            >
+                              Remove Image
+                            </button>
+                          </>
+                        )}
+                        {typeof image !== "string" && (
+                          <>
+                            <img src={URL.createObjectURL(image)} height="150px" alt="Slideshow Preview" />
+                            <button
+                              type="button"
+                              className="btn btn-sm mt-2"
+                              onClick={() => {
+                                setFieldValue('slide_show', values.slide_show.filter((_, i) => i !== index));
+                              }}
+                              style={{ backgroundColor: 'transparent', border: "1px solid #D93D6E" }}
+                            >
+                              Remove Image
+                            </button>
+                          </>
+                        )}
                       </div>
-
                     ))}
-
-
-
-
-                    {values.slide_show && values.slide_show.map((image, index) => (
-
-                      <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-
-
-
-                        {typeof image != "string" && <img src={URL.createObjectURL(image)} height="150px" />}
-
-                        {typeof image != "string" && <button
-                          type="button"
-                          className="btn btn-sm  mt-2"
-                          onClick={() => {
-                            setFieldValue('slide_show', values.slide_show.filter((_, i) => i !== index));
-                            console.log(values.slide_show)
-                          }}
-                          style={{ backgroundColor: 'transparent', border: "1px solid #D93D6E" }}
-                        >
-                          Remove Image
-                        </button>}
-                      </div>
-
-                    ))}
-
-
-
                   </div>
-
                 </div>
               </div>
+              <TrendingProductsCard
+                brandId={id}
+                trendingProducts={trendingProducts}
+                setTrendingProducts={setTrendingProducts}
+              />
               <button
-                className="btn  w-100 py-8 fs-4 mb-4 rounded-2 mt-4"
+                className="btn w-100 py-8 fs-4 mb-4 rounded-2 mt-4"
                 type="submit"
                 style={{ backgroundColor: '#D93D6E', color: "white" }}
               >
                 {loading ? "Loading..." : "Edit Brand"}
               </button>
             </Form>
-
           )}
-
         </Formik>
-
       </div>
+      {debugMode && <div> Trending Products <pre>{JSON.stringify(trendingProducts)}</pre></div>}
     </Layout>
   );
 };
