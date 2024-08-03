@@ -17,7 +17,7 @@ import exportToExcel from '../../utils/exportToExcel';
 
 
 const mediaFolder = process.env.REACT_APP_MEDIA_URL;
-
+const debugMode = process.env.REACT_APP_DEBUG || "";
 const Product = () => {
   const { user: currentUser } = useSelector((state) => state.auth);
   const allCategories = useSelector(getAllCategories);
@@ -372,8 +372,12 @@ const Product = () => {
             style={{ display: "flex", flexDirection: "row", gap: "10px" }}
           >
             <div><button onClick={handleSyncClick} className="me-2 btn btn-dark" disabled={isLoading}>{isLoading ? 'Syncing...' : 'Sync with IQ'}</button></div>
+            {debugMode && (
+              <div>
             <div><button onClick={handleExport} className="me-2 btn btn-dark">Export</button></div>
             <div><Link to={`/productimport`} className="me-2 btn btn-dark">Import</Link></div>
+            </div>
+             )}
             <div><Link
               to={`/editproduct`}
               className="btn"
