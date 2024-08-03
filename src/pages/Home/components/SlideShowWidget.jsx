@@ -23,7 +23,7 @@ const SlideShowWidget = ({
   formData,
   fetchedId
 }) => {
-
+ 
 
   const imageBaseUrl = `${process.env.REACT_APP_MEDIA_URL}`;
 
