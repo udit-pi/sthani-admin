@@ -61,13 +61,13 @@ const HomeWidget = () => {
             <p className="">{homeWidgets?.length} widgets</p>
           </div>
           <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-            <Link
+            {/* <Link
               to={`/addWidget`}
               className="btn"
               style={{ backgroundColor: "#D93D6E", color: "white", width: "200px" }}
             >
               Add Widget
-            </Link>
+            </Link> */}
           </div>
         </div>
         <div className="d-flex flex-wrap">

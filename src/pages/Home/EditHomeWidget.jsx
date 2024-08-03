@@ -396,11 +396,11 @@ const EditHomeWidget = () => {
 
 
             <Form>
-
+              <h4 className="mb-4 badge bg-dark" style={{textTransform:"uppercase"}} >{values.widget_type}</h4>
               <div className="card">
                 <div className="card-body">
 
-                  <div className="mb-3">
+                  {/* <div className="mb-3">
                     <label htmlFor="placement_id" className="form-label">
                       Placement:
                     </label>
@@ -419,23 +419,13 @@ const EditHomeWidget = () => {
                           </option>
                         );
                       })}
-                      {/* <option value="p1">Position 1</option>
-                                    <option value="p2">Position 2</option>
-                                    <option value="p3">Position 3</option>
-                                    <option value="p4">Position 4</option>
-                                    <option value="p5">Position 5</option>
-                                    <option value="p6">Position 6</option>
-                                    <option value="p7">Position 7</option>
-                                    <option value="p8">Position 8</option>
-                                    <option value="p9">Position 9</option>
-                                    <option value="p10">Position 10</option> */}
-                      {/* Add more options as needed */}
+                     
                     </Field>
-                    {/* <ErrorMessage name="placement_id" component="div" /> */}
+                    
                     {errors.placement_id && (
                       <p className="text-danger">{errors.placement_id}</p>
                     )}
-                  </div>
+                  </div> */}
                   <div className="mb-3">
                     <label htmlFor="title" className="form-label">
                       Title
@@ -472,7 +462,7 @@ const EditHomeWidget = () => {
 
 
 
-                  <div className="mb-3">
+                  {/* <div className="mb-3">
                     <label htmlFor="widget_type" className="form-label">
                       Widget Type:
                     </label>
@@ -499,11 +489,11 @@ const EditHomeWidget = () => {
                       </option>
                       <option value="featured_brand">Featured Brand</option>
                     </Field>
-                    {/* <ErrorMessage name="widget_type" component="div" /> */}
+                    
                     {errors.widget_type && (
                       <p className="text-danger">{errors.widget_type}</p>
                     )}
-                  </div>
+                  </div> */}
                 </div>
               </div>
 
