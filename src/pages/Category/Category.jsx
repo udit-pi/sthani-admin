@@ -327,7 +327,8 @@ const Category = () => {
                 >
                   Add Category
                 </Link>
-
+                </div>
+                )}
                 <input
                   type="text"
                   className="w-30 form-control"
@@ -335,8 +336,7 @@ const Category = () => {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
-                </div>
-                )}
+                
               </div>
             </div>
             <div className="table-responsive">
