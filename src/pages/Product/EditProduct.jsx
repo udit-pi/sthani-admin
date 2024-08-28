@@ -66,6 +66,9 @@ const EditProductNew = () => {
   const [productTags, setProductTags] = useState([]); // Holds the tags
   const [tagInput, setTagInput] = useState(''); // Holds the current input value
 
+  const [descriptionShortImagePreview, setDescriptionShortImagePreview] = useState(''); // State to hold image preview
+
+
   const handleInputChange = (e) => {
     setTagInput(e.target.value);
     if (e.target.value.includes(',')) { // Split tags on comma
@@ -106,6 +109,8 @@ const EditProductNew = () => {
     name: "",
     description: "",
     description_short: "",
+    description_short_title: "",
+    description_short_image: "",
     sku: "",
     weight: 0,
     length: 0,
@@ -192,6 +197,8 @@ const EditProductNew = () => {
         name: product.name || "",
         description: product.description || "",
         description_short: product.description_short || "",
+        description_short_title: product.description_short_title || "",
+        description_short_image: product.description_short_image || "",
         sku: product.sku || "",
         weight: product.weight || "",
         length: product.length || "",
@@ -222,6 +229,10 @@ const EditProductNew = () => {
       setFormData(product);
       setMediaItems(product.media || []);
       setProductTags(product.productTags || []);
+
+      
+      setDescriptionShortImagePreview(`${mediaFolder}/${product.description_short_image}` || '');
+      
 
     } catch (error) {
       //console.error('Failed to fetch product details:', error);
@@ -254,8 +265,8 @@ const EditProductNew = () => {
 
 
 
-    //console.log(data);
-    //console.log("------------")
+    // console.log(data);
+    // console.log("------------")
     //  console.log(errors)
 
     try {
@@ -350,13 +361,11 @@ const EditProductNew = () => {
                                     <Field type="name" className="form-control" id="name" name="name" aria-describedby="nameHelp"></Field>
                                     {errors.name && <small className="text-danger">{errors.name}</small>}
                                   </div>
-                                  {/* Short Description */}
-                                  <div className="mb-3">
-                                    <label htmlFor="name" className="form-label">Short Description</label>
-                                    <Field as="textarea" name="description_short" className="form-control" rows="2" cols="50" placeholder="Enter short description" />
-                                  </div>
+                                  
+
+
                                   {/* Description */}
-                                  <div className="mb-3">
+                                  <div className="mb-3 pb-3">
                                     <label htmlFor="name" className="form-label">Description</label>
                                     <Field name="description" component={QuillEditor} />
                                     {errors.description && <small className="text-danger">{errors.description}</small>}
@@ -364,6 +373,55 @@ const EditProductNew = () => {
 
                                 </div>
                               </div>
+
+
+                              {/* Short Description Fields */}
+                              <div className="card mb-3">
+                              <div className="card-body">
+                              <div className="form-label">Short Description Block</div>
+                                <div className="mb-3">
+                                    <label htmlFor="description_short_title" className="form-label">Title</label>
+                                    <Field type="text" className="form-control" id="description_short_title" name="description_short_title" />
+                                    <ErrorMessage name="description_short_title" component="small" className="text-danger" />
+                                  </div>
+
+                                  {/* Short Description */}
+                                  <div className="mb-3">
+                                    <label htmlFor="name" className="form-label">Description</label>
+                                    <Field as="textarea" name="description_short" className="form-control" rows="2" cols="50" placeholder="Enter short description" />
+                                  </div>
+
+                                  
+
+                                  {/* Image Upload for Short Description Image */}
+                                  <div className="mb-3">
+                                    <label htmlFor="description_short_image" className="form-label">Image</label>
+                                    <input
+                                      type="file"
+                                      className="form-control"
+                                      id="description_short_image"
+                                      name="description_short_image"
+                                      onChange={(event) => {
+                                        setFieldValue("description_short_image", event.currentTarget.files[0]);
+                                        setDescriptionShortImagePreview(URL.createObjectURL(event.currentTarget.files[0]));
+                                      }}
+                                    />
+                                    {errors.description_short_image && (
+                                      <small className="text-danger">{errors.description_short_image}</small>
+                                    )}
+                                  </div>
+
+                                  {/* Display image preview */}
+                                  
+                                  {descriptionShortImagePreview && (
+                                    <div className="mb-2">
+                                      <img src={descriptionShortImagePreview} height="150px" alt="Preview" />
+                                    </div>
+                                  )}
+
+                                </div>
+                                </div>
+
                               {/* Additional Description */}
                               <div className="card mb-3">
                                 <div className="card-body">
@@ -522,7 +580,7 @@ const EditProductNew = () => {
                                   </div>
                                 </div>
                               </div>
-                              
+
 
                               {/* Variants */}
                               <div className="card mb-3">
